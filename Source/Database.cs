@@ -1,4 +1,4 @@
-using MySql.Data.MySqlClient;
+using Microsoft.Data.Sqlite;
 
 namespace MUDcat6006
 {
@@ -7,7 +7,7 @@ namespace MUDcat6006
 		public bool Configured { get; private set; }
 		public bool Connected { get; private set; }
 		public int Port = 3306;		// default MySQL port
-		private MySqlConnection Connection;
+		private SqliteConnection Connection;
 		private string ConnectionString = string.Empty;
 		public string DatabaseName = "mudcat6006";
 		public string ServerName = "localhost";
@@ -29,7 +29,7 @@ namespace MUDcat6006
 		{
 			Configured = false;
 			Connected = false;
-			Connection = new MySqlConnection();
+			Connection = new SqliteConnection();
 		}
 
 		public void Configure()
@@ -40,13 +40,11 @@ namespace MUDcat6006
 				Disconnect();
 			}
 
-			ConnectionString =
-				// server and port
-				"SERVER=" + ServerName + ";PORT=" + Port + ";" +
-				// database
-				"DATABASE=" + DatabaseName + ";" +
-				// user and password
-				"UID=mudcat6006;PWD=password;";
+			Connection.ConnectionString = new SqliteConnectionStringBuilder()
+			{
+				DataSource = "NorthernLights.db",
+				Mode = SqliteOpenMode.ReadWrite
+			}.ToString();
 			Configured = true;
 		}
 
@@ -58,7 +56,6 @@ namespace MUDcat6006
 				{
 					// go ahead and connect with the prepared connection string
 					ServerInfo.Instance.Report("Connecting to the database...\n");
-					Connection.ConnectionString = ConnectionString;
 					Connection.Open();
 					Connected = true;
 
@@ -72,7 +69,7 @@ namespace MUDcat6006
 				{
 					// this is OK
 				}
-				catch (MySqlException exception)
+				catch (SqliteException exception)
 				{
 					ServerInfo.Instance.Report("Exception caught by the database, \"" + exception.Message + "\"!\n");
 				}
