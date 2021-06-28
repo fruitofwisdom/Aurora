@@ -1,4 +1,4 @@
-﻿namespace MUDcat6006
+﻿namespace Aurora
 {
     partial class MainForm
     {
@@ -31,6 +31,7 @@
             System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chooseDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,7 +43,6 @@
             this.serverStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.connectionsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.chooseDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -66,7 +66,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(16, 5, 0, 5);
-            this.menuStrip1.Size = new System.Drawing.Size(1291, 60);
+            this.menuStrip1.Size = new System.Drawing.Size(1291, 55);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -79,10 +79,17 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(87, 45);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // chooseDatabaseToolStripMenuItem
+            // 
+            this.chooseDatabaseToolStripMenuItem.Name = "chooseDatabaseToolStripMenuItem";
+            this.chooseDatabaseToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.chooseDatabaseToolStripMenuItem.Text = "Choose Database...";
+            this.chooseDatabaseToolStripMenuItem.Click += new System.EventHandler(this.ChooseDatabaseMenuItemClick);
+            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(437, 54);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitMenuItemClick);
             // 
@@ -92,14 +99,14 @@
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem});
             this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
-            this.serverToolStripMenuItem.Size = new System.Drawing.Size(124, 48);
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(124, 45);
             this.serverToolStripMenuItem.Text = "Server";
             // 
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Enabled = false;
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(245, 54);
             this.startToolStripMenuItem.Text = "Start";
             this.startToolStripMenuItem.Click += new System.EventHandler(this.StartMenuItemClick);
             // 
@@ -135,7 +142,7 @@
             this.reportTextBox.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.reportTextBox.Name = "reportTextBox";
             this.reportTextBox.ReadOnly = true;
-            this.reportTextBox.Size = new System.Drawing.Size(1291, 516);
+            this.reportTextBox.Size = new System.Drawing.Size(1291, 521);
             this.reportTextBox.TabIndex = 1;
             this.reportTextBox.Text = "";
             // 
@@ -169,18 +176,11 @@
             // 
             this.panel1.Controls.Add(this.reportTextBox);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 60);
+            this.panel1.Location = new System.Drawing.Point(0, 55);
             this.panel1.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1291, 516);
+            this.panel1.Size = new System.Drawing.Size(1291, 521);
             this.panel1.TabIndex = 3;
-            // 
-            // chooseDatabaseToolStripMenuItem
-            // 
-            this.chooseDatabaseToolStripMenuItem.Name = "chooseDatabaseToolStripMenuItem";
-            this.chooseDatabaseToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
-            this.chooseDatabaseToolStripMenuItem.Text = "Choose Database...";
-            this.chooseDatabaseToolStripMenuItem.Click += new System.EventHandler(this.ChooseDatabaseMenuItemClick);
             // 
             // MainForm
             // 
@@ -194,7 +194,7 @@
             this.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.MinimumSize = new System.Drawing.Size(725, 589);
             this.Name = "MainForm";
-            this.Text = "MUDcat6006";
+            this.Text = "Aurora";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
@@ -211,15 +211,15 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.RichTextBox reportTextBox;
-		private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem consoleToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
-		private System.Windows.Forms.StatusStrip statusStrip1;
-		private System.Windows.Forms.ToolStripStatusLabel serverStatusLabel;
-		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.ToolStripStatusLabel connectionsStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem consoleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel serverStatusLabel;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolStripStatusLabel connectionsStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem chooseDatabaseToolStripMenuItem;
     }
 }

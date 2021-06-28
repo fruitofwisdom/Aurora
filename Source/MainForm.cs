@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
-namespace MUDcat6006
+namespace Aurora
 {
 	public partial class MainForm : System.Windows.Forms.Form
 	{

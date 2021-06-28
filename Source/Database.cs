@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 
-namespace MUDcat6006
+namespace Aurora
 {
 	public class Database
 	{

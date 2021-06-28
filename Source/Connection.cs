@@ -2,7 +2,7 @@
 using System.Threading;
 using System;
 
-namespace MUDcat6006
+namespace Aurora
 {
 	class Connection
 	{
@@ -48,7 +48,7 @@ namespace MUDcat6006
 					byte[] bytes = new byte[256];
 					stream.Read(bytes, 0, bytes.Length);
 				}
-				string welcomeMessage = "Welcome to MUDcat6006!\r\n\r\nWhat is your name? ";
+				string welcomeMessage = "Welcome to Aurora!\r\n\r\nWhat is your name? ";
 				stream.Write(System.Text.Encoding.ASCII.GetBytes(welcomeMessage), 0, welcomeMessage.Length);
 
 				// loop until the client has left and the thread is terminated
