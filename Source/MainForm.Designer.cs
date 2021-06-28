@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chooseDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -82,14 +83,14 @@
             // chooseDatabaseToolStripMenuItem
             // 
             this.chooseDatabaseToolStripMenuItem.Name = "chooseDatabaseToolStripMenuItem";
-            this.chooseDatabaseToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.chooseDatabaseToolStripMenuItem.Size = new System.Drawing.Size(437, 54);
             this.chooseDatabaseToolStripMenuItem.Text = "Choose Database...";
             this.chooseDatabaseToolStripMenuItem.Click += new System.EventHandler(this.ChooseDatabaseMenuItemClick);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(437, 54);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitMenuItemClick);
             // 
@@ -190,6 +191,7 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
             this.MinimumSize = new System.Drawing.Size(725, 589);
