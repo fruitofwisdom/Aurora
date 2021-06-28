@@ -1,4 +1,4 @@
-﻿namespace MUDcat6006
+﻿namespace Aurora
 {
 	public abstract class ServerInfoEventArgs : System.EventArgs {}
 
@@ -9,6 +9,16 @@
 		public ServerInfoConnectionsArgs(int connections)
 		{
 			Connections = connections;
+		}
+	}
+
+	public class ServerInfoDatabaseArgs : ServerInfoEventArgs
+	{
+		public readonly bool Connected;
+
+		public ServerInfoDatabaseArgs(bool connected)
+		{
+			Connected = connected;
 		}
 	}
 

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
+using System.Windows.Forms;
 
-namespace MUDcat6006
+namespace Aurora
 {
 	public partial class MainForm : System.Windows.Forms.Form
 	{
@@ -17,8 +18,14 @@ namespace MUDcat6006
 			EventHandler = new ServerInfoHandler(ServerInfoEventHandler);
 			ServerInfo.Instance.EventReceived += ServerInfoEventHandler;
 
-			ConnectToDatabase();
-			StartServer();
+			if (Properties.Settings.Default.DatabaseFilename != "")
+			{
+				ConnectToDatabase();
+			}
+			else
+            {
+				ServerInfo.Instance.Report("Please choose a database!\n");
+			}
 		}
 
 		private void ConnectToDatabase()
@@ -51,6 +58,21 @@ namespace MUDcat6006
 			connectionsStatusLabel.Text = args.Connections + " active connections";
 		}
 
+		private void HandleEvent(ServerInfoDatabaseArgs args)
+        {
+			if (args.Connected)
+            {
+				startToolStripMenuItem.Enabled = true;
+				stopToolStripMenuItem.Enabled = false;
+            }
+			else
+            {
+				StopServer();
+				startToolStripMenuItem.Enabled = false;
+				stopToolStripMenuItem.Enabled = false;
+            }
+        }
+
 		private void HandleEvent(ServerInfoReportArgs args)
 		{
 			reportTextBox.Text += args.Report;
@@ -79,6 +101,10 @@ namespace MUDcat6006
 				if (typeof(ServerInfoConnectionsArgs).IsInstanceOfType(args))
 				{
 					HandleEvent((ServerInfoConnectionsArgs)args);
+				}
+				else if (typeof(ServerInfoDatabaseArgs).IsInstanceOfType(args))
+				{
+					HandleEvent((ServerInfoDatabaseArgs)args);
 				}
 				else if (typeof(ServerInfoReportArgs).IsInstanceOfType(args))
 				{
@@ -140,5 +166,28 @@ namespace MUDcat6006
 		{
 			reportTextBox.Clear();
 		}
-	}
+
+        private void ChooseDatabaseMenuItemClick(object sender, EventArgs e)
+        {
+			using (OpenFileDialog openFileDialog = new OpenFileDialog())
+			{
+				openFileDialog.Filter = "database files (*.db)|*.db|All files (*.*)|*.*";
+				openFileDialog.RestoreDirectory = true;
+
+				if (openFileDialog.ShowDialog() == DialogResult.OK)
+				{
+					Properties.Settings.Default.DatabaseFilename = openFileDialog.FileName;
+					Properties.Settings.Default.Save();
+					DisconnectFromDatabase();
+					ConnectToDatabase();
+				}
+			}
+		}
+
+        private void AboutMenuItemClick(object sender, EventArgs e)
+        {
+			Source.AboutBox aboutBox = new Source.AboutBox();
+			aboutBox.ShowDialog();
+        }
+    }
 }

@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 
-namespace MUDcat6006
+namespace Aurora
 {
 	class Server
 	{

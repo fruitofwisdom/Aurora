@@ -1,4 +1,4 @@
-﻿namespace MUDcat6006
+﻿namespace Aurora
 {
 	class Player
 	{
