@@ -22,5 +22,17 @@ namespace MUDcat6006.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DatabaseFilename {
+            get {
+                return ((string)(this["DatabaseFilename"]));
+            }
+            set {
+                this["DatabaseFilename"] = value;
+            }
+        }
     }
 }

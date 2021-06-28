@@ -12,6 +12,16 @@
 		}
 	}
 
+	public class ServerInfoDatabaseArgs : ServerInfoEventArgs
+	{
+		public readonly bool Connected;
+
+		public ServerInfoDatabaseArgs(bool connected)
+		{
+			Connected = connected;
+		}
+	}
+
 	public class ServerInfoReportArgs : ServerInfoEventArgs
 	{
 		public readonly string Report;
