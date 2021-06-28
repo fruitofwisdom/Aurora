@@ -183,5 +183,11 @@ namespace Aurora
 				}
 			}
 		}
+
+        private void AboutMenuItemClick(object sender, EventArgs e)
+        {
+			Source.AboutBox aboutBox = new Source.AboutBox();
+			aboutBox.ShowDialog();
+        }
     }
 }
