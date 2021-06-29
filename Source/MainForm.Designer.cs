@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chooseDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -39,26 +39,25 @@
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutAuroraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportTextBox = new System.Windows.Forms.RichTextBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.serverStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.connectionsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.panel = new System.Windows.Forms.Panel();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutAuroraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.panel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // toolStripStatusLabel1
+            // toolStripStatusLabel
             // 
-            toolStripStatusLabel.Name = "toolStripStatusLabel";
-            toolStripStatusLabel.Size = new System.Drawing.Size(30, 41);
-            toolStripStatusLabel.Text = "-";
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(30, 41);
+            this.toolStripStatusLabel.Text = "-";
             // 
-            // menuStrip1
+            // menuStrip
             // 
             this.menuStrip.GripMargin = new System.Windows.Forms.Padding(2, 2, 0, 2);
             this.menuStrip.ImageScalingSize = new System.Drawing.Size(40, 40);
@@ -133,9 +132,24 @@
             // clearToolStripMenuItem
             // 
             this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(251, 54);
             this.clearToolStripMenuItem.Text = "Clear";
             this.clearToolStripMenuItem.Click += new System.EventHandler(this.ClearMenuItemClick);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutAuroraToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(104, 50);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // aboutAuroraToolStripMenuItem
+            // 
+            this.aboutAuroraToolStripMenuItem.Name = "aboutAuroraToolStripMenuItem";
+            this.aboutAuroraToolStripMenuItem.Size = new System.Drawing.Size(363, 54);
+            this.aboutAuroraToolStripMenuItem.Text = "About Aurora";
+            this.aboutAuroraToolStripMenuItem.Click += new System.EventHandler(this.AboutMenuItemClick);
             // 
             // reportTextBox
             // 
@@ -150,12 +164,12 @@
             this.reportTextBox.TabIndex = 1;
             this.reportTextBox.Text = "";
             // 
-            // statusStrip1
+            // statusStrip
             // 
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(40, 40);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serverStatusLabel,
-            toolStripStatusLabel,
+            this.toolStripStatusLabel,
             this.connectionsStatusLabel});
             this.statusStrip.Location = new System.Drawing.Point(0, 576);
             this.statusStrip.Name = "statusStrip";
@@ -176,7 +190,7 @@
             this.connectionsStatusLabel.Size = new System.Drawing.Size(287, 41);
             this.connectionsStatusLabel.Text = "0 active connections";
             // 
-            // panel1
+            // panel
             // 
             this.panel.Controls.Add(this.reportTextBox);
             this.panel.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -185,21 +199,6 @@
             this.panel.Name = "panel";
             this.panel.Size = new System.Drawing.Size(1291, 516);
             this.panel.TabIndex = 3;
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutAuroraToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(104, 50);
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
-            // aboutAuroraToolStripMenuItem
-            // 
-            this.aboutAuroraToolStripMenuItem.Name = "aboutAuroraToolStripMenuItem";
-            this.aboutAuroraToolStripMenuItem.Size = new System.Drawing.Size(448, 54);
-            this.aboutAuroraToolStripMenuItem.Text = "About Aurora";
-            this.aboutAuroraToolStripMenuItem.Click += new System.EventHandler(this.AboutMenuItemClick);
             // 
             // MainForm
             // 
@@ -243,6 +242,7 @@
         private System.Windows.Forms.ToolStripMenuItem chooseDatabaseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutAuroraToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
     }
 }
 
