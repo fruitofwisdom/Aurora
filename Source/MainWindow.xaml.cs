@@ -78,9 +78,8 @@ namespace Aurora
 
         private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Add a new about box. -Ward
-            //Source.AboutBox aboutBox = new Source.AboutBox();
-            //aboutBox.ShowDialog();
+            AboutBox aboutBox = new AboutBox();
+            aboutBox.ShowDialog();
         }
 
         private void HandleEvent(ServerInfoConnectionsArgs args)

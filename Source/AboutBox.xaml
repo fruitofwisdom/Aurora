@@ -1,0 +1,23 @@
+﻿<Window x:Class="Aurora.AboutBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Aurora"
+        mc:Ignorable="d"
+        Title="About Aurora" Height="350" Width="650" ResizeMode="NoResize">
+    <Grid>
+        <Image Margin="-28,10,424,10" Source="/Assets/about.png"/>
+        <Label Content="Aurora" HorizontalAlignment="Left" Margin="193,10,0,0" VerticalAlignment="Top"/>
+        <Label Content="0.3.0" HorizontalAlignment="Left" Margin="193,41,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Margin="193,72,0,0" Text="https://github.com/fruitofwisdom/Aurora" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" TextDecorations="Underline" Foreground="#FF0078D7" BorderBrush="{x:Null}" Cursor="Hand" MouseDoubleClick="TextBox_MouseDoubleClick"/>
+        <RichTextBox Margin="193,95,10,39">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="Image of the aurora borealis by Raul Popadineți on Unsplash."/>
+                </Paragraph>
+            </FlowDocument>
+        </RichTextBox>
+        <Button x:Name="OKButton" Content="OK" Margin="0,0,6,9" Click="OKButton_Click" HorizontalAlignment="Right" Width="100" Height="25" VerticalAlignment="Bottom"/>
+    </Grid>
+</Window>

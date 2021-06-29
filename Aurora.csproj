@@ -7,7 +7,7 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Version>0.3.0</Version>
     <Company>https://github.com/fruitofwisdom/Aurora</Company>
-    <Description>Image of the aurora borealis by Raul Popadineți on Unsplash: https://unsplash.com/photos/Sj51K_YdY2s</Description>
+    <Description>Image of the aurora borealis by Raul Popadineți on Unsplash.</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\about.png" />
     <Resource Include="icon.ico" />
   </ItemGroup>
 
