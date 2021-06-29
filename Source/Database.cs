@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using System.Windows;
 
 namespace Aurora
 {
@@ -7,7 +8,6 @@ namespace Aurora
 		public bool Configured { get; private set; }
 		public bool Connected { get; private set; }
 		private SqliteConnection Connection;
-		private string ConnectionString = string.Empty;
 
 		private static Database _instance = null;
 		public static Database Instance
@@ -39,10 +39,10 @@ namespace Aurora
 
 			Connection.ConnectionString = new SqliteConnectionStringBuilder()
 			{
-				DataSource = Properties.Settings.Default.DatabaseFilename,
+				DataSource = (string)Application.Current.Properties["DatabaseFilename"],
 				Mode = SqliteOpenMode.ReadWrite
 			}.ToString();
-			ServerInfo.Instance.Report("Database is: " + Properties.Settings.Default.DatabaseFilename + "\n");
+			ServerInfo.Instance.Report("Database is: " + Application.Current.Properties["DatabaseFilename"] + "\n");
 			Configured = true;
 		}
 

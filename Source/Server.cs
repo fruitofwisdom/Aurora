@@ -58,7 +58,8 @@ namespace Aurora
 					{
 						if (currentConnection.ClientQuit)
 						{
-							currentConnection.ClientThread.Abort();
+							// TODO: New threading model? -Ward
+							//currentConnection.ClientThread.Abort();
 							Connections.Remove(currentConnection);
 							ServerInfo.Instance.Report("Pruned client (" + currentConnection.ClientID + ").\n");
 							ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
@@ -101,7 +102,8 @@ namespace Aurora
 			foreach (Connection currentConnection in Connections)
 			{
 				// closing a connection also removes its thread
-				currentConnection.ClientThread.Abort();
+				// TODO: New threading model? -Ward
+				//currentConnection.ClientThread.Abort();
 			}
 			Connections.Clear();
 			ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
