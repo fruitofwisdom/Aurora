@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Windows;
 
 namespace Aurora
@@ -11,7 +12,6 @@ namespace Aurora
         // this callback lets us interface with Form components from threaded events
         private ServerInfoHandler EventHandler = null;
         // TODO: New threading model? -Ward
-        //private Thread databaseThread = null;
         //private Thread serverThread = null;
 
         public MainWindow()
@@ -109,15 +109,12 @@ namespace Aurora
 
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (ConsoleTextBox.InvokeRequired)
+            if (!CheckAccess())
             {
                 // we came from a different thread, invoke our thread-safe callback
-                Invoke(EventHandler, new object[] { sender, args });
+                Dispatcher.Invoke(EventHandler, new object[] { sender, args });
             }
             else
-            */
             {
                 // TODO: Find a scalable way to do this. Automatically? -Ward
                 if (typeof(ServerInfoConnectionsArgs).IsInstanceOfType(args))
@@ -137,33 +134,13 @@ namespace Aurora
 
         private void ConnectToDatabase()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (databaseThread == null)
-            {
-                Database.Instance.Configure();
-
-                databaseThread = new Thread(new ThreadStart(Database.Instance.Connect));
-                databaseThread.Start();
-                // on a single-core machine, give our new thread some time
-                Thread.Sleep(0);
-            }
-            */
+            Database.Instance.Configure();
+            Database.Instance.ConnectAsync();
         }
 
         private void DisconnectFromDatabase()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (databaseThread != null)
-            {
-                if (databaseThread.ThreadState != ThreadState.Aborted)
-                {
-                    databaseThread.Abort();
-                }
-                databaseThread = null;
-            }
-            */
+            Database.Instance.DisconnectAsync();
         }
 
         private void StartServer()

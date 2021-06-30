@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace Aurora
@@ -46,7 +47,7 @@ namespace Aurora
 			Configured = true;
 		}
 
-		public void Connect()
+		private void Connect()
 		{
 			if (Configured && !Connected)
 			{
@@ -58,27 +59,18 @@ namespace Aurora
 					Connected = true;
 					ServerInfo.Instance.Report("Connected to the database.\n");
 					ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(true));
-
-					// hang out until the thread is aborted
-					while (true)
-					{
-						;
-					}
-				}
-				catch (System.Threading.ThreadAbortException)
-				{
-					// this is OK
 				}
 				catch (SqliteException exception)
 				{
 					ServerInfo.Instance.Report("Exception caught by the database, \"" + exception.Message + "\"!\n");
 				}
-				finally
-				{
-					Disconnect();
-				}
 			}
 		}
+
+		public Task ConnectAsync()
+        {
+			return Task.Run(() => { Connect(); });
+        }
 
 		private void Disconnect()
 		{
@@ -90,6 +82,12 @@ namespace Aurora
 				Connected = false;
 			}
 		}
+
+		public Task DisconnectAsync()
+        {
+			return Task.Run(() => { Disconnect(); });
+        }
+
 		// TODO: An actual interface for working with the database. -Ward
 		/*
 		public ArrayList FindTasks(string userName)
