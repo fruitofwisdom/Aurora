@@ -109,15 +109,12 @@ namespace Aurora
 
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (ConsoleTextBox.InvokeRequired)
+            if (!CheckAccess())
             {
                 // we came from a different thread, invoke our thread-safe callback
-                Invoke(EventHandler, new object[] { sender, args });
+                Dispatcher.Invoke(EventHandler, new object[] { sender, args });
             }
             else
-            */
             {
                 // TODO: Find a scalable way to do this. Automatically? -Ward
                 if (typeof(ServerInfoConnectionsArgs).IsInstanceOfType(args))
