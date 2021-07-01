@@ -40,10 +40,10 @@ namespace Aurora
 
 			Connection.ConnectionString = new SqliteConnectionStringBuilder()
 			{
-				DataSource = (string)Application.Current.Properties["DatabaseFilename"],
+				DataSource = (string)Properties.Settings.Default["DatabaseFilename"],
 				Mode = SqliteOpenMode.ReadWrite
 			}.ToString();
-			ServerInfo.Instance.Report("Database is: " + Application.Current.Properties["DatabaseFilename"] + "\n");
+			ServerInfo.Instance.Report("Database is: " + Properties.Settings.Default["DatabaseFilename"] + "\n");
 			Configured = true;
 		}
 

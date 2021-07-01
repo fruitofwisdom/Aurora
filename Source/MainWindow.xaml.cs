@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using System;
 using System.Windows;
 
 namespace Aurora
@@ -24,7 +23,7 @@ namespace Aurora
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if ((string)Application.Current.Properties["DatabaseFilename"] != "")
+            if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
             {
                 ConnectToDatabase();
             }
@@ -50,7 +49,8 @@ namespace Aurora
 
             if ((bool)openFileDialog.ShowDialog())
             {
-                Application.Current.Properties["DatabaseFilename"] = openFileDialog.FileName;
+                Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
+                Properties.Settings.Default.Save();
                 DisconnectFromDatabase();
                 ConnectToDatabase();
             }
