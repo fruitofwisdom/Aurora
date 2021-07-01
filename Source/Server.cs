@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aurora
 {
 	class Server
 	{
+		private bool Running = false;
+		private TcpListener TcpListener = null;
+
 		private int TotalClients = 0;
 		// we have to remember all connections so we can close them properly if the server is
 		// shutdown while clients are connected
@@ -29,23 +33,24 @@ namespace Aurora
 			Connections = new List<Connection>();
 		}
 
-		public void Listen()
+		private void Listen()
 		{
-			TcpListener tcpListener = null;
 			try
 			{
 				// start listening on port 6006
 				ServerInfo.Instance.Report("Starting the server...\n");
-				tcpListener = new TcpListener(System.Net.IPAddress.Any, 6006);
-				tcpListener.Start();
+				TcpListener = new TcpListener(System.Net.IPAddress.Any, 6006);
+				TcpListener.Start();
 
-				// nothing can stop me now (but you could if you tried hard enough)
-				while (true)
+				Running = true;
+				ServerInfo.Instance.RaiseEvent(new ServerInfoServerArgs(Running));
+
+				while (Running)
 				{
 					// don't block waiting for connections or we'll never catch our exceptions
-					if (tcpListener.Pending())
+					if (TcpListener.Pending())
 					{
-						TcpClient tcpClient = tcpListener.AcceptTcpClient();
+						TcpClient tcpClient = TcpListener.AcceptTcpClient();
 						Connection connection = new Connection(tcpClient, TotalClients++);
 						Connections.Add(connection);
 						ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
@@ -58,7 +63,7 @@ namespace Aurora
 					{
 						if (currentConnection.ClientQuit)
 						{
-							// TODO: New threading model? -Ward
+							// TODO: New threading model. -Ward
 							//currentConnection.ClientThread.Abort();
 							Connections.Remove(currentConnection);
 							ServerInfo.Instance.Report("Pruned client (" + currentConnection.ClientID + ").\n");
@@ -79,14 +84,14 @@ namespace Aurora
 				ServerInfo.Instance.Report("Exception caught by the server, \"" + exception.Message + "\"!\n");
 			}
 			finally
-			{
+            {
 				Shutdown();
+            }
+		}
 
-				if (tcpListener != null)
-				{
-					tcpListener.Stop();
-				}
-			}
+		public Task ListenAsync()
+        {
+			return Task.Run(() => { Listen(); });
 		}
 
 		public void Remove(Connection connection)
@@ -102,11 +107,25 @@ namespace Aurora
 			foreach (Connection currentConnection in Connections)
 			{
 				// closing a connection also removes its thread
-				// TODO: New threading model? -Ward
+				// TODO: New threading mode. -Ward
 				//currentConnection.ClientThread.Abort();
 			}
 			Connections.Clear();
 			ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
+
+			if (TcpListener != null)
+			{
+				TcpListener.Stop();
+			}
+
+			Running = false;
+			ServerInfo.Instance.RaiseEvent(new ServerInfoServerArgs(Running));
+		}
+
+		public void ShutdownAsync()
+        {
+			//return Task.Run(() => { Shutdown(); });
+			Running = false;
 		}
 	}
 }

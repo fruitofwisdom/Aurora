@@ -77,9 +77,10 @@ namespace Aurora
 			if (Connected)
 			{
 				ServerInfo.Instance.Report("Disconnecting from the database...\n");
-
 				Connection.Close();
 				Connected = false;
+				ServerInfo.Instance.Report("Disconnected from the database.\n");
+				ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(false));
 			}
 		}
 

@@ -32,6 +32,16 @@
 		}
 	}
 
+	public class ServerInfoServerArgs : ServerInfoEventArgs
+    {
+		public readonly bool Running;
+
+		public ServerInfoServerArgs(bool running)
+        {
+			Running = running;
+        }
+    }
+
 	public delegate void ServerInfoHandler(object sender, ServerInfoEventArgs args);
 
 	class ServerInfo
