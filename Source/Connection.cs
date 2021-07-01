@@ -12,6 +12,7 @@ namespace Aurora
 			IS_Play,
 		};
 
+		private bool Running = false;
 		public bool ClientQuit { get; private set; }
 		private DateTime TimeSinceInput;
 		private InputState LocalInputState = InputState.IS_Login;
@@ -42,6 +43,7 @@ namespace Aurora
 			{
 				NetworkStream stream = Client.GetStream();
 
+				Running = true;
 				// eat incoming data and print a welcome message
 				if (stream.DataAvailable)
 				{
@@ -52,7 +54,7 @@ namespace Aurora
 				stream.Write(System.Text.Encoding.ASCII.GetBytes(welcomeMessage), 0, welcomeMessage.Length);
 
 				// loop until the client has left and the thread is terminated
-				while (true)
+				while (Running)
 				{
 					// NOTE: Don't react if the client has already quit - we're waiting to be pruned. -Ward
 					if (!ClientQuit)
@@ -143,6 +145,11 @@ namespace Aurora
 			}
 			ClientQuit = true;
 		}
+
+		public void Close()
+        {
+			Running = false;
+        }
 
 		public void SendMessage(string message)
 		{

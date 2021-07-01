@@ -10,9 +10,6 @@ namespace Aurora
     {
         // this callback lets us interface with Form components from threaded events
         private ServerInfoHandler EventHandler = null;
-        // TODO: New threading model? -Ward
-        //private Thread databaseThread = null;
-        //private Thread serverThread = null;
 
         public MainWindow()
         {
@@ -24,7 +21,7 @@ namespace Aurora
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if ((string)Application.Current.Properties["DatabaseFilename"] != "")
+            if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
             {
                 ConnectToDatabase();
             }
@@ -50,7 +47,8 @@ namespace Aurora
 
             if ((bool)openFileDialog.ShowDialog())
             {
-                Application.Current.Properties["DatabaseFilename"] = openFileDialog.FileName;
+                Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
+                Properties.Settings.Default.Save();
                 DisconnectFromDatabase();
                 ConnectToDatabase();
             }
@@ -107,6 +105,22 @@ namespace Aurora
             ConsoleTextBox.Text += args.Report;
         }
 
+        private void HandleEvent(ServerInfoServerArgs args)
+        {
+            if (args.Running)
+            {
+                ServerStatusBarItem.Content = "Started";
+                StartMenuItem.IsEnabled = false;
+                StopMenuItem.IsEnabled = true;
+            }
+            else
+            {
+                ServerStatusBarItem.Content = "Stopped";
+                StartMenuItem.IsEnabled = true;
+                StopMenuItem.IsEnabled = false;
+            }
+        }
+
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)
         {
             // TODO: New threading model? -Ward
@@ -132,78 +146,32 @@ namespace Aurora
                 {
                     HandleEvent((ServerInfoReportArgs)args);
                 }
+                else if (typeof(ServerInfoServerArgs).IsInstanceOfType(args))
+                {
+                    HandleEvent((ServerInfoServerArgs)args);
+                }
             }
         }
 
         private void ConnectToDatabase()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (databaseThread == null)
-            {
-                Database.Instance.Configure();
-
-                databaseThread = new Thread(new ThreadStart(Database.Instance.Connect));
-                databaseThread.Start();
-                // on a single-core machine, give our new thread some time
-                Thread.Sleep(0);
-            }
-            */
+            Database.Instance.Configure();
+            Database.Instance.ConnectAsync();
         }
 
         private void DisconnectFromDatabase()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (databaseThread != null)
-            {
-                if (databaseThread.ThreadState != ThreadState.Aborted)
-                {
-                    databaseThread.Abort();
-                }
-                databaseThread = null;
-            }
-            */
+            Database.Instance.DisconnectAsync();
         }
 
         private void StartServer()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (serverThread == null)
-            {
-                serverThread = new Thread(new ThreadStart(Server.Instance.Listen));
-                serverThread.Start();
-                // on a single-core machine, give our new thread some time
-                Thread.Sleep(0);
-
-                // notify all UI
-                ServerStatusBarItem.Content = "Started";
-                StartMenuItem.IsEnabled = false;
-                StopMenuItem.IsEnabled = true;
-            }
-            */
+            Server.Instance.ListenAsync();
         }
 
         private void StopServer()
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (serverThread != null)
-            {
-                // the listener thread never ends itself (at the moment), so we must abort it manually
-                if (serverThread.ThreadState != ThreadState.Aborted)
-                {
-                    serverThread.Abort();
-                }
-                serverThread = null;
-
-                // notify all UI
-                ServerStatusBarItem.Content = "Stopped";
-                StartMenuItem.IsEnabled = true;
-                StopMenuItem.IsEnabled = false;
-            }
-            */
+            Server.Instance.ShutdownAsync();
         }
     }
 }
