@@ -1,4 +1,6 @@
 using Microsoft.Data.Sqlite;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace Aurora
 {
@@ -7,7 +9,6 @@ namespace Aurora
 		public bool Configured { get; private set; }
 		public bool Connected { get; private set; }
 		private SqliteConnection Connection;
-		private string ConnectionString = string.Empty;
 
 		private static Database _instance = null;
 		public static Database Instance
@@ -39,14 +40,14 @@ namespace Aurora
 
 			Connection.ConnectionString = new SqliteConnectionStringBuilder()
 			{
-				DataSource = Properties.Settings.Default.DatabaseFilename,
+				DataSource = (string)Properties.Settings.Default["DatabaseFilename"],
 				Mode = SqliteOpenMode.ReadWrite
 			}.ToString();
-			ServerInfo.Instance.Report("Database is: " + Properties.Settings.Default.DatabaseFilename + "\n");
+			ServerInfo.Instance.Report("Database is: " + Properties.Settings.Default["DatabaseFilename"] + "\n");
 			Configured = true;
 		}
 
-		public void Connect()
+		private void Connect()
 		{
 			if (Configured && !Connected)
 			{
@@ -58,38 +59,36 @@ namespace Aurora
 					Connected = true;
 					ServerInfo.Instance.Report("Connected to the database.\n");
 					ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(true));
-
-					// hang out until the thread is aborted
-					while (true)
-					{
-						;
-					}
-				}
-				catch (System.Threading.ThreadAbortException)
-				{
-					// this is OK
 				}
 				catch (SqliteException exception)
 				{
 					ServerInfo.Instance.Report("Exception caught by the database, \"" + exception.Message + "\"!\n");
 				}
-				finally
-				{
-					Disconnect();
-				}
 			}
 		}
+
+		public Task ConnectAsync()
+        {
+			return Task.Run(() => { Connect(); });
+        }
 
 		private void Disconnect()
 		{
 			if (Connected)
 			{
 				ServerInfo.Instance.Report("Disconnecting from the database...\n");
-
 				Connection.Close();
 				Connected = false;
+				ServerInfo.Instance.Report("Disconnected from the database.\n");
+				ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(false));
 			}
 		}
+
+		public Task DisconnectAsync()
+        {
+			return Task.Run(() => { Disconnect(); });
+        }
+
 		// TODO: An actual interface for working with the database. -Ward
 		/*
 		public ArrayList FindTasks(string userName)
