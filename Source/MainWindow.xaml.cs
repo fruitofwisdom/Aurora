@@ -23,11 +23,11 @@ namespace Aurora
         {
             if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
             {
-                ConnectToDatabase();
+                Database.Instance.Configure();
             }
             else
             {
-                ServerInfo.Instance.Report("Please choose a database!\n");
+                ServerInfo.Instance.Report("[Aurora] Please choose a database file!\n");
             }
         }
 
@@ -36,7 +36,6 @@ namespace Aurora
             ServerInfo.Instance.EventReceived -= EventHandler;
 
             StopServer();
-            DisconnectFromDatabase();
         }
 
         private void ChooseDatabase_Click(object sender, RoutedEventArgs e)
@@ -49,8 +48,7 @@ namespace Aurora
             {
                 Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
                 Properties.Settings.Default.Save();
-                DisconnectFromDatabase();
-                ConnectToDatabase();
+                Database.Instance.Configure();
             }
         }
 
@@ -87,7 +85,7 @@ namespace Aurora
 
         private void HandleEvent(ServerInfoDatabaseArgs args)
         {
-            if (args.Connected)
+            if (args.Configured)
             {
                 StartMenuItem.IsEnabled = true;
                 StopMenuItem.IsEnabled = false;
@@ -148,17 +146,6 @@ namespace Aurora
                     HandleEvent((ServerInfoServerArgs)args);
                 }
             }
-        }
-
-        private void ConnectToDatabase()
-        {
-            Database.Instance.Configure();
-            Database.Instance.ConnectAsync();
-        }
-
-        private void DisconnectFromDatabase()
-        {
-            Database.Instance.DisconnectAsync();
         }
 
         private void StartServer()

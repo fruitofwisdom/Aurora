@@ -14,11 +14,11 @@
 
 	public class ServerInfoDatabaseArgs : ServerInfoEventArgs
 	{
-		public readonly bool Connected;
+		public readonly bool Configured;
 
-		public ServerInfoDatabaseArgs(bool connected)
+		public ServerInfoDatabaseArgs(bool configured)
 		{
-			Connected = connected;
+			Configured = configured;
 		}
 	}
 
