@@ -59,6 +59,8 @@ namespace Aurora
 					Connected = true;
 					ServerInfo.Instance.Report("Connected to the database.\n");
 					ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(true));
+
+					RunCommand();
 				}
 				catch (SqliteException exception)
 				{
@@ -90,17 +92,19 @@ namespace Aurora
         }
 
 		// TODO: An actual interface for working with the database. -Ward
-		/*
-		public ArrayList FindTasks(string userName)
+		public void RunCommand()
 		{
-			ArrayList tasks = new ArrayList();
+			//ArrayList tasks = new ArrayList();
 
+			// TODO: I don't think what I'm doing is the right paradigm. See link below. -Ward
+			// https://stackoverflow.com/questions/9705637/executereader-requires-an-open-and-available-connection-the-connections-curren
+			/*
 			if (Connected)
 			{
-				SqlCommand command = new SqlCommand(
-					"SELECT * FROM dbo.Tasks WHERE Resource LIKE '" + userName + "'", mSQLConnection
+				SqliteCommand command = new SqliteCommand(
+					"SELECT * FROM Info"
 					);
-				SqlDataReader reader = command.ExecuteReader();
+				SqliteDataReader reader = command.ExecuteReader();
 				if (reader.HasRows)
 				{
 					while (reader.Read())
@@ -111,11 +115,11 @@ namespace Aurora
 				}
 				reader.Close();
 			}
+			*/
 
-			tasks.Sort();
+			//tasks.Sort();
 
-			return tasks;
+			//return tasks;
 		}
-		*/
 	}
 }
