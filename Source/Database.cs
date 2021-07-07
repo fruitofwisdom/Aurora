@@ -27,7 +27,7 @@ namespace Aurora
 
 		public void Configure()
 		{
-			if (Properties.Settings.Default["DatabaseFilename"] != "")
+			if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
 			{
 				ServerInfo.Instance.Report("[Database] File is: " + Properties.Settings.Default["DatabaseFilename"] + "\n");
 				ConnectionString = new SqliteConnectionStringBuilder()

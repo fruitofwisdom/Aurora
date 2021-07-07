@@ -121,7 +121,6 @@ namespace Aurora
 
 		public void ShutdownAsync()
         {
-			//return Task.Run(() => { Shutdown(); });
 			Running = false;
 		}
 	}

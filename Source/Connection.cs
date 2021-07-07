@@ -129,7 +129,6 @@ namespace Aurora
 					bufferedInput += letter;
 				}
 			}
-			//HandleInput(bufferedInput);
 		}
 
 		// TODO: Improve this. -Ward
