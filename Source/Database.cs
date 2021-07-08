@@ -1,10 +1,10 @@
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
 
 namespace Aurora
 {
 	public class Database
 	{
-		public bool Configured { get; private set; }
 		private string ConnectionString;
 
 		private static Database _instance = null;
@@ -20,11 +20,6 @@ namespace Aurora
 			}
 		}
 
-		private Database()
-		{
-			Configured = false;
-		}
-
 		public void Configure()
 		{
 			if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
@@ -35,7 +30,8 @@ namespace Aurora
 					DataSource = (string)Properties.Settings.Default["DatabaseFilename"],
 					Mode = SqliteOpenMode.ReadWrite
 				}.ToString();
-				GetGameInfo();
+
+				Game.Instance.Load();
 			}
 			else
             {
@@ -43,26 +39,24 @@ namespace Aurora
             }
 		}
 
-		private void GetGameInfo()
+		public Dictionary<string, object> ReadTable(string table)
 		{
+			Dictionary<string, object> tableValues = new Dictionary<string, object>();
+
 			// TODO: Is this the right paradigm? -Ward
 			// https://stackoverflow.com/questions/9705637/executereader-requires-an-open-and-available-connection-the-connections-curren
 			using (SqliteConnection connection = new SqliteConnection(ConnectionString))
 			{
 				SqliteCommand command = connection.CreateCommand();
-				command.CommandText = "SELECT * FROM Info";
+				command.CommandText = "SELECT * FROM " + table;
 				connection.Open();
 				SqliteDataReader reader = command.ExecuteReader();
 				try
 				{
-					// TODO: Save this to a proper Game instance. -Ward
 					while (reader.Read())
 					{
-						ServerInfo.Instance.Report("[Database] " + reader.GetString(0) + ": " + reader.GetString(1) + "\n");
+						tableValues[reader.GetString(0)] = reader.GetValue(1);
 					}
-
-					Configured = true;
-					ServerInfo.Instance.RaiseEvent(new ServerInfoDatabaseArgs(Configured));
 				}
 				catch (SqliteException exception)
 				{
@@ -73,6 +67,8 @@ namespace Aurora
 					reader.Close();
 				}
 			}
+
+			return tableValues;
 		}
 	}
 }

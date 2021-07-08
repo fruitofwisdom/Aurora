@@ -1,6 +1,7 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
-using System;
 
 namespace Aurora
 {
@@ -50,7 +51,8 @@ namespace Aurora
 					byte[] bytes = new byte[256];
 					stream.Read(bytes, 0, bytes.Length);
 				}
-				string welcomeMessage = "Welcome to Aurora!\r\n\r\nWhat is your name? ";
+				string version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+				string welcomeMessage = "Welcome to \"" + Game.Instance.Name + "\", running on Aurora version." + version + "!\r\n\r\nWhat is your name? ";
 				stream.Write(System.Text.Encoding.ASCII.GetBytes(welcomeMessage), 0, welcomeMessage.Length);
 
 				// loop until the client has left and the thread is terminated
@@ -102,6 +104,10 @@ namespace Aurora
 						LocalPlayer.Name = input;
 						SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\nType \"quit\" to quit.\r\n\r\n> ");
 						ServerInfo.Instance.Report("\"" + LocalPlayer.Name + "\" joined.\n");
+
+						// TODO: Properly save and load players. -Ward
+						LocalPlayer.Load(Game.Instance.StartingRoom);
+
 						LocalInputState = InputState.IS_Play;
 						break;
 

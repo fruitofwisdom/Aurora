@@ -12,13 +12,13 @@
 		}
 	}
 
-	public class ServerInfoDatabaseArgs : ServerInfoEventArgs
+	public class ServerInfoGameArgs : ServerInfoEventArgs
 	{
-		public readonly bool Configured;
+		public readonly bool Loaded;
 
-		public ServerInfoDatabaseArgs(bool configured)
+		public ServerInfoGameArgs(bool loaded)
 		{
-			Configured = configured;
+			Loaded = loaded;
 		}
 	}
 

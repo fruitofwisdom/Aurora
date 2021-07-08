@@ -83,10 +83,11 @@ namespace Aurora
             ServerStatusBarItem.Content = args.Connections + " active connections";
         }
 
-        private void HandleEvent(ServerInfoDatabaseArgs args)
+        private void HandleEvent(ServerInfoGameArgs args)
         {
-            if (args.Configured)
+            if (args.Loaded)
             {
+                this.Title = "Aurora - " + Game.Instance.Name;
                 StartMenuItem.IsEnabled = true;
                 StopMenuItem.IsEnabled = false;
             }
@@ -133,9 +134,9 @@ namespace Aurora
                 {
                     HandleEvent((ServerInfoConnectionsArgs)args);
                 }
-                else if (typeof(ServerInfoDatabaseArgs).IsInstanceOfType(args))
+                else if (typeof(ServerInfoGameArgs).IsInstanceOfType(args))
                 {
-                    HandleEvent((ServerInfoDatabaseArgs)args);
+                    HandleEvent((ServerInfoGameArgs)args);
                 }
                 else if (typeof(ServerInfoReportArgs).IsInstanceOfType(args))
                 {

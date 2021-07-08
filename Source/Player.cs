@@ -4,11 +4,18 @@
 	{
 		private Connection LocalConnection;
 		public string Name = "player";
+		private string CurrentRoom = "Limbo";
 
 		public Player(Connection connection)
 		{
 			LocalConnection = connection;
 		}
+
+		// TODO: Properly save and load players. -Ward
+		public void Load(string currentRoom)
+        {
+			CurrentRoom = currentRoom;
+        }
 
 		public void HandleInput(string input)
 		{
