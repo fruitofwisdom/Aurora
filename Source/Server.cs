@@ -7,10 +7,10 @@ namespace Aurora
 {
     internal class Server
     {
-        private bool Running = false;
-        private TcpListener TcpListener = null;
+        private bool Running;
+        private TcpListener TcpListener;
 
-        private int TotalClients = 0;
+        private int TotalClients;
         // we have to remember all connections so we can close them properly if the server is
         // shutdown while clients are connected
         private readonly List<Connection> Connections;
@@ -30,6 +30,9 @@ namespace Aurora
 
         private Server()
         {
+            Running = false;
+            TcpListener = null;
+            TotalClients = 0;
             Connections = new List<Connection>();
         }
 
@@ -38,7 +41,7 @@ namespace Aurora
             try
             {
                 // start listening on port 6006
-                ServerInfo.Instance.Report("Starting the server...\n");
+                ServerInfo.Instance.Report("[Server] Starting the server...\n");
                 TcpListener = new TcpListener(System.Net.IPAddress.Any, 6006);
                 TcpListener.Start();
 
@@ -65,7 +68,7 @@ namespace Aurora
                         {
                             currentConnection.Close();
                             Connections.Remove(currentConnection);
-                            ServerInfo.Instance.Report("Pruned client (" + currentConnection.ClientID + ").\n");
+                            ServerInfo.Instance.Report("[Server] Pruned client (" + currentConnection.ClientID + ").\n");
                             ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
                         }
                     }
@@ -80,7 +83,7 @@ namespace Aurora
             }
             catch (System.Exception exception)
             {
-                ServerInfo.Instance.Report("Exception caught by the server, \"" + exception.Message + "\"!\n");
+                ServerInfo.Instance.Report("[Server] Exception caught by the server, \"" + exception.Message + "\"!\n");
             }
             finally
             {
@@ -100,7 +103,7 @@ namespace Aurora
 
         private void Shutdown()
         {
-            ServerInfo.Instance.Report("Stopping the server...\n");
+            ServerInfo.Instance.Report("[Server] Stopping the server...\n");
 
             // close and remove all open connections
             foreach (Connection currentConnection in Connections)

@@ -13,7 +13,7 @@ namespace Aurora
             IS_Play,
         };
 
-        private bool Running = false;
+        private bool Running;
         public bool ClientQuit { get; private set; }
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.IS_Login;
@@ -24,6 +24,7 @@ namespace Aurora
 
         public Connection(TcpClient client, int clientID)
         {
+            Running = false;
             ClientQuit = false;
             TimeSinceInput = DateTime.Now;
             ClientID = clientID;
@@ -32,7 +33,7 @@ namespace Aurora
             ClientThread = new Thread(new ThreadStart(Connect));
             ClientThread.Start();
 
-            ServerInfo.Instance.Report("Client (" + ClientID + ") connected.\n");
+            ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") connected.\n");
 
             // on a single-core machine, give our new thread some time
             Thread.Sleep(0);
@@ -79,13 +80,13 @@ namespace Aurora
                     Thread.Sleep(7);
                 }
             }
-            catch (System.Threading.ThreadAbortException)
+            catch (ThreadAbortException)
             {
                 // this is OK
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
-                ServerInfo.Instance.Report("Exception caught by client (" + ClientID + "), \"" + exception.Message + "\"!\n");
+                ServerInfo.Instance.Report("[Connection] Exception caught by client (" + ClientID + "), \"" + exception.Message + "\"!\n");
             }
             finally
             {
@@ -98,24 +99,36 @@ namespace Aurora
         {
             if (input != string.Empty)
             {
+                bool needLook = false;
+
                 switch (LocalInputState)
                 {
                     case InputState.IS_Login:
                         LocalPlayer.Name = input;
-                        SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\nType \"quit\" to quit.\r\n\r\n> ");
-                        ServerInfo.Instance.Report("\"" + LocalPlayer.Name + "\" joined.\n");
+                        SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\n");
+                        SendMessage("Type \"help\" for more information.\r\n\r\n");
+                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
 
                         // TODO: Properly save and load players. -Ward
                         LocalPlayer.Load(Game.Instance.StartingRoom);
 
                         LocalInputState = InputState.IS_Play;
+                        needLook = true;
                         break;
 
                     case InputState.IS_Play:
-                        LocalPlayer.HandleInput(input);
+                        LocalPlayer.HandleInput(input, out needLook);
                         break;
                 }
+
                 TimeSinceInput = DateTime.Now;
+                if (needLook)
+                {
+                    // TODO: Describe the player's current room. -Ward
+                    SendMessage("Unknown Room\r\n");
+                    SendMessage("You are in an unknown room, a swirling miasma of scintillating thoughts and turgid ideas.\r\n");
+                }
+                SendMessage("\r\n> ");
             }
         }
 
@@ -142,11 +155,11 @@ namespace Aurora
         {
             if (properly)
             {
-                ServerInfo.Instance.Report("Client (" + ClientID + ") quit.\n");
+                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") quit.\n");
             }
             else
             {
-                ServerInfo.Instance.Report("Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
+                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
             }
             ClientQuit = true;
         }

@@ -17,19 +17,37 @@
             CurrentRoom = currentRoom;
         }
 
-        public void HandleInput(string input)
+        public void HandleInput(string input, out bool needLook)
         {
-            // our only handled command: to quit
-            if (input.ToLower() == "quit")
+            input = input.Trim().ToLower();
+            needLook = false;
+
+            switch (input)
             {
-                LocalConnection.SendMessage("Bye!\r\n");
-                LocalConnection.Quit(true);
+                case "exit":
+                case "quit":
+                    LocalConnection.SendMessage("Good-bye!\r\n");
+                    LocalConnection.Quit(true);
+                    break;
+                case "help":
+                case "?":
+                    PrintHelp();
+                    break;
+                case "look":
+                    needLook = true;
+                    break;
+                default:
+                    LocalConnection.SendMessage("I don't understand, \"" + input + "\".\r\n");
+                    break;
             }
-            else
-            {
-                // echo back their input
-                LocalConnection.SendMessage("I don't understand, \"" + input + "\".\r\n> ");
-            }
+        }
+
+        private void PrintHelp()
+        {
+            LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
+            LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
+            LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
+            //LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
         }
     }
 }
