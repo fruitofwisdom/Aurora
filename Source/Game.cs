@@ -2,7 +2,7 @@
 
 namespace Aurora
 {
-    class Game
+    internal class Game
     {
         public string Name = "Unknown Aurora Game";
         public string StartingRoom = "Limbo";

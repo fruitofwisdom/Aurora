@@ -9,7 +9,7 @@ namespace Aurora
     public partial class MainWindow : Window
     {
         // this callback lets us interface with Form components from threaded events
-        private ServerInfoHandler EventHandler = null;
+        private readonly ServerInfoHandler EventHandler = null;
 
         public MainWindow()
         {

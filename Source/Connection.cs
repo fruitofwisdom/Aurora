@@ -5,9 +5,9 @@ using System.Threading;
 
 namespace Aurora
 {
-    class Connection
+    internal class Connection
     {
-        enum InputState
+        private enum InputState
         {
             IS_Login,
             IS_Play,
@@ -18,8 +18,8 @@ namespace Aurora
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.IS_Login;
         public int ClientID { get; private set; }
-        private Player LocalPlayer;
-        private TcpClient Client;
+        private readonly Player LocalPlayer;
+        private readonly TcpClient Client;
         public Thread ClientThread { get; private set; }
 
         public Connection(TcpClient client, int clientID)

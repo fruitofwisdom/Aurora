@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Aurora
 {
-    class Server
+    internal class Server
     {
         private bool Running = false;
         private TcpListener TcpListener = null;
@@ -13,7 +13,7 @@ namespace Aurora
         private int TotalClients = 0;
         // we have to remember all connections so we can close them properly if the server is
         // shutdown while clients are connected
-        private List<Connection> Connections;
+        private readonly List<Connection> Connections;
 
         private static Server _instance = null;
         public static Server Instance

@@ -1,8 +1,8 @@
 ﻿namespace Aurora
 {
-    class Player
+    internal class Player
     {
-        private Connection LocalConnection;
+        private readonly Connection LocalConnection;
         public string Name = "player";
         private string CurrentRoom = "Limbo";
 

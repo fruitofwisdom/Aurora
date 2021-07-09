@@ -44,7 +44,7 @@
 
     public delegate void ServerInfoHandler(object sender, ServerInfoEventArgs args);
 
-    class ServerInfo
+    internal class ServerInfo
     {
         public event ServerInfoHandler EventReceived;
 
