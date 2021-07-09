@@ -8,14 +8,7 @@
     <Version>0.3.1</Version>
     <Company>https://github.com/fruitofwisdom/Aurora</Company>
     <Description>Image of the aurora borealis by Raul Popadineți on Unsplash.</Description>
-    <StartupObject>Aurora.App</StartupObject>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ApplicationDefinition Include="Source\App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </ApplicationDefinition>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.7" />
