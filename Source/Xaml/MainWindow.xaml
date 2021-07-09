@@ -23,7 +23,7 @@
                 <MenuItem x:Name="AboutMenuItem" Header="About" Click="AboutMenuItem_Click"/>
             </MenuItem>
         </Menu>
-        <TextBox x:Name="ConsoleTextBox" TextWrapping="Wrap" Margin="10,30,10,30"/>
+        <TextBox x:Name="ConsoleTextBox" TextWrapping="Wrap" Margin="10,30,10,30" IsReadOnly="True"/>
         <StatusBar x:Name="ServerStatusBar" Height="25" VerticalAlignment="Bottom">
             <StatusBarItem x:Name="ServerStatusBarItem" Content="" Height="25" VerticalAlignment="Center"/>
         </StatusBar>
