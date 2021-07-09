@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Aurora
 {
-    public class Database
+    internal class Database
     {
         private string ConnectionString;
 
