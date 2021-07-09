@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
@@ -52,7 +53,8 @@ namespace Aurora
                     byte[] bytes = new byte[256];
                     stream.Read(bytes, 0, bytes.Length);
                 }
-                string version = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+                string version = versionInfo.ProductVersion;
                 string welcomeMessage = "Welcome to \"" + Game.Instance.Name + "\", running on Aurora version." + version + "!\r\n\r\nWhat is your name? ";
                 stream.Write(System.Text.Encoding.ASCII.GetBytes(welcomeMessage), 0, welcomeMessage.Length);
 
