@@ -39,9 +39,9 @@ namespace Aurora
             }
         }
 
-        public Dictionary<string, object> ReadTable(string table)
+        public List<List<object>> ReadTable(string table)
         {
-            Dictionary<string, object> tableValues = new Dictionary<string, object>();
+            List<List<object>> tableValues = new List<List<object>>();
 
             // TODO: Is this the right paradigm? -Ward
             // https://stackoverflow.com/questions/9705637/executereader-requires-an-open-and-available-connection-the-connections-curren
@@ -53,9 +53,13 @@ namespace Aurora
                 SqliteDataReader reader = command.ExecuteReader();
                 try
                 {
+                    int numRows = 0;
                     while (reader.Read())
                     {
-                        tableValues[reader.GetString(0)] = reader.GetValue(1);
+                        object[] values = new object[reader.FieldCount];
+                        _ = reader.GetValues(values);
+                        tableValues.Add(new List<object>(values));
+                        numRows++;
                     }
                 }
                 catch (SqliteException exception)

@@ -4,7 +4,7 @@
     {
         private readonly Connection LocalConnection;
         public string Name = "player";
-        private string CurrentRoom = "Limbo";
+        public long CurrentRoomId = 0;
 
         public Player(Connection connection)
         {
@@ -12,9 +12,9 @@
         }
 
         // TODO: Properly save and load players. -Ward
-        public void Load(string currentRoom)
+        public void Load(long currentRoomId)
         {
-            CurrentRoom = currentRoom;
+            CurrentRoomId = currentRoomId;
         }
 
         public void HandleInput(string input, out bool needLook)

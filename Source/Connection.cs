@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
@@ -112,7 +113,7 @@ namespace Aurora
                         ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
 
                         // TODO: Properly save and load players. -Ward
-                        LocalPlayer.Load(Game.Instance.StartingRoom);
+                        LocalPlayer.Load(Game.Instance.StartingRoomId);
 
                         LocalInputState = InputState.IS_Play;
                         needLook = true;
@@ -126,9 +127,11 @@ namespace Aurora
                 TimeSinceInput = DateTime.Now;
                 if (needLook)
                 {
-                    // TODO: Describe the player's current room. -Ward
-                    SendMessage("Unknown Room\r\n");
-                    SendMessage("You are in an unknown room, a swirling miasma of scintillating thoughts and turgid ideas.\r\n");
+                    List<string> roomDescription = Game.Instance.GetRoomDescription(LocalPlayer);
+                    foreach (string line in roomDescription)
+                    {
+                        SendMessage(line + "\r\n");
+                    }
                 }
                 SendMessage("\r\n> ");
             }
