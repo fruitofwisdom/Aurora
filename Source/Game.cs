@@ -22,7 +22,7 @@ namespace Aurora
 
         public void Load()
         {
-            List<List<object>> infoTableValues = Database.Instance.ReadTable("Info");
+            List<List<object>> infoTableValues = Database.Instance.ReadTable("info");
             Name = (string)infoTableValues[0][0];
             StartingRoomId = (long)infoTableValues[0][1];
             ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
@@ -33,10 +33,11 @@ namespace Aurora
         {
             List<string> roomDescription = new List<string>();
 
-            // TODO: Describe the player's current room. -Ward
-            //Database.Instance.ReadTable("Rooms", player.CurrentRoomId);
-            roomDescription.Add("Unknown Room");
-            roomDescription.Add("You are in an unknown room, a swirling miasma of scintillating thoughts and turgid ideas.");
+            List<List<object>> roomsTableValues  = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
+            string name = (string)roomsTableValues[0][1];
+            string description = (string)roomsTableValues[0][2];
+            roomDescription.Add(name);
+            roomDescription.Add(description);
 
             // TODO: Describe other players. -Ward
 

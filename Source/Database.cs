@@ -74,5 +74,41 @@ namespace Aurora
 
             return tableValues;
         }
+
+        public List<List<object>> ReadTable(string table, string id_name, long id)
+        {
+            List<List<object>> tableValues = new List<List<object>>();
+
+            // TODO: Is this the right paradigm? -Ward
+            // https://stackoverflow.com/questions/9705637/executereader-requires-an-open-and-available-connection-the-connections-curren
+            using (SqliteConnection connection = new SqliteConnection(ConnectionString))
+            {
+                SqliteCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT * FROM " + table + " WHERE " + id_name + " = " + id;
+                connection.Open();
+                SqliteDataReader reader = command.ExecuteReader();
+                try
+                {
+                    int numRows = 0;
+                    while (reader.Read())
+                    {
+                        object[] values = new object[reader.FieldCount];
+                        _ = reader.GetValues(values);
+                        tableValues.Add(new List<object>(values));
+                        numRows++;
+                    }
+                }
+                catch (SqliteException exception)
+                {
+                    ServerInfo.Instance.Report("[Database] Exception caught by the database, \"" + exception.Message + "\"!\n");
+                }
+                finally
+                {
+                    reader.Close();
+                }
+            }
+
+            return tableValues;
+        }
     }
 }
