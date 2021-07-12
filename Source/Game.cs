@@ -23,10 +23,13 @@ namespace Aurora
         public void Load()
         {
             List<List<object>> infoTableValues = Database.Instance.ReadTable("info");
-            Name = (string)infoTableValues[0][0];
-            StartingRoomId = (long)infoTableValues[0][1];
-            ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
-            ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
+            if (infoTableValues.Count > 0)
+            {
+                Name = (string)infoTableValues[0][0];
+                StartingRoomId = (long)infoTableValues[0][1];
+                ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
+                ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
+            }
         }
 
         public static List<string> GetRoomDescription(Player player)
