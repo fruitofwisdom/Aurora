@@ -127,7 +127,7 @@ namespace Aurora
                 TimeSinceInput = DateTime.Now;
                 if (needLook)
                 {
-                    List<string> roomDescription = Game.Instance.GetRoomDescription(LocalPlayer);
+                    List<string> roomDescription = Game.GetRoomDescription(LocalPlayer);
                     foreach (string line in roomDescription)
                     {
                         SendMessage(line + "\r\n");

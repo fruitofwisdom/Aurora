@@ -1,4 +1,6 @@
-﻿namespace Aurora
+﻿using System.Collections.Generic;
+
+namespace Aurora
 {
     internal class Player
     {
@@ -17,10 +19,35 @@
             CurrentRoomId = currentRoomId;
         }
 
+        private string LookupShorthand(string input)
+        {
+            string toReturn = input;
+
+            Dictionary<string, string> shorthand = new Dictionary<string, string>()
+            {
+                { "n", "north" },
+                { "ne", "northeast" },
+                { "e", "east" },
+                { "se", "southeast" },
+                { "s", "south" },
+                { "sw", "southwest" },
+                { "w", "west" },
+                { "nw", "northwest" }
+            };
+            if (shorthand.ContainsKey(input))
+            {
+                toReturn = shorthand[input];
+            }
+
+            return toReturn;
+        }
+
         public void HandleInput(string input, out bool needLook)
         {
-            input = input.Trim().ToLower();
             needLook = false;
+
+            input = input.Trim().ToLower();
+            input = LookupShorthand(input);
 
             switch (input)
             {
@@ -37,7 +64,7 @@
                     needLook = true;
                     break;
                 default:
-                    LocalConnection.SendMessage("I don't understand, \"" + input + "\".\r\n");
+                    needLook = TryExit(input);
                     break;
             }
         }
@@ -47,7 +74,25 @@
             LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
             LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
-            //LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
+            LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
+        }
+
+        private bool TryExit(string input)
+        {
+            bool needLook = false;
+
+            long? newRoomId = Game.RoomContainsExit(CurrentRoomId, input);
+            if (newRoomId != null)
+            {
+                CurrentRoomId = (long)newRoomId;
+                needLook = true;
+            }
+            else
+            {
+                LocalConnection.SendMessage("You can't \"" + input + "\" here!\r\n");
+            }
+
+            return needLook;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Aurora
             ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
         }
 
-        public List<string> GetRoomDescription(Player player)
+        public static List<string> GetRoomDescription(Player player)
         {
             List<string> roomDescription = new List<string>();
 
@@ -42,6 +42,24 @@ namespace Aurora
             // TODO: Describe other players. -Ward
 
             return roomDescription;
+        }
+
+        public static long? RoomContainsExit(long roomId, string direction)
+        {
+            long? roomContainsExit = null;
+
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
+            long exitId = (long)roomsTableValues[0][3];
+            List<List<object>> exitsTableValues = Database.Instance.ReadTable("exits", "exit_id", exitId);
+            foreach (List<object> exit in exitsTableValues)
+            {
+                if ((string)exit[1] == direction)
+                {
+                    roomContainsExit = (long)exit[2];
+                }
+            }
+
+            return roomContainsExit;
         }
     }
 }
