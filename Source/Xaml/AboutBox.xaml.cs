@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace Aurora
@@ -14,6 +16,12 @@ namespace Aurora
         public AboutBox()
         {
             InitializeComponent();
+
+            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+            Version.Content = versionInfo.ProductVersion;
+            Company.Text = versionInfo.CompanyName;
+            About.Document.Blocks.Clear();
+            About.Document.Blocks.Add(new Paragraph(new Run(versionInfo.Comments)));
         }
 
         private void TextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)

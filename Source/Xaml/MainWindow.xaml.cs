@@ -9,7 +9,7 @@ namespace Aurora
     public partial class MainWindow : Window
     {
         // this callback lets us interface with Form components from threaded events
-        private ServerInfoHandler EventHandler = null;
+        private readonly ServerInfoHandler EventHandler = null;
 
         public MainWindow()
         {
@@ -23,11 +23,11 @@ namespace Aurora
         {
             if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
             {
-                ConnectToDatabase();
+                Database.Instance.Configure();
             }
             else
             {
-                ServerInfo.Instance.Report("Please choose a database!\n");
+                ServerInfo.Instance.Report("[Aurora] Please choose a database file!\n");
             }
         }
 
@@ -36,7 +36,6 @@ namespace Aurora
             ServerInfo.Instance.EventReceived -= EventHandler;
 
             StopServer();
-            DisconnectFromDatabase();
         }
 
         private void ChooseDatabase_Click(object sender, RoutedEventArgs e)
@@ -49,8 +48,7 @@ namespace Aurora
             {
                 Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
                 Properties.Settings.Default.Save();
-                DisconnectFromDatabase();
-                ConnectToDatabase();
+                Database.Instance.Configure();
             }
         }
 
@@ -85,10 +83,11 @@ namespace Aurora
             ServerStatusBarItem.Content = args.Connections + " active connections";
         }
 
-        private void HandleEvent(ServerInfoDatabaseArgs args)
+        private void HandleEvent(ServerInfoGameArgs args)
         {
-            if (args.Connected)
+            if (args.Loaded)
             {
+                this.Title = "Aurora - " + Game.Instance.Name;
                 StartMenuItem.IsEnabled = true;
                 StopMenuItem.IsEnabled = false;
             }
@@ -123,24 +122,21 @@ namespace Aurora
 
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)
         {
-            // TODO: New threading model? -Ward
-            /*
-            if (ConsoleTextBox.InvokeRequired)
+            if (!CheckAccess())
             {
                 // we came from a different thread, invoke our thread-safe callback
-                Invoke(EventHandler, new object[] { sender, args });
+                Dispatcher.Invoke(EventHandler, new object[] { sender, args });
             }
             else
-            */
             {
                 // TODO: Find a scalable way to do this. Automatically? -Ward
                 if (typeof(ServerInfoConnectionsArgs).IsInstanceOfType(args))
                 {
                     HandleEvent((ServerInfoConnectionsArgs)args);
                 }
-                else if (typeof(ServerInfoDatabaseArgs).IsInstanceOfType(args))
+                else if (typeof(ServerInfoGameArgs).IsInstanceOfType(args))
                 {
-                    HandleEvent((ServerInfoDatabaseArgs)args);
+                    HandleEvent((ServerInfoGameArgs)args);
                 }
                 else if (typeof(ServerInfoReportArgs).IsInstanceOfType(args))
                 {
@@ -151,17 +147,6 @@ namespace Aurora
                     HandleEvent((ServerInfoServerArgs)args);
                 }
             }
-        }
-
-        private void ConnectToDatabase()
-        {
-            Database.Instance.Configure();
-            Database.Instance.ConnectAsync();
-        }
-
-        private void DisconnectFromDatabase()
-        {
-            Database.Instance.DisconnectAsync();
         }
 
         private void StartServer()

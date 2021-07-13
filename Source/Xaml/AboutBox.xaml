@@ -9,15 +9,9 @@
     <Grid>
         <Image Margin="-28,10,424,10" Source="/Assets/about.png"/>
         <Label Content="Aurora" HorizontalAlignment="Left" Margin="193,10,0,0" VerticalAlignment="Top"/>
-        <Label Content="0.3.0" HorizontalAlignment="Left" Margin="193,41,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Margin="193,72,0,0" Text="https://github.com/fruitofwisdom/Aurora" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" TextDecorations="Underline" Foreground="#FF0078D7" BorderBrush="{x:Null}" Cursor="Hand" MouseDoubleClick="TextBox_MouseDoubleClick"/>
-        <RichTextBox Margin="193,95,10,39">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text="Image of the aurora borealis by Raul Popadineți on Unsplash."/>
-                </Paragraph>
-            </FlowDocument>
-        </RichTextBox>
+        <Label x:Name="Version" Content="Unknown Version" HorizontalAlignment="Left" Margin="193,41,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Company" HorizontalAlignment="Left" Margin="193,72,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" TextDecorations="Underline" Foreground="#FF0078D7" BorderBrush="{x:Null}" Cursor="Hand" MouseDoubleClick="TextBox_MouseDoubleClick"/>
+        <RichTextBox x:Name="About" Margin="193,95,10,39"/>
         <Button x:Name="OKButton" Content="OK" Margin="0,0,6,9" Click="OKButton_Click" HorizontalAlignment="Right" Width="100" Height="25" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>

@@ -13,8 +13,8 @@
                 <MenuItem x:Name="ExitMenuItem" Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem x:Name="ServerMenuItem" Header="Server">
-                <MenuItem x:Name="StartMenuItem" Header="Start" Click="StartMenuItem_Click"/>
-                <MenuItem x:Name="StopMenuItem" Header="Stop" Click="StopMenuItem_Click"/>
+                <MenuItem x:Name="StartMenuItem" Header="Start" Click="StartMenuItem_Click" IsEnabled="False"/>
+                <MenuItem x:Name="StopMenuItem" Header="Stop" Click="StopMenuItem_Click" IsEnabled="False"/>
             </MenuItem>
             <MenuItem x:Name="ConsoleMenuItem" Header="Console">
                 <MenuItem x:Name="ClearMenuItem" Header="Clear" Click="ClearMenuItem_Click"/>
@@ -23,7 +23,7 @@
                 <MenuItem x:Name="AboutMenuItem" Header="About" Click="AboutMenuItem_Click"/>
             </MenuItem>
         </Menu>
-        <TextBox x:Name="ConsoleTextBox" TextWrapping="Wrap" Margin="10,30,10,30"/>
+        <TextBox x:Name="ConsoleTextBox" TextWrapping="Wrap" Margin="10,30,10,30" IsReadOnly="True"/>
         <StatusBar x:Name="ServerStatusBar" Height="25" VerticalAlignment="Bottom">
             <StatusBarItem x:Name="ServerStatusBarItem" Content="" Height="25" VerticalAlignment="Center"/>
         </StatusBar>
