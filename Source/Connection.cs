@@ -75,6 +75,7 @@ namespace Aurora
                         // time out after five minutes
                         else if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
                         {
+                            ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
                             Quit(false);
                         }
                     }
@@ -90,6 +91,7 @@ namespace Aurora
             catch (Exception exception)
             {
                 ServerInfo.Instance.Report("[Connection] Exception caught by client (" + ClientID + "), \"" + exception.Message + "\"!\n");
+                Quit(false);
             }
             finally
             {
@@ -164,7 +166,7 @@ namespace Aurora
             }
             else
             {
-                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
+                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") quit unexpectedly.\n");
             }
             ClientQuit = true;
         }

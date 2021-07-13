@@ -79,20 +79,28 @@ namespace Aurora
 
         private bool TryExit(string input)
         {
-            bool needLook = false;
+            bool didExit = false;
 
             long? newRoomId = Game.RoomContainsExit(CurrentRoomId, input);
             if (newRoomId != null)
             {
-                CurrentRoomId = (long)newRoomId;
-                needLook = true;
+                if (Game.RoomExists((long)newRoomId))
+                {
+                    CurrentRoomId = (long)newRoomId;
+                    didExit = true;
+                }
+                else
+                {
+                    ServerInfo.Instance.Report("[Player \"" + Name + "\"] Room with room_id " + newRoomId + " wasn't found!\n");
+                }
             }
-            else
+
+            if (!didExit)
             {
                 LocalConnection.SendMessage("You can't \"" + input + "\" here!\r\n");
             }
 
-            return needLook;
+            return didExit;
         }
     }
 }

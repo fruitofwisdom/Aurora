@@ -64,5 +64,11 @@ namespace Aurora
 
             return roomContainsExit;
         }
+
+        public static bool RoomExists(long roomId)
+        {
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
+            return roomsTableValues.Count > 0;
+        }
     }
 }
