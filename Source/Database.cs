@@ -20,23 +20,16 @@ namespace Aurora
             }
         }
 
-        public void Configure()
+        public void Configure(string databaseFilename)
         {
-            if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
+            ServerInfo.Instance.Report($"[Database] File is: {databaseFilename}\n");
+            ConnectionString = new SqliteConnectionStringBuilder()
             {
-                ServerInfo.Instance.Report("[Database] File is: " + Properties.Settings.Default["DatabaseFilename"] + "\n");
-                ConnectionString = new SqliteConnectionStringBuilder()
-                {
-                    DataSource = (string)Properties.Settings.Default["DatabaseFilename"],
-                    Mode = SqliteOpenMode.ReadWrite
-                }.ToString();
+                DataSource = databaseFilename,
+                Mode = SqliteOpenMode.ReadWrite
+            }.ToString();
 
-                Game.Instance.Load();
-            }
-            else
-            {
-                ServerInfo.Instance.Report("[Database] No file specified!\n");
-            }
+            Game.Instance.Load();
         }
 
         public List<List<object>> ReadTableInternal(string commandText)
