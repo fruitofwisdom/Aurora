@@ -176,12 +176,44 @@ namespace Aurora
             Running = false;
         }
 
+        // This function will automatically split a message at a terminal width of 80
+        // characters, inserting newlines as appropriate. Any ending newlines that are
+        // passed in will be preserved.
         public void SendMessage(string message)
         {
             if (!ClientQuit)
             {
-                byte[] messageData = System.Text.Encoding.ASCII.GetBytes(message);
-                Client.GetStream().Write(messageData, 0, message.Length);
+                string line = "";
+                int width = 0;
+                string[] words = message.Split(' ');
+
+                for (int i = 0; i < words.Length; ++i)
+                {
+                    line += words[i];
+                    width += words[i].Length;
+
+                    if (i == words.Length - 1)
+                    {
+                        byte[] messageData = System.Text.Encoding.ASCII.GetBytes(line);
+                        Client.GetStream().Write(messageData, 0, line.Length);
+                    }
+                    else
+                    {
+                        if (width + words[i + 1].Length >= 80 - 1)
+                        {
+                            line += "\r\n";
+                            byte[] messageData = System.Text.Encoding.ASCII.GetBytes(line);
+                            Client.GetStream().Write(messageData, 0, line.Length);
+                            line = "";
+                            width = 0;
+                        }
+                        else
+                        {
+                            line += ' ';
+                            width += 1;
+                        }
+                     }
+                }
             }
         }
     }
