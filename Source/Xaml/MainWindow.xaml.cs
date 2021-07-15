@@ -21,9 +21,10 @@ namespace Aurora
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if ((string)Properties.Settings.Default["DatabaseFilename"] != "")
+            string databaseFilename = (string)Properties.Settings.Default["DatabaseFilename"];
+            if (databaseFilename != "")
             {
-                Database.Instance.Configure();
+                Database.Instance.Configure(databaseFilename);
             }
             else
             {
@@ -48,7 +49,7 @@ namespace Aurora
             {
                 Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
                 Properties.Settings.Default.Save();
-                Database.Instance.Configure();
+                Database.Instance.Configure((string)Properties.Settings.Default["DatabaseFilename"]);
             }
         }
 
