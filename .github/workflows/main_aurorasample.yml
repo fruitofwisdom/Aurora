@@ -24,7 +24,7 @@ jobs:
         dotnet-version: '5.0.x'
 
     - name: Build with dotnet
-      run: dotnet build --configuration Release --output ${{env.BINARIES}}
+      run: dotnet build --configuration Release
 
 
     - name: dotnet publish
