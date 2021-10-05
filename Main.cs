@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Aurora
@@ -37,9 +38,12 @@ namespace Aurora
                     AllocConsole();
                 }
 
-                Console.WriteLine("[Aurora] Running in console-only mode.");
-
                 var consoleApp = new ConsoleApp(args[0]);
+                FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
+                string version = versionInfo.ProductVersion;
+                Console.Title = "Aurora v" + version + " - " + Game.Instance.Name;
+
+                Console.WriteLine("[Aurora] Running in console-only mode.");
                 consoleApp.Run();
 
                 Console.WriteLine("[Aurora] Good-bye!");

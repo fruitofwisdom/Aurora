@@ -4,7 +4,7 @@ namespace Aurora
 {
     internal class Game
     {
-        public string Name = "Unknown Aurora Game";
+        public string Name = "Unknown Game";
         public long StartingRoomId = 0;
 
         private static Game _instance = null;
@@ -32,17 +32,28 @@ namespace Aurora
             }
         }
 
-        public static List<string> GetRoomDescription(Player player)
+        public static string GetRoomName(Player player)
         {
-            List<string> roomDescription = new List<string>();
+            string roomName = "Unknown Room";
+
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
+            if (roomsTableValues.Count > 0)
+            {
+                roomName = (string)roomsTableValues[0][1];
+            }
+
+            return roomName;
+        }
+
+        public static string GetRoomDescription(Player player)
+        {
+            string roomDescription = "Unknown Description";
 
             List<List<object>> roomsTableValues  = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
-            string name = (string)roomsTableValues[0][1];
-            string description = (string)roomsTableValues[0][2];
-            roomDescription.Add(name);
-            roomDescription.Add(description);
-
-            // TODO: Describe other players. -Ward
+            if (roomsTableValues.Count > 0)
+            {
+                roomDescription = (string)roomsTableValues[0][2];
+            }
 
             return roomDescription;
         }

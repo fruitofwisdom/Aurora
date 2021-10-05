@@ -42,11 +42,11 @@ namespace Aurora
             return toReturn;
         }
 
-        public void HandleInput(string input, out bool needLook)
+        public void HandleInput(string input, out bool descriptionNeeded)
         {
-            needLook = false;
+            descriptionNeeded = false;
 
-            input = input.Trim().ToLower();
+            input = input.ToLower();
             input = LookupShorthand(input);
 
             switch (input)
@@ -61,10 +61,10 @@ namespace Aurora
                     PrintHelp();
                     break;
                 case "look":
-                    needLook = true;
+                    descriptionNeeded = true;
                     break;
                 default:
-                    needLook = TryExit(input);
+                    descriptionNeeded = TryExit(input);
                     break;
             }
         }

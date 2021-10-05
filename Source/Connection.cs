@@ -11,14 +11,15 @@ namespace Aurora
     {
         private enum InputState
         {
-            IS_Login,
-            IS_Play,
+            Login,
+            Play,
         };
 
-        private bool Running;
+        private bool Running = false;
+        private bool DescriptionNeeded = true;
         public bool ClientQuit { get; private set; }
         private DateTime TimeSinceInput;
-        private InputState LocalInputState = InputState.IS_Login;
+        private InputState LocalInputState = InputState.Login;
         public int ClientID { get; private set; }
         private readonly Player LocalPlayer;
         private readonly TcpClient Client;
@@ -26,8 +27,6 @@ namespace Aurora
 
         public Connection(TcpClient client, int clientID)
         {
-            Running = false;
-            ClientQuit = false;
             TimeSinceInput = DateTime.Now;
             ClientID = clientID;
             LocalPlayer = new Player(this);
@@ -56,8 +55,8 @@ namespace Aurora
                 }
                 FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
                 string version = versionInfo.ProductVersion;
-                string welcomeMessage = "Welcome to \"" + Game.Instance.Name + "\", running on Aurora version." + version + "!\r\n\r\nWhat is your name? ";
-                stream.Write(System.Text.Encoding.ASCII.GetBytes(welcomeMessage), 0, welcomeMessage.Length);
+                SendMessage("Welcome to \"" + Game.Instance.Name + "\", running on Aurora version " + version + "!\r\n\r\n");
+                SendMessage("What is your name?\r\n> ");
 
                 // loop until the client has left and the thread is terminated
                 while (Running)
@@ -65,15 +64,16 @@ namespace Aurora
                     // NOTE: Don't react if the client has already quit - we're waiting to be pruned. -Ward
                     if (!ClientQuit)
                     {
-                        // TODO: Is it OK that we don't block waiting for data? -Ward
                         if (stream.DataAvailable)
                         {
                             byte[] bytes = new byte[256];
                             int count = stream.Read(bytes, 0, bytes.Length);
                             ParseInput(System.Text.Encoding.ASCII.GetString(bytes, 0, count));
+                            TimeSinceInput = DateTime.Now;
                         }
+
                         // time out after five minutes
-                        else if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
+                        if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
                         {
                             ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
                             Quit(false);
@@ -102,41 +102,38 @@ namespace Aurora
 
         private void HandleInput(string input)
         {
-            if (input != string.Empty)
+            if (input == string.Empty)
             {
-                bool needLook = false;
-
-                switch (LocalInputState)
-                {
-                    case InputState.IS_Login:
-                        LocalPlayer.Name = input;
-                        SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\n");
-                        SendMessage("Type \"help\" for more information.\r\n\r\n");
-                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
-
-                        // TODO: Properly save and load players. -Ward
-                        LocalPlayer.Load(Game.Instance.StartingRoomId);
-
-                        LocalInputState = InputState.IS_Play;
-                        needLook = true;
-                        break;
-
-                    case InputState.IS_Play:
-                        LocalPlayer.HandleInput(input, out needLook);
-                        break;
-                }
-
-                TimeSinceInput = DateTime.Now;
-                if (needLook)
-                {
-                    List<string> roomDescription = Game.GetRoomDescription(LocalPlayer);
-                    foreach (string line in roomDescription)
-                    {
-                        SendMessage(line + "\r\n");
-                    }
-                }
-                SendMessage("\r\n> ");
+                return;
             }
+
+            switch (LocalInputState)
+            {
+                case InputState.Login:
+                    LocalPlayer.Name = input;
+                    SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\n");
+                    SendMessage("Type \"help\" for more information.\r\n");
+                    ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
+
+                    // TODO: Properly save and load players. -Ward
+                    LocalPlayer.Load(Game.Instance.StartingRoomId);
+
+                    LocalInputState = InputState.Play;
+                    break;
+
+                case InputState.Play:
+                    LocalPlayer.HandleInput(input, out DescriptionNeeded);
+                    break;
+            }
+
+            SendMessage("\r\n");
+            SendMessage(Game.GetRoomName(LocalPlayer) + "\r\n");
+            if (DescriptionNeeded)
+            {
+                SendMessage(Game.GetRoomDescription(LocalPlayer) + "\r\n");
+                DescriptionNeeded = false;
+            }
+            SendMessage("> ");
         }
 
         private void ParseInput(string input)
@@ -147,7 +144,7 @@ namespace Aurora
                 // an end of line is the end of our valid input
                 if (letter == '\n' || letter == '\r' || letter == 0)
                 {
-                    HandleInput(bufferedInput);
+                    HandleInput(bufferedInput.Trim());
                     bufferedInput = string.Empty;
                 }
                 else
