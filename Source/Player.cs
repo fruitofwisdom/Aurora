@@ -5,7 +5,9 @@ namespace Aurora
     internal class Player
     {
         private readonly Connection LocalConnection;
-        public string Name = "player";
+        public string Name = "Unknown Player";
+        private string Password = "password";
+        public bool IsAdmin = false;
         public long CurrentRoomId = 0;
 
         public Player(Connection connection)
@@ -13,10 +15,42 @@ namespace Aurora
             LocalConnection = connection;
         }
 
-        // TODO: Properly save and load players. -Ward
-        public void Load(long currentRoomId)
+        public bool PasswordMatches(string password)
         {
-            CurrentRoomId = currentRoomId;
+            bool matchesPassword = false;
+
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("players", "name", Name);
+            if (roomsTableValues.Count > 0)
+            {
+                matchesPassword = password == (string)roomsTableValues[0][2];
+            }
+
+            return matchesPassword;
+        }
+
+        public void Initialize(string password, long startingRoomId)
+        {
+            Password = password;
+            CurrentRoomId = startingRoomId;
+            Save();
+        }
+
+        public void Load()
+        {
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("players", "name", Name);
+            if (roomsTableValues.Count > 0)
+            {
+                Password = (string)roomsTableValues[0][2];
+                IsAdmin = (long)roomsTableValues[0][3] != 0;
+                CurrentRoomId = (long)roomsTableValues[0][4];
+            }
+        }
+
+        public void Save()
+        {
+            List<string> columns = new List<string>() { "name", "password", "is_admin", "current_room_id" };
+            List<object> values = new List<object>() { Name, Password, IsAdmin, CurrentRoomId };
+            Database.Instance.WriteTable("players", columns, values);
         }
 
         private string LookupShorthand(string input)
@@ -87,6 +121,7 @@ namespace Aurora
                 if (Game.RoomExists((long)newRoomId))
                 {
                     CurrentRoomId = (long)newRoomId;
+                    Save();
                     didExit = true;
                 }
                 else

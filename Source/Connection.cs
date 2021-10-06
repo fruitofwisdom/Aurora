@@ -11,7 +11,9 @@ namespace Aurora
     {
         private enum InputState
         {
-            Login,
+            LoginName,
+            LoginExistingPassword,
+            LoginNewPassword,
             Play,
         };
 
@@ -19,7 +21,7 @@ namespace Aurora
         private bool DescriptionNeeded = true;
         public bool ClientQuit { get; private set; }
         private DateTime TimeSinceInput;
-        private InputState LocalInputState = InputState.Login;
+        private InputState LocalInputState = InputState.LoginName;
         public int ClientID { get; private set; }
         private readonly Player LocalPlayer;
         private readonly TcpClient Client;
@@ -109,15 +111,49 @@ namespace Aurora
 
             switch (LocalInputState)
             {
-                case InputState.Login:
+                case InputState.LoginName:
+                    if (Database.Instance.DoesValueExistInColumn("players", "name", input))
+                    {
+                        SendMessage("Welcome back, " + input + "!\r\n");
+                        SendMessage("What is your password?\r\n> ");
+                        LocalInputState = InputState.LoginExistingPassword;
+                    }
+                    else
+                    {
+                        SendMessage("Pleased to meet you, " + input + "!\r\n");
+                        SendMessage("What would you like your password to be?\r\n> ");
+                        LocalInputState = InputState.LoginNewPassword;
+                    }
+
                     LocalPlayer.Name = input;
-                    SendMessage("Hello, " + LocalPlayer.Name + ". Nice to meet you.\r\n");
-                    SendMessage("Type \"help\" for more information.\r\n");
                     ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
+                    break;
 
-                    // TODO: Properly save and load players. -Ward
-                    LocalPlayer.Load(Game.Instance.StartingRoomId);
+                case InputState.LoginExistingPassword:
+                    if (LocalPlayer.PasswordMatches(input))
+                    {
+                        SendMessage("Enjoy your stay!\r\n");
+                        SendMessage("Type \"help\" for more information.\r\n");
 
+                        LocalPlayer.Load();
+                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
+                        LocalInputState = InputState.Play;
+                    }
+                    else
+                    {
+                        SendMessage("I'm sorry, that's not correct.\r\n");
+
+                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
+                        Quit(true);
+                    }
+                    break;
+
+                case InputState.LoginNewPassword:
+                    SendMessage("Enjoy your stay!\r\n");
+                    SendMessage("Type \"help\" for more information.\r\n");
+
+                    LocalPlayer.Initialize(input, Game.Instance.StartingRoomId);
+                    ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
                     LocalInputState = InputState.Play;
                     break;
 
@@ -126,14 +162,17 @@ namespace Aurora
                     break;
             }
 
-            SendMessage("\r\n");
-            SendMessage(Game.GetRoomName(LocalPlayer) + "\r\n");
-            if (DescriptionNeeded)
+            if (LocalInputState == InputState.Play)
             {
-                SendMessage(Game.GetRoomDescription(LocalPlayer) + "\r\n");
-                DescriptionNeeded = false;
+                SendMessage("\r\n");
+                SendMessage(Game.GetRoomName(LocalPlayer) + "\r\n");
+                if (DescriptionNeeded)
+                {
+                    SendMessage(Game.GetRoomDescription(LocalPlayer) + "\r\n");
+                    DescriptionNeeded = false;
+                }
+                SendMessage("> ");
             }
-            SendMessage("> ");
         }
 
         private void ParseInput(string input)
