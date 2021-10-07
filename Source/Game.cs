@@ -98,5 +98,25 @@ namespace Aurora
             List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
             return roomsTableValues.Count > 0;
         }
+
+        public void ReportPlayerMoved(Player player, long fromRoomId, long toRoomId)
+        {
+            foreach (Player otherPlayer in Players)
+            {
+                if (otherPlayer == player)
+                {
+                    continue;
+                }
+
+                if (otherPlayer.CurrentRoomId == fromRoomId)
+                {
+                    otherPlayer.Message(player.Name + " has left.\r\n");
+                }
+                else if (otherPlayer.CurrentRoomId == toRoomId)
+                {
+                    otherPlayer.Message(player.Name + " has arrived.\r\n");
+                }
+            }
+        }
     }
 }

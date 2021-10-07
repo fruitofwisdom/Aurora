@@ -61,6 +61,11 @@ namespace Aurora
             Database.Instance.WriteTable("players", columns, values);
         }
 
+        public void Message(string message)
+        {
+            LocalConnection.SendMessage(message);
+        }
+
         private string LookupShorthand(string input)
         {
             string toReturn = input;
@@ -148,6 +153,7 @@ namespace Aurora
             {
                 if (Game.RoomExists((long)newRoomId))
                 {
+                    Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (long)newRoomId);
                     CurrentRoomId = (long)newRoomId;
                     Save();
                     didExit = true;

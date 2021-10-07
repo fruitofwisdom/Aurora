@@ -175,6 +175,7 @@ namespace Aurora
 
                 LocalPlayer.Load();
                 Game.Instance.Players.Add(LocalPlayer);
+                Game.Instance.ReportPlayerMoved(LocalPlayer, -1, LocalPlayer.CurrentRoomId);
                 ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
                 LocalInputState = InputState.Play;
             }
@@ -197,6 +198,7 @@ namespace Aurora
             string saltAsString = Convert.ToBase64String(salt);
             LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
             Game.Instance.Players.Add(LocalPlayer);
+            Game.Instance.ReportPlayerMoved(LocalPlayer, -1, LocalPlayer.CurrentRoomId);
             ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
             LocalInputState = InputState.Play;
         }
@@ -237,6 +239,7 @@ namespace Aurora
         {
             if (Game.Instance.Players.Contains(LocalPlayer))
             {
+                Game.Instance.ReportPlayerMoved(LocalPlayer, LocalPlayer.CurrentRoomId, -1);
                 Game.Instance.Players.Remove(LocalPlayer);
                 ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" left the game.\n");
             }
