@@ -138,6 +138,11 @@ namespace Aurora
                     SendMessage(Game.GetRoomDescription(LocalPlayer) + "\r\n");
                     DescriptionNeeded = false;
                 }
+                string roomContents = Game.GetRoomContents(LocalPlayer);
+                if (roomContents != "")
+                {
+                    SendMessage(roomContents);
+                }
                 SendMessage("> ");
             }
         }
@@ -169,6 +174,7 @@ namespace Aurora
                 SendMessage("Type \"help\" for more information.\r\n");
 
                 LocalPlayer.Load();
+                Game.Instance.Players.Add(LocalPlayer);
                 ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
                 LocalInputState = InputState.Play;
             }
@@ -190,6 +196,7 @@ namespace Aurora
             string hashedPassword = HashPassword(password, salt);
             string saltAsString = Convert.ToBase64String(salt);
             LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
+            Game.Instance.Players.Add(LocalPlayer);
             ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
             LocalInputState = InputState.Play;
         }
@@ -226,9 +233,13 @@ namespace Aurora
             }
         }
 
-        // TODO: Improve this. -Ward
         public void Quit(bool properly)
         {
+            if (Game.Instance.Players.Contains(LocalPlayer))
+            {
+                Game.Instance.Players.Remove(LocalPlayer);
+                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" left the game.\n");
+            }
             if (properly)
             {
                 ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") quit.\n");

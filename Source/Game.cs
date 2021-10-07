@@ -7,6 +7,8 @@ namespace Aurora
         public string Name = "Unknown Game";
         public long StartingRoomId = 0;
 
+        public List<Player> Players = new List<Player>();
+
         private static Game _instance = null;
         public static Game Instance
         {
@@ -56,6 +58,21 @@ namespace Aurora
             }
 
             return roomDescription;
+        }
+
+        public static string GetRoomContents(Player player)
+        {
+            string roomContents = "";
+
+            foreach (Player otherPlayer in Instance.Players)
+            {
+                if (otherPlayer != player && otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                {
+                    roomContents += otherPlayer.Name + " is here.\r\n";
+                }
+            }
+
+            return roomContents;
         }
 
         public static long? RoomContainsExit(long roomId, string direction)

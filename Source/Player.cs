@@ -105,6 +105,9 @@ namespace Aurora
                 case "look":
                     descriptionNeeded = true;
                     break;
+                case "who":
+                    PrintWho();
+                    break;
                 default:
                     descriptionNeeded = TryExit(input);
                     break;
@@ -117,6 +120,23 @@ namespace Aurora
             LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
             LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
+            LocalConnection.SendMessage("     \"who\" to see who else is playing.\r\n");
+        }
+
+        private void PrintWho()
+        {
+            if (Game.Instance.Players.Count == 1)
+            {
+                LocalConnection.SendMessage("There is 1 player currently:\r\n");
+            }
+            else
+            {
+                LocalConnection.SendMessage("There are " + Game.Instance.Players.Count + " players currently:\r\n");
+            }
+            foreach (Player player in Game.Instance.Players)
+            {
+                LocalConnection.SendMessage("     " + player.Name + "\r\n");
+            }
         }
 
         private bool TryExit(string input)
