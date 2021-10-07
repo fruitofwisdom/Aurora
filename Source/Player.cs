@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Aurora
 {
@@ -6,7 +7,8 @@ namespace Aurora
     {
         private readonly Connection LocalConnection;
         public string Name = "Unknown Player";
-        private string Password = "password";
+        private string Password;
+        private string Salt;
         public bool IsAdmin = false;
         public long CurrentRoomId = 0;
 
@@ -17,20 +19,25 @@ namespace Aurora
 
         public bool PasswordMatches(string password)
         {
-            bool matchesPassword = false;
+            bool passwordMatches = false;
 
             List<List<object>> roomsTableValues = Database.Instance.ReadTable("players", "name", Name);
             if (roomsTableValues.Count > 0)
             {
-                matchesPassword = password == (string)roomsTableValues[0][2];
+                string actualPassword = (string)roomsTableValues[0][2];
+                string saltAsString = (string)roomsTableValues[0][3];
+                byte[] salt = Convert.FromBase64String(saltAsString);
+                string hashedPassword = Connection.HashPassword(password, salt);
+                passwordMatches = actualPassword == hashedPassword;
             }
 
-            return matchesPassword;
+            return passwordMatches;
         }
 
-        public void Initialize(string password, long startingRoomId)
+        public void Initialize(string password, string salt, long startingRoomId)
         {
             Password = password;
+            Salt = salt;
             CurrentRoomId = startingRoomId;
             Save();
         }
@@ -41,15 +48,16 @@ namespace Aurora
             if (roomsTableValues.Count > 0)
             {
                 Password = (string)roomsTableValues[0][2];
-                IsAdmin = (long)roomsTableValues[0][3] != 0;
-                CurrentRoomId = (long)roomsTableValues[0][4];
+                Salt = (string)roomsTableValues[0][3];
+                IsAdmin = (long)roomsTableValues[0][4] != 0;
+                CurrentRoomId = (long)roomsTableValues[0][5];
             }
         }
 
         public void Save()
         {
-            List<string> columns = new List<string>() { "name", "password", "is_admin", "current_room_id" };
-            List<object> values = new List<object>() { Name, Password, IsAdmin, CurrentRoomId };
+            List<string> columns = new List<string>() { "name", "password", "salt", "is_admin", "current_room_id" };
+            List<object> values = new List<object>() { Name, Password, Salt, IsAdmin, CurrentRoomId };
             Database.Instance.WriteTable("players", columns, values);
         }
 

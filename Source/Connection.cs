@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace Aurora
@@ -112,49 +113,15 @@ namespace Aurora
             switch (LocalInputState)
             {
                 case InputState.LoginName:
-                    if (Database.Instance.DoesValueExistInColumn("players", "name", input))
-                    {
-                        SendMessage("Welcome back, " + input + "!\r\n");
-                        SendMessage("What is your password?\r\n> ");
-                        LocalInputState = InputState.LoginExistingPassword;
-                    }
-                    else
-                    {
-                        SendMessage("Pleased to meet you, " + input + "!\r\n");
-                        SendMessage("What would you like your password to be?\r\n> ");
-                        LocalInputState = InputState.LoginNewPassword;
-                    }
-
-                    LocalPlayer.Name = input;
-                    ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
+                    HandleLoginName(input);
                     break;
 
                 case InputState.LoginExistingPassword:
-                    if (LocalPlayer.PasswordMatches(input))
-                    {
-                        SendMessage("Enjoy your stay!\r\n");
-                        SendMessage("Type \"help\" for more information.\r\n");
-
-                        LocalPlayer.Load();
-                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
-                        LocalInputState = InputState.Play;
-                    }
-                    else
-                    {
-                        SendMessage("I'm sorry, that's not correct.\r\n");
-
-                        ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
-                        Quit(true);
-                    }
+                    HandleLoginExistingPassword(input);
                     break;
 
                 case InputState.LoginNewPassword:
-                    SendMessage("Enjoy your stay!\r\n");
-                    SendMessage("Type \"help\" for more information.\r\n");
-
-                    LocalPlayer.Initialize(input, Game.Instance.StartingRoomId);
-                    ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
-                    LocalInputState = InputState.Play;
+                    HandleLoginNewPassword(input);
                     break;
 
                 case InputState.Play:
@@ -173,6 +140,72 @@ namespace Aurora
                 }
                 SendMessage("> ");
             }
+        }
+
+        private void HandleLoginName(string name)
+        {
+            if (Database.Instance.DoesValueExistInColumn("players", "name", name))
+            {
+                SendMessage("Welcome back, " + name + "!\r\n");
+                SendMessage("What is your password?\r\n> ");
+                LocalInputState = InputState.LoginExistingPassword;
+            }
+            else
+            {
+                SendMessage("Pleased to meet you, " + name + "!\r\n");
+                SendMessage("What would you like your password to be?\r\n> ");
+                LocalInputState = InputState.LoginNewPassword;
+            }
+
+            LocalPlayer.Name = name;
+            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
+        }
+
+        private void HandleLoginExistingPassword(string password)
+        {
+            if (LocalPlayer.PasswordMatches(password))
+            {
+                SendMessage("Enjoy your stay!\r\n");
+                SendMessage("Type \"help\" for more information.\r\n");
+
+                LocalPlayer.Load();
+                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
+                LocalInputState = InputState.Play;
+            }
+            else
+            {
+                SendMessage("I'm sorry, that's not correct.\r\n");
+
+                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
+                Quit(true);
+            }
+        }
+
+        private void HandleLoginNewPassword(string password)
+        {
+            SendMessage("Enjoy your stay!\r\n");
+            SendMessage("Type \"help\" for more information.\r\n");
+
+            byte[] salt = GenerateSalt();
+            string hashedPassword = HashPassword(password, salt);
+            string saltAsString = Convert.ToBase64String(salt);
+            LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
+            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
+            LocalInputState = InputState.Play;
+        }
+
+        private static byte[] GenerateSalt()
+        {
+            byte[] salt = new byte[8];
+            new RNGCryptoServiceProvider().GetBytes(salt);
+            return salt;
+        }
+
+        public static string HashPassword(string password, byte[] salt)
+        {
+            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
+            byte[] hash = pbkdf2.GetBytes(20);
+            return Convert.ToBase64String(hash);
         }
 
         private void ParseInput(string input)
