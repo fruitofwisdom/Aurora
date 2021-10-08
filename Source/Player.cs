@@ -6,11 +6,16 @@ namespace Aurora
     internal class Player
     {
         private readonly Connection LocalConnection;
+
+        // these fields are stores in the database in this order
         public string Name = "Unknown Player";
         private string Password;
         private string Salt;
         public bool IsAdmin = false;
         public long CurrentRoomId = 0;
+
+        private bool DescriptionNeeded = true;
+        private string LastInput = "";
 
         public Player(Connection connection)
         {
@@ -24,6 +29,8 @@ namespace Aurora
             List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
             if (playersTableValues.Count > 0)
             {
+                // retrieve the salt from the database, hash the provided password, and see if it
+                // matches the actual password
                 string actualPassword = (string)playersTableValues[0][2];
                 string saltAsString = (string)playersTableValues[0][3];
                 byte[] salt = Convert.FromBase64String(saltAsString);
@@ -66,12 +73,36 @@ namespace Aurora
             LocalConnection.SendMessage(message);
         }
 
+        private static string GetCommand(string input)
+        {
+            string command = input.Split()[0].ToLower();
+            command = command.Trim();
+            return command;
+        }
+
+        private static string GetArgument(string input)
+        {
+            string argument = "";
+            string[] words = input.Split(' ');
+            for (int i = 1; i < words.Length; ++i)
+            {
+                argument += words[i];
+                if (i != words.Length - 1)
+                {
+                    argument += " ";
+                }
+            }
+            argument = argument.Trim();
+            return argument;
+        }
+
         private string LookupShorthand(string input)
         {
             string toReturn = input;
 
             Dictionary<string, string> shorthand = new Dictionary<string, string>()
             {
+                { "l", "look" },
                 { "n", "north" },
                 { "ne", "northeast" },
                 { "e", "east" },
@@ -79,7 +110,9 @@ namespace Aurora
                 { "s", "south" },
                 { "sw", "southwest" },
                 { "w", "west" },
-                { "nw", "northwest" }
+                { "nw", "northwest" },
+                { "u", "up" },
+                { "d", "down" }
             };
             if (shorthand.ContainsKey(input))
             {
@@ -89,12 +122,23 @@ namespace Aurora
             return toReturn;
         }
 
-        public void HandleInput(string input, out bool descriptionNeeded)
+        public void HandleInput(string input)
         {
-            descriptionNeeded = false;
+            // the ! command will repeat any previous input
+            if (input == "!")
+            {
+                if (LastInput == "")
+                {
+                    LocalConnection.SendMessage("You haven't done anything yet.\r\n");
+                    return;
+                }
+                input = LastInput;
+            }
 
-            string command = input.Split()[0].ToLower();
+            string command = GetCommand(input);
             command = LookupShorthand(command);
+            string argument = GetArgument(input);
+
             switch (command)
             {
                 case "exit":
@@ -107,21 +151,46 @@ namespace Aurora
                     PrintHelp();
                     break;
                 case "look":
-                    descriptionNeeded = true;
+                    DescriptionNeeded = true;
+                    break;
+                case "exits":
+                    PrintExits();
                     break;
                 case "who":
                     PrintWho();
                     break;
                 case "say":
-                    Say(input);
+                    Say(argument);
                     break;
                 case "emote":
-                    Emote(input);
+                    Emote(argument);
                     break;
                 default:
-                    descriptionNeeded = TryExit(input);
+                    TryExit(command);
                     break;
             }
+
+            LastInput = input;
+
+            // after each command, we need to tell the player about the state of the room
+            PrintRoom();
+        }
+
+        public void PrintRoom()
+        {
+            LocalConnection.SendMessage("\r\n");
+            LocalConnection.SendMessage(Game.GetRoomName(CurrentRoomId) + "\r\n");
+            if (DescriptionNeeded)
+            {
+                LocalConnection.SendMessage(Game.GetRoomDescription(CurrentRoomId) + "\r\n");
+                DescriptionNeeded = false;
+            }
+            string roomContents = Game.GetRoomContents(this);
+            if (roomContents != "")
+            {
+                LocalConnection.SendMessage(roomContents);
+            }
+            LocalConnection.SendMessage("> ");
         }
 
         private void PrintHelp()
@@ -130,9 +199,30 @@ namespace Aurora
             LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
             LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
-            LocalConnection.SendMessage("     \"who\" to see who else is playing.\r\n");
+            LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
+            LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
             LocalConnection.SendMessage("     \"say\" to say something to everyone nearby.\r\n");
             LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
+            LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
+        }
+
+        private void PrintExits()
+        {
+            List<(string, long, string)> exits = Game.GetRoomExits(CurrentRoomId);
+
+            if (exits.Count == 0)
+            {
+                LocalConnection.SendMessage("You see no obvious exits.\r\n");
+            }
+            else
+            {
+                LocalConnection.SendMessage("Obvious exits are:\r\n");
+                foreach ((string, long, string) exit in exits)
+                {
+                    string direction = char.ToUpper(exit.Item1[0]) + exit.Item1.Substring(1);
+                    LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
+                }
+            }
         }
 
         private void PrintWho()
@@ -151,44 +241,22 @@ namespace Aurora
             }
         }
 
-        private void Say(string input)
+        private void Say(string argument)
         {
-            string[] words = input.Split(' ');
-            string speech = "";
-            for (int i = 1; i < words.Length; ++i)
-            {
-                speech += words[i];
-                if (i != words.Length - 1)
-                {
-                    speech += " ";
-                }
-            }
-            speech = speech.Trim();
-            LocalConnection.SendMessage("You say, \"" + speech + "\".\r\n");
-            Game.Instance.ReportPlayerSaid(this, speech);
+            LocalConnection.SendMessage("You say, \"" + argument + "\"\r\n");
+            Game.Instance.ReportPlayerSaid(this, argument);
         }
-        private void Emote(string input)
+        private void Emote(string argument)
         {
-            string[] words = input.Split(' ');
-            string action = "";
-            for (int i = 1; i < words.Length; ++i)
-            {
-                action += words[i];
-                if (i != words.Length - 1)
-                {
-                    action += " ";
-                }
-            }
-            action = action.Trim();
-            LocalConnection.SendMessage("You " + action + ".\r\n");
-            Game.Instance.ReportPlayerEmoted(this, action);
+            LocalConnection.SendMessage("You " + argument + ".\r\n");
+            Game.Instance.ReportPlayerEmoted(this, argument);
         }
 
-        private bool TryExit(string input)
+        private void TryExit(string command)
         {
             bool didExit = false;
 
-            long? newRoomId = Game.RoomContainsExit(CurrentRoomId, input);
+            long? newRoomId = Game.RoomContainsExit(CurrentRoomId, command);
             if (newRoomId != null)
             {
                 if (Game.RoomExists((long)newRoomId))
@@ -206,10 +274,10 @@ namespace Aurora
 
             if (!didExit)
             {
-                LocalConnection.SendMessage("You can't \"" + input + "\" here!\r\n");
+                LocalConnection.SendMessage("You can't \"" + command + "\" here!\r\n");
             }
 
-            return didExit;
+            DescriptionNeeded = didExit;
         }
     }
 }

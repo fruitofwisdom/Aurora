@@ -18,7 +18,6 @@ namespace Aurora
             Play,
         };
 
-        private bool DescriptionNeeded = true;
         public bool ClientDisconnected { get; private set; }
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.LoginName;
@@ -100,6 +99,7 @@ namespace Aurora
 
         public void Disconnect(bool properly)
         {
+            // if we were playing, tell the game we quit
             if (LocalInputState == InputState.Play)
             {
                 Game.Instance.PlayerQuit(LocalPlayer);
@@ -115,6 +115,24 @@ namespace Aurora
             }
 
             ClientDisconnected = true;
+        }
+
+        private void ParseInput(string input)
+        {
+            string bufferedInput = string.Empty;
+            foreach (char letter in input)
+            {
+                // an end of line is the end of our valid input
+                if (letter == '\n' || letter == '\r' || letter == 0)
+                {
+                    HandleInput(bufferedInput.Trim());
+                    bufferedInput = string.Empty;
+                }
+                else
+                {
+                    bufferedInput += letter;
+                }
+            }
         }
 
         private void HandleInput(string input)
@@ -139,25 +157,8 @@ namespace Aurora
                     break;
 
                 case InputState.Play:
-                    LocalPlayer.HandleInput(input, out DescriptionNeeded);
+                    LocalPlayer.HandleInput(input);
                     break;
-            }
-
-            if (LocalInputState == InputState.Play)
-            {
-                SendMessage("\r\n");
-                SendMessage(Game.GetRoomName(LocalPlayer) + "\r\n");
-                if (DescriptionNeeded)
-                {
-                    SendMessage(Game.GetRoomDescription(LocalPlayer) + "\r\n");
-                    DescriptionNeeded = false;
-                }
-                string roomContents = Game.GetRoomContents(LocalPlayer);
-                if (roomContents != "")
-                {
-                    SendMessage(roomContents);
-                }
-                SendMessage("> ");
             }
         }
 
@@ -198,6 +199,7 @@ namespace Aurora
 
                 LocalPlayer.Load();
                 Game.Instance.PlayerJoined(LocalPlayer);
+                LocalPlayer.PrintRoom();
                 LocalInputState = InputState.Play;
             }
             else
@@ -219,6 +221,7 @@ namespace Aurora
             string saltAsString = Convert.ToBase64String(salt);
             LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
             Game.Instance.PlayerJoined(LocalPlayer);
+            LocalPlayer.PrintRoom();
             LocalInputState = InputState.Play;
         }
 
@@ -234,24 +237,6 @@ namespace Aurora
             Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
             byte[] hash = pbkdf2.GetBytes(20);
             return Convert.ToBase64String(hash);
-        }
-
-        private void ParseInput(string input)
-        {
-            string bufferedInput = string.Empty;
-            foreach (char letter in input)
-            {
-                // an end of line is the end of our valid input
-                if (letter == '\n' || letter == '\r' || letter == 0)
-                {
-                    HandleInput(bufferedInput.Trim());
-                    bufferedInput = string.Empty;
-                }
-                else
-                {
-                    bufferedInput += letter;
-                }
-            }
         }
 
         // This function will automatically split a message at a terminal width of 80

@@ -75,11 +75,11 @@ namespace Aurora
             }
         }
 
-        public static string GetRoomName(Player player)
+        public static string GetRoomName(long roomId)
         {
             string roomName = "Unknown Room";
 
-            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
             if (roomsTableValues.Count > 0)
             {
                 roomName = (string)roomsTableValues[0][1];
@@ -88,11 +88,11 @@ namespace Aurora
             return roomName;
         }
 
-        public static string GetRoomDescription(Player player)
+        public static string GetRoomDescription(long roomId)
         {
             string roomDescription = "Unknown Description";
 
-            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
             if (roomsTableValues.Count > 0)
             {
                 roomDescription = (string)roomsTableValues[0][2];
@@ -116,18 +116,34 @@ namespace Aurora
             return roomContents;
         }
 
-        public static long? RoomContainsExit(long roomId, string direction)
+        // Returns a list of the exits in a room, including the direction, room_id, and the
+        // adjoining room's name.
+        public static List<(string, long, string)> GetRoomExits(long roomId)
         {
-            long? roomContainsExit = null;
+            List<(string, long, string)> exits = new List<(string, long, string)>();
 
             List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", roomId);
             long exitId = (long)roomsTableValues[0][3];
             List<List<object>> exitsTableValues = Database.Instance.ReadTable("exits", "exit_id", exitId);
             foreach (List<object> exit in exitsTableValues)
             {
-                if ((string)exit[1] == direction)
+                exits.Add(((string)exit[1], (long)exit[2], GetRoomName((long)exit[2])));
+            }
+
+            return exits;
+        }
+
+        // Returns the room_id of the room in a direction or null if there is no such exit.
+        public static long? RoomContainsExit(long roomId, string direction)
+        {
+            long? roomContainsExit = null;
+
+            List<(string, long, string)> exits = GetRoomExits(roomId);
+            foreach ((string, long, string) exit in exits)
+            {
+                if (exit.Item1 == direction)
                 {
-                    roomContainsExit = (long)exit[2];
+                    roomContainsExit = exit.Item2;
                 }
             }
 
