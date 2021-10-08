@@ -18,9 +18,8 @@ namespace Aurora
             Play,
         };
 
-        private bool Running = false;
         private bool DescriptionNeeded = true;
-        public bool ClientQuit { get; private set; }
+        public bool ClientDisconnected { get; private set; }
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.LoginName;
         public int ClientID { get; private set; }
@@ -30,6 +29,7 @@ namespace Aurora
 
         public Connection(TcpClient client, int clientID)
         {
+            ClientDisconnected = false;
             TimeSinceInput = DateTime.Now;
             ClientID = clientID;
             LocalPlayer = new Player(this);
@@ -49,7 +49,6 @@ namespace Aurora
             {
                 NetworkStream stream = Client.GetStream();
 
-                Running = true;
                 // eat incoming data and print a welcome message
                 if (stream.DataAvailable)
                 {
@@ -62,29 +61,25 @@ namespace Aurora
                 SendMessage("What is your name?\r\n> ");
 
                 // loop until the client has left and the thread is terminated
-                while (Running)
+                while (!ClientDisconnected)
                 {
-                    // NOTE: Don't react if the client has already quit - we're waiting to be pruned. -Ward
-                    if (!ClientQuit)
+                    if (stream.DataAvailable)
                     {
-                        if (stream.DataAvailable)
-                        {
-                            byte[] bytes = new byte[256];
-                            int count = stream.Read(bytes, 0, bytes.Length);
-                            ParseInput(System.Text.Encoding.ASCII.GetString(bytes, 0, count));
-                            TimeSinceInput = DateTime.Now;
-                        }
+                        byte[] bytes = new byte[256];
+                        int count = stream.Read(bytes, 0, bytes.Length);
+                        ParseInput(System.Text.Encoding.ASCII.GetString(bytes, 0, count));
+                        TimeSinceInput = DateTime.Now;
+                    }
 
-                        // time out after five minutes
-                        if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
-                        {
-                            ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
-                            Quit(false);
-                        }
+                    // time out after five minutes
+                    if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
+                    {
+                        ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
+                        Disconnect(false);
                     }
 
                     // this amount of sleep gives us fairly OK CPU usage
-                    Thread.Sleep(7);
+                    Thread.Sleep(30);
                 }
             }
             catch (ThreadAbortException)
@@ -93,14 +88,33 @@ namespace Aurora
             }
             catch (Exception exception)
             {
-                ServerInfo.Instance.Report("[Connection] Exception caught by client (" + ClientID + "), \"" + exception.Message + "\"!\n");
-                Quit(false);
+                ServerInfo.Instance.Report("[Connection] Exception caught by client (" + ClientID + "): " + exception.Message + "\n");
+                Disconnect(false);
             }
             finally
             {
                 // close the connection
                 Client.Close();
             }
+        }
+
+        public void Disconnect(bool properly)
+        {
+            if (LocalInputState == InputState.Play)
+            {
+                Game.Instance.PlayerQuit(LocalPlayer);
+            }
+
+            if (properly)
+            {
+                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") disconnected.\n");
+            }
+            else
+            {
+                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") disconnected unexpectedly.\n");
+            }
+
+            ClientDisconnected = true;
         }
 
         private void HandleInput(string input)
@@ -149,6 +163,15 @@ namespace Aurora
 
         private void HandleLoginName(string name)
         {
+            if (!Game.Instance.PlayerCanJoin(name))
+            {
+                SendMessage("\"" + name + "\" is already playing!\r\n");
+
+                ServerInfo.Instance.Report("[Connection] Player \"" + name + "\" was already playing.\n");
+                Disconnect(true);
+                return;
+            }
+
             if (Database.Instance.DoesValueExistInColumn("players", "name", name))
             {
                 SendMessage("Welcome back, " + name + "!\r\n");
@@ -163,7 +186,7 @@ namespace Aurora
             }
 
             LocalPlayer.Name = name;
-            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" joined.\n");
+            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" is attempting to login.\n");
         }
 
         private void HandleLoginExistingPassword(string password)
@@ -174,9 +197,7 @@ namespace Aurora
                 SendMessage("Type \"help\" for more information.\r\n");
 
                 LocalPlayer.Load();
-                Game.Instance.Players.Add(LocalPlayer);
-                Game.Instance.ReportPlayerMoved(LocalPlayer, -1, LocalPlayer.CurrentRoomId);
-                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
+                Game.Instance.PlayerJoined(LocalPlayer);
                 LocalInputState = InputState.Play;
             }
             else
@@ -184,7 +205,7 @@ namespace Aurora
                 SendMessage("I'm sorry, that's not correct.\r\n");
 
                 ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
-                Quit(true);
+                Disconnect(true);
             }
         }
 
@@ -197,9 +218,7 @@ namespace Aurora
             string hashedPassword = HashPassword(password, salt);
             string saltAsString = Convert.ToBase64String(salt);
             LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
-            Game.Instance.Players.Add(LocalPlayer);
-            Game.Instance.ReportPlayerMoved(LocalPlayer, -1, LocalPlayer.CurrentRoomId);
-            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" entered the game.\n");
+            Game.Instance.PlayerJoined(LocalPlayer);
             LocalInputState = InputState.Play;
         }
 
@@ -235,36 +254,12 @@ namespace Aurora
             }
         }
 
-        public void Quit(bool properly)
-        {
-            if (Game.Instance.Players.Contains(LocalPlayer))
-            {
-                Game.Instance.ReportPlayerMoved(LocalPlayer, LocalPlayer.CurrentRoomId, -1);
-                Game.Instance.Players.Remove(LocalPlayer);
-                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" left the game.\n");
-            }
-            if (properly)
-            {
-                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") quit.\n");
-            }
-            else
-            {
-                ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") quit unexpectedly.\n");
-            }
-            ClientQuit = true;
-        }
-
-        public void Close()
-        {
-            Running = false;
-        }
-
         // This function will automatically split a message at a terminal width of 80
         // characters, inserting newlines as appropriate. Any ending newlines that are
         // passed in will be preserved.
         public void SendMessage(string message)
         {
-            if (!ClientQuit)
+            if (!ClientDisconnected)
             {
                 string line = "";
                 int width = 0;

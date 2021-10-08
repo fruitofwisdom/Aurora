@@ -21,11 +21,11 @@ namespace Aurora
         {
             bool passwordMatches = false;
 
-            List<List<object>> roomsTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (roomsTableValues.Count > 0)
+            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
+            if (playersTableValues.Count > 0)
             {
-                string actualPassword = (string)roomsTableValues[0][2];
-                string saltAsString = (string)roomsTableValues[0][3];
+                string actualPassword = (string)playersTableValues[0][2];
+                string saltAsString = (string)playersTableValues[0][3];
                 byte[] salt = Convert.FromBase64String(saltAsString);
                 string hashedPassword = Connection.HashPassword(password, salt);
                 passwordMatches = actualPassword == hashedPassword;
@@ -44,13 +44,13 @@ namespace Aurora
 
         public void Load()
         {
-            List<List<object>> roomsTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (roomsTableValues.Count > 0)
+            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
+            if (playersTableValues.Count > 0)
             {
-                Password = (string)roomsTableValues[0][2];
-                Salt = (string)roomsTableValues[0][3];
-                IsAdmin = (long)roomsTableValues[0][4] != 0;
-                CurrentRoomId = (long)roomsTableValues[0][5];
+                Password = (string)playersTableValues[0][2];
+                Salt = (string)playersTableValues[0][3];
+                IsAdmin = (long)playersTableValues[0][4] != 0;
+                CurrentRoomId = (long)playersTableValues[0][5];
             }
         }
 
@@ -93,15 +93,14 @@ namespace Aurora
         {
             descriptionNeeded = false;
 
-            input = input.ToLower();
-            input = LookupShorthand(input);
-
-            switch (input)
+            string command = input.Split()[0].ToLower();
+            command = LookupShorthand(command);
+            switch (command)
             {
                 case "exit":
                 case "quit":
                     LocalConnection.SendMessage("Good-bye!\r\n");
-                    LocalConnection.Quit(true);
+                    LocalConnection.Disconnect(true);
                     break;
                 case "help":
                 case "?":
@@ -112,6 +111,12 @@ namespace Aurora
                     break;
                 case "who":
                     PrintWho();
+                    break;
+                case "say":
+                    Say(input);
+                    break;
+                case "emote":
+                    Emote(input);
                     break;
                 default:
                     descriptionNeeded = TryExit(input);
@@ -126,6 +131,8 @@ namespace Aurora
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
             LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
             LocalConnection.SendMessage("     \"who\" to see who else is playing.\r\n");
+            LocalConnection.SendMessage("     \"say\" to say something to everyone nearby.\r\n");
+            LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
         }
 
         private void PrintWho()
@@ -142,6 +149,39 @@ namespace Aurora
             {
                 LocalConnection.SendMessage("     " + player.Name + "\r\n");
             }
+        }
+
+        private void Say(string input)
+        {
+            string[] words = input.Split(' ');
+            string speech = "";
+            for (int i = 1; i < words.Length; ++i)
+            {
+                speech += words[i];
+                if (i != words.Length - 1)
+                {
+                    speech += " ";
+                }
+            }
+            speech = speech.Trim();
+            LocalConnection.SendMessage("You say, \"" + speech + "\".\r\n");
+            Game.Instance.ReportPlayerSaid(this, speech);
+        }
+        private void Emote(string input)
+        {
+            string[] words = input.Split(' ');
+            string action = "";
+            for (int i = 1; i < words.Length; ++i)
+            {
+                action += words[i];
+                if (i != words.Length - 1)
+                {
+                    action += " ";
+                }
+            }
+            action = action.Trim();
+            LocalConnection.SendMessage("You " + action + ".\r\n");
+            Game.Instance.ReportPlayerEmoted(this, action);
         }
 
         private bool TryExit(string input)

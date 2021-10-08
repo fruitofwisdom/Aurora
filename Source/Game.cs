@@ -4,10 +4,10 @@ namespace Aurora
 {
     internal class Game
     {
-        public string Name = "Unknown Game";
-        public long StartingRoomId = 0;
+        public string Name { get; private set; }
+        public long StartingRoomId { get; private set; }
 
-        public List<Player> Players = new List<Player>();
+        public List<Player> Players { get; private set; }
 
         private static Game _instance = null;
         public static Game Instance
@@ -22,6 +22,13 @@ namespace Aurora
             }
         }
 
+        private Game()
+        {
+            Name = "Unknown Game";
+            StartingRoomId = 0;
+            Players = new List<Player>();
+        }
+
         public void Load()
         {
             List<List<object>> infoTableValues = Database.Instance.ReadTable("info");
@@ -31,6 +38,40 @@ namespace Aurora
                 StartingRoomId = (long)infoTableValues[0][1];
                 ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
                 ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
+            }
+        }
+
+        public bool PlayerCanJoin(string name)
+        {
+            bool playerCanJoin = true;
+
+            // If a player has already joined, they can't join again.
+            foreach (Player player in Players)
+            {
+                if (player.Name == name)
+                {
+                    playerCanJoin = false;
+                }
+            }
+
+            return playerCanJoin;
+        }
+
+        public void PlayerJoined(Player player)
+        {
+            Players.Add(player);
+            Game.Instance.ReportPlayerMoved(player, -1, player.CurrentRoomId);
+            ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has joined.\n");
+        }
+
+        public void PlayerQuit(Player player)
+        {
+            if (Players.Contains(player))
+            {
+                player.Save();
+                Players.Remove(player);
+                ReportPlayerMoved(player, player.CurrentRoomId, -1);
+                ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
             }
         }
 
@@ -51,7 +92,7 @@ namespace Aurora
         {
             string roomDescription = "Unknown Description";
 
-            List<List<object>> roomsTableValues  = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
+            List<List<object>> roomsTableValues = Database.Instance.ReadTable("rooms", "room_id", player.CurrentRoomId);
             if (roomsTableValues.Count > 0)
             {
                 roomDescription = (string)roomsTableValues[0][2];
@@ -115,6 +156,38 @@ namespace Aurora
                 else if (otherPlayer.CurrentRoomId == toRoomId)
                 {
                     otherPlayer.Message(player.Name + " has arrived.\r\n");
+                }
+            }
+        }
+
+        public void ReportPlayerSaid(Player player, string speech)
+        {
+            foreach (Player otherPlayer in Players)
+            {
+                if (otherPlayer == player)
+                {
+                    continue;
+                }
+
+                if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                {
+                    otherPlayer.Message(player.Name + " says, \"" + speech + "\"\r\n");
+                }
+            }
+        }
+
+        public void ReportPlayerEmoted(Player player, string action)
+        {
+            foreach (Player otherPlayer in Players)
+            {
+                if (otherPlayer == player)
+                {
+                    continue;
+                }
+
+                if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                {
+                    otherPlayer.Message(player.Name + " " + action + ".\r\n");
                 }
             }
         }

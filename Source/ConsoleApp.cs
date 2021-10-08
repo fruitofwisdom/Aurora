@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Aurora
 {
@@ -51,7 +52,8 @@ namespace Aurora
             Console.CancelKeyPress += new ConsoleCancelEventHandler(Shutdown);
             while (Running)
             {
-                ;
+                // this amount of sleep gives us fairly OK CPU usage
+                Thread.Sleep(30);
             }
         }
     }
