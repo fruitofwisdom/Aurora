@@ -1,8 +1,8 @@
 ﻿namespace Aurora
 {
-    public abstract class ServerInfoEventArgs : System.EventArgs { }
+    internal abstract class ServerInfoEventArgs : System.EventArgs { }
 
-    public class ServerInfoConnectionsArgs : ServerInfoEventArgs
+    internal class ServerInfoConnectionsArgs : ServerInfoEventArgs
     {
         public readonly int Connections;
 
@@ -12,7 +12,7 @@
         }
     }
 
-    public class ServerInfoGameArgs : ServerInfoEventArgs
+    internal class ServerInfoGameArgs : ServerInfoEventArgs
     {
         public readonly bool Loaded;
 
@@ -22,17 +22,24 @@
         }
     }
 
-    public class ServerInfoReportArgs : ServerInfoEventArgs
+    internal class ServerInfoReportArgs : ServerInfoEventArgs
     {
         public readonly string Report;
+        public readonly ColorCodes.Color Color = ColorCodes.Color.Reset;
 
         public ServerInfoReportArgs(string report)
         {
             Report = report;
         }
+
+        public ServerInfoReportArgs(string report, ColorCodes.Color color)
+        {
+            Report = report;
+            Color = color;
+        }
     }
 
-    public class ServerInfoServerArgs : ServerInfoEventArgs
+    internal class ServerInfoServerArgs : ServerInfoEventArgs
     {
         public readonly bool Running;
 
@@ -42,7 +49,7 @@
         }
     }
 
-    public delegate void ServerInfoHandler(object sender, ServerInfoEventArgs args);
+    internal delegate void ServerInfoHandler(object sender, ServerInfoEventArgs args);
 
     internal class ServerInfo
     {
@@ -78,6 +85,11 @@
         public void Report(string report)
         {
             RaiseEvent(new ServerInfoReportArgs(report));
+        }
+
+        public void Report(ColorCodes.Color color, string report)
+        {
+            RaiseEvent(new ServerInfoReportArgs(report, color));
         }
     }
 }

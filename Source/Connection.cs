@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
@@ -87,7 +86,9 @@ namespace Aurora
             }
             catch (Exception exception)
             {
-                ServerInfo.Instance.Report("[Connection] Exception caught by client (" + ClientID + "): " + exception.Message + "\n");
+                ServerInfo.Instance.Report(
+                    ColorCodes.Color.Red,
+                    "[Connection] Exception caught by client (" + ClientID + "): " + exception.Message + "\n");
                 Disconnect(false);
             }
             finally
@@ -278,6 +279,14 @@ namespace Aurora
                      }
                 }
             }
+        }
+
+        // Sends the provided message using a specified color. Afterwards, resets the color back.
+        public void SendMessage(ColorCodes.Color color, string message)
+        {
+            SendMessage(ColorCodes.GetAnsiColorCode(color));
+            SendMessage(message);
+            SendMessage(ColorCodes.GetAnsiColorCode(ColorCodes.Color.Reset));
         }
     }
 }

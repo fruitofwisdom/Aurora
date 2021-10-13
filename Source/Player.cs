@@ -179,7 +179,7 @@ namespace Aurora
         public void PrintRoom()
         {
             LocalConnection.SendMessage("\r\n");
-            LocalConnection.SendMessage(Game.GetRoomName(CurrentRoomId) + "\r\n");
+            LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.GetRoomName(CurrentRoomId) + "\r\n");
             if (DescriptionNeeded)
             {
                 LocalConnection.SendMessage(Game.GetRoomDescription(CurrentRoomId) + "\r\n");
@@ -268,7 +268,9 @@ namespace Aurora
                 }
                 else
                 {
-                    ServerInfo.Instance.Report("[Player \"" + Name + "\"] Room with room_id " + newRoomId + " wasn't found!\n");
+                    ServerInfo.Instance.Report(
+                        ColorCodes.Color.Red,
+                        "[Player \"" + Name + "\"] Room with room_id " + newRoomId + " wasn't found!\n");
                 }
             }
 
