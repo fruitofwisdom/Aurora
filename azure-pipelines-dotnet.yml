@@ -46,10 +46,10 @@ stages:
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
+        ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  - deployment: 'Launch'
+  - deployment: 'Run'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
@@ -62,10 +62,10 @@ stages:
             inputs:
               buildType: 'current'
               downloadType: 'single'
-              artifactName: 'drop'
+              artifactName: 'Aurora'
               downloadPath: '$(Agent.BuildDirectory)'
 
           - task: BatchScript@1
             inputs:
-              filename: '$(Agent.BuildDirectory)/drop/s/bin/release/net5.0-windows/Aurora.exe'
+              filename: 'start $(Agent.BuildDirectory)/drop/s/bin/release/net5.0-windows/Aurora.exe'
               arguments: '$(Agent.BuildDirectory)/drop/s/Borealis.db'
