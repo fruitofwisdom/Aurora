@@ -1,1 +1,0 @@
-Start-Process bin\release\net6.0-windows\Aurora.exe Borealis.db

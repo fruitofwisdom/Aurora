@@ -53,20 +53,20 @@ stages:
        deploy:
          steps:
           # TODO: Use DownloadPipelineArtifacts?
-          - task: DownloadBuildArtifacts@0
-            inputs:
-              buildType: 'current'
-              downloadType: 'single'
-              artifactName: 'Aurora'
-              downloadPath: '$(Agent.BuildDirectory)'
-
-          #- task: BatchScript@1
+          #- task: DownloadBuildArtifacts@0
           #  inputs:
-          #    filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
-          #    arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
+          #    buildType: 'current'
+          #    downloadType: 'single'
+          #    artifactName: 'Aurora'
+          #    downloadPath: '$(Agent.BuildDirectory)'
 
-          - task: PowerShell@2
+          - task: BatchScript@1
             inputs:
-              targetType: 'filePath'
-              filePath: '$(Agent.BuildDirectory)/Aurora/s/RunBorealis.ps1'
-              workingDirectory: '$(Agent.BuildDirectory)/Aurora/s/'
+              filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
+              arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
+
+          #- task: PowerShell@2
+          #  inputs:
+          #    targetType: 'filePath'
+          #    filePath: '$(Agent.BuildDirectory)/Aurora/s/RunBorealis.ps1'
+          #    workingDirectory: '$(Agent.BuildDirectory)/Aurora/s/'
