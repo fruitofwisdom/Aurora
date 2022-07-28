@@ -48,10 +48,20 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
+    - powershell: gci env:* | sort-object name | Format-Table -AutoSize | Out-File $env:BUILD_ARTIFACTSTAGINGDIRECTORY/environment-variables.txt
+
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
   - deployment: 'Deploy'
     environment: 'auroravm'
+
     strategy:
      runOnce:
        deploy:
          steps:
-           - script: echo "Hello, world."
+           - script: echo $(Agent.BuildDirectory)
