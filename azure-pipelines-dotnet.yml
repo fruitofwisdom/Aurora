@@ -48,7 +48,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-  - deployment: 'Run'
+  - deployment: 'Launch'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
@@ -65,5 +65,5 @@ stages:
 
           - task: BatchScript@1
             inputs:
-              filename: '$(Agent.ArtifactsDirectory)/bin/release/net5.0-windows/Aurora.exe'
+              filename: './bin/release/net5.0-windows/Aurora.exe'
               arguments: 'Borealis.db'
