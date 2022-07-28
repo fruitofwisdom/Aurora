@@ -67,5 +67,5 @@ stages:
 
           - task: BatchScript@1
             inputs:
-              filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net5.0-windows/Aurora.exe'
+              filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
               arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
