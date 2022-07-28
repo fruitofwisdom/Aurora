@@ -61,4 +61,9 @@ stages:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'drop'
-              downloadPath: '$(System.ArtifactsDirectory)'
+              downloadPath: '$(Agent.ArtifactsDirectory)'
+
+          - task: BatchScript@1
+            inputs:
+              filename: '$(Agent.ArtifactsDirectory)/bin/release/net5.0-windows/Aurora.exe'
+              arguments: 'Borealis.db'
