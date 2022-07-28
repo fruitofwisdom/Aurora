@@ -42,6 +42,7 @@ stages:
         SourceFolder: $(Agent.BuildDirectory)
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+    # TODO: Use PublishPipelineArtifacts?
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -56,14 +57,15 @@ stages:
      runOnce:
        deploy:
          steps:
+          # TODO: Use DownloadPipelineArtifacts?
           - task: DownloadBuildArtifacts@0
             inputs:
               buildType: 'current'
               downloadType: 'single'
               artifactName: 'drop'
-              downloadPath: '$(Agent.ArtifactsDirectory)'
+              downloadPath: '$(Agent.BuildDirectory)'
 
           - task: BatchScript@1
             inputs:
-              filename: './bin/release/net5.0-windows/Aurora.exe'
-              arguments: 'Borealis.db'
+              filename: '$(Agent.BuildDirectory)/drop/s/bin/release/net5.0-windows/Aurora.exe'
+              arguments: '$(Agent.BuildDirectory)/drop/s/Borealis.db'
