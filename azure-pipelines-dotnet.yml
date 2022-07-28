@@ -48,7 +48,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-  - deployment: 'Deploy'
+  - deployment: 'Run'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
