@@ -69,3 +69,4 @@ stages:
             inputs:
               targetType: 'filePath'
               filePath: '$(Agent.BuildDirectory)/Aurora/s/RunBorealis.ps1'
+              workingDirectory: '$(Agent.BuildDirectory)/Aurora/s/'
