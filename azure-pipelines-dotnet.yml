@@ -12,7 +12,8 @@ variables:
   buildConfiguration: 'Release'
 
 stages:
-- stage: 'Build and deploy'
+- stage: 'BuildAndDeploy'
+  displayName: 'Build and deploy'
   jobs:
   - job: 'Build'
     pool:
