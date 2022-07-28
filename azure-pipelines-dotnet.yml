@@ -49,7 +49,7 @@ stages:
         publishLocation: 'Container'
 
   - deployment: 'Deploy'
-    environment: 'auroravm'
+    environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
     strategy:
