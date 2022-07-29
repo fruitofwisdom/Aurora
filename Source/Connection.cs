@@ -229,7 +229,7 @@ namespace Aurora
         private static byte[] GenerateSalt()
         {
             byte[] salt = new byte[8];
-            new RNGCryptoServiceProvider().GetBytes(salt);
+            RandomNumberGenerator.Create().GetBytes(salt);
             return salt;
         }
 
