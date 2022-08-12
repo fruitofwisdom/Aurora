@@ -1,11 +1,11 @@
-using Microsoft.Data.Sqlite;
+using LiteDB;
 using System.Collections.Generic;
 
 namespace Aurora
 {
     internal class Database
     {
-        private string ConnectionString;
+        private LiteDatabase _database;
 
         private static Database _instance = null;
         public static Database Instance
@@ -23,77 +23,65 @@ namespace Aurora
         public void Configure(string databaseFilename)
         {
             ServerInfo.Instance.Report($"[Database] File is: {databaseFilename}\n");
-            ConnectionString = new SqliteConnectionStringBuilder()
-            {
-                DataSource = databaseFilename,
-                Mode = SqliteOpenMode.ReadWrite
-            }.ToString();
+            _database = new LiteDatabase(databaseFilename);
 
             Game.Instance.Load();
         }
 
-        public List<List<object>> ReadTableInternal(string commandText)
+        // Actually execute the command on the database and return the results.
+        public List<Dictionary<string, object>> ReadTableInternal(string command)
         {
-            List<List<object>> tableValues = new List<List<object>>();
+            List<Dictionary<string, object>> table = new();
 
-            SqliteConnection connection = new SqliteConnection(ConnectionString);
-            SqliteDataReader reader = null;
             try
             {
-                SqliteCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                connection.Open();
-                reader = command.ExecuteReader();
-
-                int numRows = 0;
+				IBsonDataReader reader = _database.Execute(command);
                 while (reader.Read())
                 {
-                    object[] values = new object[reader.FieldCount];
-                    _ = reader.GetValues(values);
-                    tableValues.Add(new List<object>(values));
-                    numRows++;
+                    BsonDocument bsonDocument = reader.Current as BsonDocument;
+                    foreach (BsonArray values in bsonDocument.Values)
+                    {
+                        // For each row found in the database, map its keys and values into a
+                        // dictionary that we will return.
+                        foreach (BsonDocument row in values)
+                        {
+                            Dictionary<string, object> dict = new();
+                            foreach (string key in row.Keys)
+                            {
+                                row.TryGetValue(key, out BsonValue value);
+                                dict[key] = value.RawValue;
+                            }
+                            table.Add(dict);
+                        }
+                    }
                 }
             }
-            catch (SqliteException exception)
+            catch (LiteException exception)
             {
-                ServerInfo.Instance.Report(
-                    ColorCodes.Color.Red,
-                    "[Database] Exception caught by the database: " + exception.Message + "\n");
-            }
-            finally
-            {
-                if (reader != null)
-                {
-                    reader.Close();
-                }
-                connection.Close();
-            }
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Red,
+					"[Database] Exception caught by the database: " + exception.Message + "\n");
+			}
 
-            return tableValues;
+			return table;
         }
 
-        public int WriteTableInternal(string commandText)
+        // Actually execute the command on the database and return how many rows were affected.
+        public int WriteTableInternal(string command)
         {
             int rowsAffected = 0;
 
-            SqliteConnection connection = new SqliteConnection(ConnectionString);
             try
             {
-                SqliteCommand command = connection.CreateCommand();
-                command.CommandText = commandText;
-                connection.Open();
-                rowsAffected = command.ExecuteNonQuery();
-            }
-            catch (SqliteException exception)
+				IBsonDataReader reader = _database.Execute(command);
+                rowsAffected = (int)reader.Current;
+			}
+			catch (LiteException exception)
             {
-                ServerInfo.Instance.Report(
-                    ColorCodes.Color.Red,
-                    "[Database] Exception caught by the database: " + exception.Message + "\n");
-            }
-            finally
-            {
-                connection.Close();
-            }
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Red,
+					"[Database] Exception caught by the database: " + exception.Message + "\n");
+			}
 
             return rowsAffected;
         }
@@ -112,19 +100,19 @@ namespace Aurora
             }
             else
             {
-                doesValueExistInColumn = ReadTable(table, column, (long)value).Count > 0;
+                doesValueExistInColumn = ReadTable(table, column, (int)value).Count > 0;
             }
 
             return doesValueExistInColumn;
         }
 
-        public List<List<object>> ReadTable(string table)
+        public List<Dictionary<string, object>> ReadTable(string table)
         {
             string commandText = "SELECT * FROM " + table;
             return ReadTableInternal(commandText);
         }
 
-        public List<List<object>> ReadTable(string table, string column, object value)
+        public List<Dictionary<string, object>> ReadTable(string table, string column, object value)
         {
             string commandText = "";
             if (value.GetType().Equals(typeof(string)))
@@ -157,10 +145,10 @@ namespace Aurora
 
         private int WriteTableWithUpdate(string table, List<string> columns, List<object> values)
         {
-            string commandText = "UPDATE " + table + " SET ";
+            string commandText = "UPDATE " + table + " SET {";
             for (int i = 0; i < columns.Count; ++i)
             {
-                commandText += columns[i] + " = ";
+                commandText += "'" + columns[i] + "': ";
                 if (values[i].GetType().Equals(typeof(string)))
                 {
                     commandText += "'" + values[i] + "'";
@@ -178,25 +166,17 @@ namespace Aurora
                     commandText += ", ";
                 }
             }
-            commandText += " WHERE " + columns[0] + " = '" + (string)values[0] + "'";
+            commandText += "} WHERE " + columns[0] + " = '" + (string)values[0] + "'";
             return WriteTableInternal(commandText);
         }
 
         private int WriteTableWithInsert(string table, List<string> columns, List<object> values)
         {
-            string commandText = "INSERT INTO " + table + " (";
-            for (int i = 0; i < columns.Count; ++i)
-            {
-                commandText += columns[i];
-                if (i != columns.Count - 1)
-                {
-                    commandText += ", ";
-                }
-            }
-            commandText += ") VALUES (";
+            string commandText = "INSERT INTO " + table + " VALUES {";
             for (int i = 0; i < values.Count; ++i)
             {
-                if (values[i].GetType().Equals(typeof(string)))
+				commandText += "'" + columns[i] + "': ";
+				if (values[i].GetType().Equals(typeof(string)))
                 {
                     commandText += "'" + values[i] + "'";
                 }
@@ -213,7 +193,7 @@ namespace Aurora
                     commandText += ", ";
                 }
             }
-            commandText += ")";
+            commandText += "}";
             return WriteTableInternal(commandText);
         }
     }

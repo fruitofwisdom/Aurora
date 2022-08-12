@@ -12,7 +12,7 @@ namespace Aurora
         private string Password;
         private string Salt;
         public bool IsAdmin = false;
-        public long CurrentRoomId = 0;
+        public int CurrentRoomId = 0;
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
@@ -26,13 +26,13 @@ namespace Aurora
         {
             bool passwordMatches = false;
 
-            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTableValues.Count > 0)
+            List<Dictionary<string, object>> playersTable = Database.Instance.ReadTable("players", "name", Name);
+            if (playersTable.Count > 0)
             {
                 // retrieve the salt from the database, hash the provided password, and see if it
                 // matches the actual password
-                string actualPassword = (string)playersTableValues[0][2];
-                string saltAsString = (string)playersTableValues[0][3];
+                string actualPassword = (string)playersTable[0]["password"];
+                string saltAsString = (string)playersTable[0]["salt"];
                 byte[] salt = Convert.FromBase64String(saltAsString);
                 string hashedPassword = Connection.HashPassword(password, salt);
                 passwordMatches = actualPassword == hashedPassword;
@@ -41,7 +41,7 @@ namespace Aurora
             return passwordMatches;
         }
 
-        public void Initialize(string password, string salt, long startingRoomId)
+        public void Initialize(string password, string salt, int startingRoomId)
         {
             Password = password;
             Salt = salt;
@@ -51,13 +51,13 @@ namespace Aurora
 
         public void Load()
         {
-            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTableValues.Count > 0)
+            List<Dictionary<string, object>> playersTable = Database.Instance.ReadTable("players", "name", Name);
+            if (playersTable.Count > 0)
             {
-                Password = (string)playersTableValues[0][2];
-                Salt = (string)playersTableValues[0][3];
-                IsAdmin = (long)playersTableValues[0][4] != 0;
-                CurrentRoomId = (long)playersTableValues[0][5];
+                Password = (string)playersTable[0]["password"];
+                Salt = (string)playersTable[0]["salt"];
+                IsAdmin = (int)playersTable[0]["is_admin"] != 0;
+                CurrentRoomId = (int)playersTable[0]["current_room_id"];
             }
         }
 
@@ -208,7 +208,7 @@ namespace Aurora
 
         private void PrintExits()
         {
-            List<(string, long, string)> exits = Game.GetRoomExits(CurrentRoomId);
+            List<(string, int, string)> exits = Game.GetRoomExits(CurrentRoomId);
 
             if (exits.Count == 0)
             {
@@ -217,7 +217,7 @@ namespace Aurora
             else
             {
                 LocalConnection.SendMessage("Obvious exits are:\r\n");
-                foreach ((string, long, string) exit in exits)
+                foreach ((string, int, string) exit in exits)
                 {
                     string direction = char.ToUpper(exit.Item1[0]) + exit.Item1.Substring(1);
                     LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
@@ -256,13 +256,13 @@ namespace Aurora
         {
             bool didExit = false;
 
-            long? newRoomId = Game.RoomContainsExit(CurrentRoomId, command);
+            int? newRoomId = Game.RoomContainsExit(CurrentRoomId, command);
             if (newRoomId != null)
             {
-                if (Game.RoomExists((long)newRoomId))
+                if (Game.RoomExists((int)newRoomId))
                 {
-                    Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (long)newRoomId);
-                    CurrentRoomId = (long)newRoomId;
+                    Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (int)newRoomId);
+                    CurrentRoomId = (int)newRoomId;
                     Save();
                     didExit = true;
                 }
