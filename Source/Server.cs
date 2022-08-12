@@ -82,7 +82,9 @@ namespace Aurora
             }
             catch (System.Exception exception)
             {
-                ServerInfo.Instance.Report("[Server] Exception caught by the server: " + exception.Message + "\n");
+                ServerInfo.Instance.Report(
+                    ColorCodes.Color.Red,
+                    "[Server] Exception caught by the server: " + exception.Message + "\n");
             }
             finally
             {

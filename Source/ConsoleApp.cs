@@ -30,7 +30,9 @@ namespace Aurora
             }
             else if (typeof(ServerInfoReportArgs).IsInstanceOfType(args))
             {
+                Console.ForegroundColor = ColorCodes.GetConsoleColor(((ServerInfoReportArgs)args).Color);
                 Console.Write(((ServerInfoReportArgs)args).Report);
+                Console.ForegroundColor = ColorCodes.GetConsoleColor(ColorCodes.Color.Reset);
             }
             else if (typeof(ServerInfoServerArgs).IsInstanceOfType(args))
             {

@@ -56,7 +56,9 @@ namespace Aurora
             }
             catch (SqliteException exception)
             {
-                ServerInfo.Instance.Report("[Database] Exception caught by the database: " + exception.Message + "\n");
+                ServerInfo.Instance.Report(
+                    ColorCodes.Color.Red,
+                    "[Database] Exception caught by the database: " + exception.Message + "\n");
             }
             finally
             {
@@ -84,7 +86,9 @@ namespace Aurora
             }
             catch (SqliteException exception)
             {
-                ServerInfo.Instance.Report("[Database] Exception caught by the database: " + exception.Message + "\n");
+                ServerInfo.Instance.Report(
+                    ColorCodes.Color.Red,
+                    "[Database] Exception caught by the database: " + exception.Message + "\n");
             }
             finally
             {
