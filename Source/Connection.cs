@@ -21,7 +21,8 @@ namespace Aurora
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.LoginName;
         public int ClientID { get; private set; }
-        private readonly Player LocalPlayer;
+        private Player LocalPlayer = null;
+        private string LocalPlayerName = null;
         private readonly TcpClient Client;
         public Thread ClientThread { get; private set; }
 
@@ -30,7 +31,6 @@ namespace Aurora
             ClientDisconnected = false;
             TimeSinceInput = DateTime.Now;
             ClientID = clientID;
-            LocalPlayer = new Player(this);
             Client = client;
             ClientThread = new Thread(new ThreadStart(Connect));
             ClientThread.Start();
@@ -187,18 +187,20 @@ namespace Aurora
                 LocalInputState = InputState.LoginNewPassword;
             }
 
-            LocalPlayer.Name = name;
-            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" is attempting to login.\n");
+            LocalPlayerName = name;
+            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" is attempting to login.\n");
         }
 
         private void HandleLoginExistingPassword(string password)
         {
-            if (LocalPlayer.PasswordMatches(password))
+			LocalPlayer = Player.Load(LocalPlayerName);
+            LocalPlayer.SetConnection(this);
+
+			if (LocalPlayer.PasswordMatches(password))
             {
                 SendMessage("Enjoy your stay!\r\n");
                 SendMessage("Type \"help\" for more information.\r\n");
 
-                LocalPlayer.Load();
                 Game.Instance.PlayerJoined(LocalPlayer);
                 LocalPlayer.PrintRoom();
                 LocalInputState = InputState.Play;
@@ -207,20 +209,23 @@ namespace Aurora
             {
                 SendMessage("I'm sorry, that's not correct.\r\n");
 
-                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
+                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" failed to login.\n");
                 Disconnect(true);
             }
         }
 
         private void HandleLoginNewPassword(string password)
         {
+			byte[] salt = GenerateSalt();
+			string hashedPassword = HashPassword(password, salt);
+			string saltAsString = Convert.ToBase64String(salt);
+			LocalPlayer = Player.Create(LocalPlayerName,
+                hashedPassword, saltAsString, Game.Instance.StartingRoomId);
+            LocalPlayer.SetConnection(this);
+			
             SendMessage("Enjoy your stay!\r\n");
             SendMessage("Type \"help\" for more information.\r\n");
 
-            byte[] salt = GenerateSalt();
-            string hashedPassword = HashPassword(password, salt);
-            string saltAsString = Convert.ToBase64String(salt);
-            LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
             Game.Instance.PlayerJoined(LocalPlayer);
             LocalPlayer.PrintRoom();
             LocalInputState = InputState.Play;

@@ -1,38 +1,51 @@
-﻿using System;
+﻿using LiteDB;
+using System;
 using System.Collections.Generic;
 
 namespace Aurora
 {
     internal class Player
     {
-        private readonly Connection LocalConnection;
+        private Connection LocalConnection;
 
-        // these fields are stores in the database in this order
-        public string Name = "Unknown Player";
-        private string Password;
-        private string Salt;
-        public bool IsAdmin = false;
-        public int CurrentRoomId = 0;
+        // These public fields all serialize to the database.
+        public ObjectId PlayerId { get; private set; }
+        public string Name { get; set; } = "Unknown Player";
+        public string Password { get; private set; }
+        public string Salt { get; private set; }
+        [BsonField("is_admin")]
+        public bool IsAdmin { get; set; } = false;
+        [BsonField("current_room_id")]
+        public int CurrentRoomId { get; set; } = 0;
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
 
-        public Player(Connection connection)
+        public Player()
         {
-            LocalConnection = connection;
+            PlayerId = ObjectId.NewObjectId();
+        }
+
+        public Player(string name, string password, string salt, int currentRoomId)
+        {
+            PlayerId = ObjectId.NewObjectId();
+            Name = name;
+            Password = password;
+            Salt = salt;
+            CurrentRoomId = currentRoomId;
         }
 
         public bool PasswordMatches(string password)
         {
             bool passwordMatches = false;
 
-            List<Dictionary<string, object>> playersTable = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTable.Count > 0)
+            Player otherPlayer = Load(Name);
+            if (otherPlayer != null)
             {
                 // retrieve the salt from the database, hash the provided password, and see if it
                 // matches the actual password
-                string actualPassword = (string)playersTable[0]["password"];
-                string saltAsString = (string)playersTable[0]["salt"];
+                string actualPassword = otherPlayer.Password;
+                string saltAsString = otherPlayer.Salt;
                 byte[] salt = Convert.FromBase64String(saltAsString);
                 string hashedPassword = Connection.HashPassword(password, salt);
                 passwordMatches = actualPassword == hashedPassword;
@@ -41,31 +54,32 @@ namespace Aurora
             return passwordMatches;
         }
 
-        public void Initialize(string password, string salt, int startingRoomId)
+        // Create a new player and insert them into the database.
+        public static Player Create(string name, string password, string salt, int startingRoomId)
         {
-            Password = password;
-            Salt = salt;
-            CurrentRoomId = startingRoomId;
-            Save();
+            Player newPlayer = new(name, password, salt, startingRoomId);
+			ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
+            players.Insert(newPlayer);
+			return newPlayer;
         }
 
-        public void Load()
+        // Load a player from the database.
+        public static Player Load(string name)
         {
-            List<Dictionary<string, object>> playersTable = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTable.Count > 0)
-            {
-                Password = (string)playersTable[0]["password"];
-                Salt = (string)playersTable[0]["salt"];
-                IsAdmin = (int)playersTable[0]["is_admin"] != 0;
-                CurrentRoomId = (int)playersTable[0]["current_room_id"];
-            }
+            ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
+            return players.FindOne(x => x.Name == name);
         }
 
+        // Save ("update") a player to the database.
         public void Save()
         {
-            List<string> columns = new List<string>() { "name", "password", "salt", "is_admin", "current_room_id" };
-            List<object> values = new List<object>() { Name, Password, Salt, IsAdmin, CurrentRoomId };
-            Database.Instance.WriteTable("players", columns, values);
+            ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
+            players.Update(this);
+        }
+
+        public void SetConnection(Connection localConnection)
+        {
+            LocalConnection = localConnection;
         }
 
         public void Message(string message)

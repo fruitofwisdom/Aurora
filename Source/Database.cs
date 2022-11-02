@@ -28,6 +28,11 @@ namespace Aurora
             Game.Instance.Load();
         }
 
+        public ILiteCollection<T> GetCollection<T>(string name)
+        {
+            return _database.GetCollection<T>(name);
+        }
+
         // Actually execute the command on the database and return the results.
         public List<Dictionary<string, object>> ReadTableInternal(string command)
         {
