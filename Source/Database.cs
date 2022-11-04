@@ -20,13 +20,25 @@ namespace Aurora
             }
         }
 
-        public void Configure(string databaseFilename)
+        public bool Open(string databaseFilename)
         {
-            ServerInfo.Instance.Report($"[Database] File is: {databaseFilename}\n");
-            _database = new LiteDatabase(databaseFilename);
+            bool didOpen = false;
 
-            Game.Instance.Load();
-        }
+            ServerInfo.Instance.Report($"[Database] File is: {databaseFilename}\n");
+            try
+            {
+                _database = new LiteDatabase(databaseFilename);
+                didOpen = true;
+            }
+            catch (System.Exception exception)
+            {
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Red,
+					"[Database] Exception caught by the database: " + exception.Message + "\n");
+			}
+
+            return didOpen;
+		}
 
         public ILiteCollection<T> GetCollection<T>(string name)
         {

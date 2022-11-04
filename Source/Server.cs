@@ -76,7 +76,7 @@ namespace Aurora
                     Thread.Sleep(30);
                 }
             }
-            catch (System.Threading.ThreadAbortException)
+            catch (ThreadAbortException)
             {
                 // this is OK
             }
@@ -88,7 +88,8 @@ namespace Aurora
             }
             finally
             {
-                Shutdown();
+                Game.Instance.Save();
+				Shutdown();
             }
         }
 

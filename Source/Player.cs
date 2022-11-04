@@ -4,35 +4,26 @@ using System.Collections.Generic;
 
 namespace Aurora
 {
-    internal class Player
+    internal class Player : GameObject
     {
         private Connection LocalConnection;
 
         // These public fields all serialize to the database.
-        public ObjectId PlayerId { get; private set; }
-        public string Name { get; set; } = "Unknown Player";
-        public string Password { get; private set; }
-        public string Salt { get; private set; }
+        public string Password { get; set; }
+        public string Salt { get; set; }
         [BsonField("is_admin")]
         public bool IsAdmin { get; set; } = false;
-        [BsonField("current_room_id")]
-        public int CurrentRoomId { get; set; } = 0;
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
 
-        public Player()
+        public Player(string name, int currentRoomId, string password, string salt)
         {
-            PlayerId = ObjectId.NewObjectId();
-        }
-
-        public Player(string name, string password, string salt, int currentRoomId)
-        {
-            PlayerId = ObjectId.NewObjectId();
             Name = name;
-            Password = password;
+			CurrentRoomId = currentRoomId;
+			Description = "the player " + Name;
+			Password = password;
             Salt = salt;
-            CurrentRoomId = currentRoomId;
         }
 
         public bool PasswordMatches(string password)
@@ -57,7 +48,7 @@ namespace Aurora
         // Create a new player and insert them into the database.
         public static Player Create(string name, string password, string salt, int startingRoomId)
         {
-            Player newPlayer = new(name, password, salt, startingRoomId);
+            Player newPlayer = new(name, startingRoomId, password, salt);
 			ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
             players.Insert(newPlayer);
 			return newPlayer;
@@ -71,10 +62,10 @@ namespace Aurora
         }
 
         // Save ("update") a player to the database.
-        public void Save()
+        public bool Save()
         {
             ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
-            players.Update(this);
+            return players.Update(_id, this);
         }
 
         public void SetConnection(Connection localConnection)
@@ -165,7 +156,14 @@ namespace Aurora
                     PrintHelp();
                     break;
                 case "look":
-                    DescriptionNeeded = true;
+                    if (argument.Split(' ')[0] == "at")
+                    {
+                        LookAt(GetArgument(argument));
+                    }
+                    else
+                    {
+                        DescriptionNeeded = true;
+                    }
                     break;
                 case "exits":
                     PrintExits();
@@ -212,6 +210,7 @@ namespace Aurora
             LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
             LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
+            LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
             LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
             LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
             LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
@@ -219,6 +218,19 @@ namespace Aurora
             LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
             LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
         }
+
+        private void LookAt(string gameObjectName)
+        {
+            GameObject gameObject = Game.GetGameObject(gameObjectName, CurrentRoomId);
+            if (gameObject != null)
+            {
+                LocalConnection.SendMessage("You see " + gameObject.Description + ".\r\n");
+			}
+            else
+            {
+                LocalConnection.SendMessage("You don't see a " + gameObjectName + " here.\r\n");
+            }
+		}
 
         private void PrintExits()
         {
@@ -277,8 +289,12 @@ namespace Aurora
                 {
                     Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (int)newRoomId);
                     CurrentRoomId = (int)newRoomId;
-                    Save();
-                    didExit = true;
+                    bool didSave = Save();
+                    if (!didSave)
+                    {
+						ServerInfo.Instance.Report("[Game] Player \"" + Name + "\" failed to save.\n");
+					}
+					didExit = true;
                 }
                 else
                 {

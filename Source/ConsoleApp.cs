@@ -14,9 +14,11 @@ namespace Aurora
             EventHandler = new ServerInfoHandler(ServerInfoEventHandler);
             ServerInfo.Instance.EventReceived += ServerInfoEventHandler;
 
-            Database.Instance.Configure(databaseFilename);
-
-            Running = true;
+            if (Database.Instance.Open(databaseFilename))
+            {
+                Game.Instance.Load();
+                Running = true;
+            }
         }
 
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)

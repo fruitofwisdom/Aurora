@@ -24,9 +24,12 @@ namespace Aurora
             string databaseFilename = (string)Properties.Settings.Default["DatabaseFilename"];
             if (databaseFilename != "")
             {
-                Database.Instance.Configure(databaseFilename);
-            }
-            else
+                if (Database.Instance.Open(databaseFilename))
+                {
+                    Game.Instance.Load();
+                }
+			}
+			else
             {
                 ServerInfo.Instance.Report("[Aurora] Please choose a database file!\n");
             }
@@ -47,11 +50,14 @@ namespace Aurora
 
             if ((bool)openFileDialog.ShowDialog())
             {
-                Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
-                Properties.Settings.Default.Save();
-                Database.Instance.Configure((string)Properties.Settings.Default["DatabaseFilename"]);
-            }
-        }
+                if (Database.Instance.Open(openFileDialog.FileName))
+                {
+					Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
+					Properties.Settings.Default.Save();
+					Game.Instance.Load();
+                }
+			}
+		}
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {

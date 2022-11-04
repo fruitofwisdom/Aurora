@@ -1,6 +1,5 @@
 ﻿using LiteDB;
 using System.Collections.Generic;
-using System.Windows.Documents;
 
 namespace Aurora
 {
@@ -9,6 +8,9 @@ namespace Aurora
         public string Name { get; private set; }
         public int StartingRoomId { get; private set; }
 
+        // All the current game objects in the world.
+        public List<GameObject> WorldObjects { get; private set; }
+        // All the current players in the game.
         public List<Player> Players { get; private set; }
 
         private static Game _instance = null;
@@ -28,6 +30,7 @@ namespace Aurora
         {
             Name = "Unknown Game";
             StartingRoomId = 0;
+            WorldObjects = new List<GameObject>();
             Players = new List<Player>();
         }
 
@@ -41,9 +44,27 @@ namespace Aurora
                 ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
                 ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
             }
-        }
 
-        public bool PlayerCanJoin(string name)
+            // Load an initial version of each world object.
+            ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
+            foreach (GameObject worldObject in worldObjects.FindAll())
+            {
+                WorldObjects.Add(worldObject);
+            }
+		}
+
+        public void Save()
+        {
+			// Save the current version of each world object.
+			ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
+            worldObjects.DeleteAll();
+			foreach (GameObject worldObject in WorldObjects)
+			{
+                worldObjects.Insert(worldObject);
+			}
+		}
+
+		public bool PlayerCanJoin(string name)
         {
             bool playerCanJoin = true;
 
@@ -70,14 +91,42 @@ namespace Aurora
         {
             if (Players.Contains(player))
             {
-                player.Save();
-                Players.Remove(player);
+                bool didSave = player.Save();
+                if (!didSave)
+                {
+					ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" failed to save.\n");
+				}
+				Players.Remove(player);
                 ReportPlayerMoved(player, player.CurrentRoomId, -1);
                 ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
             }
         }
 
-        public static string GetRoomName(int roomId)
+        public static GameObject GetGameObject(string gameObjectName, int currentRoomId)
+        {
+            GameObject gameObject = null;
+
+			// Search through all the players in a room first.
+			foreach (Player player in Instance.Players)
+            {
+                if (player.CurrentRoomId == currentRoomId && player.Name.ToLower() == gameObjectName.ToLower())
+                {
+                    gameObject = player;
+				}
+			}
+			// Then through the other objects in a room.
+			foreach (GameObject worldObject in Instance.WorldObjects)
+            {
+				if (worldObject.CurrentRoomId == currentRoomId && worldObject.Name.ToLower() == gameObjectName.ToLower())
+				{
+                    gameObject = worldObject;
+				}
+			}
+
+            return gameObject;
+		}
+
+		public static string GetRoomName(int roomId)
         {
             string roomName = "Unknown Room";
 
@@ -107,11 +156,20 @@ namespace Aurora
         {
             string roomContents = "";
 
+            // Report all the players in a room first.
             foreach (Player otherPlayer in Instance.Players)
             {
                 if (otherPlayer != player && otherPlayer.CurrentRoomId == player.CurrentRoomId)
                 {
                     roomContents += otherPlayer.Name + " is here.\r\n";
+                }
+            }
+            // Then all the other objects in a room.
+            foreach (GameObject worldObject in Instance.WorldObjects)
+            {
+                if (worldObject.CurrentRoomId == player.CurrentRoomId)
+                {
+                    roomContents += worldObject.CapitalizeName() + " is here.\r\n";
                 }
             }
 
