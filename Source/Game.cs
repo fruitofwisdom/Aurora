@@ -5,8 +5,10 @@ namespace Aurora
 {
     internal class Game
     {
-        public string Name { get; private set; }
-        public int StartingRoomId { get; private set; }
+        // These fields are deserialized from JSON.
+        public string Name { get; set; }
+        public int StartingRoomId { get; set; }
+        public string DatabaseFilename { get; set; }
 
         // All the current game objects in the world.
         public List<GameObject> WorldObjects { get; private set; }
@@ -26,31 +28,45 @@ namespace Aurora
             }
         }
 
-        private Game()
+        public Game()
         {
             Name = "Unknown Game";
             StartingRoomId = 0;
+            DatabaseFilename = "unknown.db";
             WorldObjects = new List<GameObject>();
             Players = new List<Player>();
         }
 
-        public void Load()
+        public static bool Run(string gameFilename)
         {
-            List<Dictionary<string, object>> infoTable = Database.Instance.ReadTable("info");
-            if (infoTable.Count > 0)
-            {
-                Name = (string)infoTable[0]["name"];
-                StartingRoomId = (int)infoTable[0]["starting_room_id"];
-                ServerInfo.Instance.Report("[Game] Game \"" + Name + "\" loaded.\n");
-                ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
-            }
+            bool running = false;
 
-            // Load an initial version of each world object.
-            ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
-            foreach (GameObject worldObject in worldObjects.FindAll())
+            try
             {
-                WorldObjects.Add(worldObject);
+                string jsonString = System.IO.File.ReadAllText(gameFilename);
+                _instance = System.Text.Json.JsonSerializer.Deserialize<Game>(jsonString);
+
+                if (Database.Instance.Open(_instance.DatabaseFilename))
+                {
+                    ServerInfo.Instance.Report("[Game] Game \"" + _instance.Name + "\" loaded.\n");
+                    ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
+
+                    // Load an initial version of each world object.
+                    ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
+                    foreach (GameObject worldObject in worldObjects.FindAll())
+                    {
+                        _instance.WorldObjects.Add(worldObject);
+                    }
+
+                    running = true;
+                }
             }
+            catch (System.Exception exception)
+            {
+				ServerInfo.Instance.Report("[Game] Game \"" + _instance.Name + "\" failed to load.\n");
+			}
+
+			return running;
 		}
 
         public void Save()
