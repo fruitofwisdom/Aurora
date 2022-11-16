@@ -10,6 +10,7 @@ namespace Aurora
         public string Password { get; set; }
         public string Salt { get; set; }
         public bool IsAdmin { get; set; } = false;
+        public List<GameObject> Inventory { get; set; }
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
@@ -21,6 +22,7 @@ namespace Aurora
 			Description = "the player " + Name;
 			Password = password;
             Salt = salt;
+            Inventory = new();
         }
 
         public bool HasConnection()
@@ -77,7 +79,8 @@ namespace Aurora
                 { "w", "west" },
                 { "nw", "northwest" },
                 { "u", "up" },
-                { "d", "down" }
+                { "d", "down" },
+                { "i", "inventory" }
             };
             if (shorthand.ContainsKey(input))
             {
@@ -138,6 +141,16 @@ namespace Aurora
                 case "emote":
                     Emote(argument);
                     break;
+                case "inventory":
+                case "inv":
+                    PrintInventory();
+                    break;
+                case "take":
+                    Take(argument);
+                    break;
+                case "drop":
+                    Drop(argument);
+                    break;
                 default:
                     TryExit(command);
                     break;
@@ -177,7 +190,10 @@ namespace Aurora
             LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
             LocalConnection.SendMessage("     \"say\" to say something to everyone nearby.\r\n");
             LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
-            LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
+			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
+			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
+			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
         }
 
         private void LookAt(string gameObjectName)
@@ -239,7 +255,67 @@ namespace Aurora
             Game.Instance.ReportPlayerEmoted(this, argument);
         }
 
-        private void TryExit(string command)
+        private GameObject GetObjectFromInventory(string gameObjectName)
+        {
+            GameObject toReturn = null;
+
+            foreach (GameObject gameObject in Inventory)
+            {
+                if (gameObject.Name.ToLower() == gameObjectName.ToLower())
+                {
+                    toReturn = gameObject;
+                }
+            }
+
+			return toReturn;
+        }
+
+        private void PrintInventory()
+        {
+            if (Inventory.Count == 0)
+            {
+				LocalConnection.SendMessage("You're not carrying anything.\r\n");
+			}
+            else
+            {
+				LocalConnection.SendMessage("You are carrying:\r\n");
+                foreach (GameObject gameObject in Inventory)
+                {
+                    LocalConnection.SendMessage("     " + gameObject.CapitalizeName() + "\r\n");
+				}
+			}
+		}
+
+        private void Take(string argument)
+        {
+            GameObject gameObject = Game.Instance.TryTake(this, argument);
+            if (gameObject != null)
+            {
+                LocalConnection.SendMessage("You take " + gameObject.Description + ".\r\n");
+                Inventory.Add(gameObject);
+            }
+            else
+            {
+                LocalConnection.SendMessage("You can't take that!\r\n");
+            }
+        }
+
+        private void Drop(string argument)
+        {
+            GameObject gameObject = GetObjectFromInventory(argument);
+			if (gameObject != null)
+			{
+                Game.Instance.TryDrop(this, gameObject);
+				LocalConnection.SendMessage("You drop " + gameObject.Description + ".\r\n");
+				Inventory.Remove(gameObject);
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that!\r\n");
+			}
+		}
+
+		private void TryExit(string command)
         {
             bool didExit = false;
 

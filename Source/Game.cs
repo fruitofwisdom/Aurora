@@ -375,5 +375,46 @@ namespace Aurora
                 }
             }
         }
-    }
+
+        public GameObject TryTake(Player player, string gameObjectName)
+        {
+            GameObject toReturn = GetGameObject(gameObjectName, player.CurrentRoomId);
+
+            if (toReturn != null)
+            {
+                WorldObjects.Remove(toReturn);
+				foreach (Player otherPlayer in Players)
+				{
+					if (otherPlayer == player || !otherPlayer.HasConnection())
+					{
+						continue;
+					}
+
+					if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                    {
+						otherPlayer.Message(player.Name + " took " + toReturn.Description + ".\r\n");
+					}
+				}
+			}
+
+			return toReturn;
+        }
+
+        public void TryDrop(Player player, GameObject gameObject)
+        {
+            WorldObjects.Add(gameObject);
+			foreach (Player otherPlayer in Players)
+			{
+				if (otherPlayer == player || !otherPlayer.HasConnection())
+				{
+					continue;
+				}
+
+				if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
+				{
+					otherPlayer.Message(player.Name + " dropped " + gameObject.Description + ".\r\n");
+				}
+			}
+		}
+	}
 }
