@@ -2,5 +2,6 @@
   "Name": "Borealis",
   "StartingRoomId": 2,
   "DatabaseFilename": "Borealis.db",
-  "PlayersFilename": "BorealisPlayers.json"
+  "PlayersFilename": "BorealisPlayers.json",
+  "WorldObjectsFilename": "BorealisWorldObjects.json"
 }

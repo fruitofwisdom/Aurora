@@ -1,6 +1,7 @@
-﻿using LiteDB;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Timers;
 
 namespace Aurora
 {
@@ -11,11 +12,14 @@ namespace Aurora
         public int StartingRoomId { get; set; }
         public string DatabaseFilename { get; set; }
         public string PlayersFilename { get; set; }
+        public string WorldObjectsFilename { get; set; }
 
         // All the players of the game.
         private List<Player> Players;
         // All the current game objects in the world.
         private List<GameObject> WorldObjects;
+
+        private Timer SaveTimer = null;
 
         private static Game _instance = null;
         public static Game Instance
@@ -35,8 +39,12 @@ namespace Aurora
             Name = "Unknown Game";
             StartingRoomId = 0;
             DatabaseFilename = "unknown.db";
-            WorldObjects = new List<GameObject>();
             Players = new List<Player>();
+			WorldObjects = new List<GameObject>();
+
+			// Automatically save every 15 seconds.
+			SaveTimer = new Timer(15000);
+            SaveTimer.Elapsed += OnTimedSaveEvent;
         }
 
         public static bool Run(string gameFilename)
@@ -46,7 +54,7 @@ namespace Aurora
             try
             {
                 string jsonString = File.ReadAllText(gameFilename);
-                _instance = System.Text.Json.JsonSerializer.Deserialize<Game>(jsonString);
+                _instance = JsonSerializer.Deserialize<Game>(jsonString);
                 _instance.Load();
 				running = true;
 
@@ -65,32 +73,29 @@ namespace Aurora
         public void Load()
         {
 			string jsonString = File.ReadAllText(PlayersFilename);
-            Players = System.Text.Json.JsonSerializer.Deserialize<List<Player>>(jsonString);
+            Players = JsonSerializer.Deserialize<List<Player>>(jsonString);
 
-			if (Database.Instance.Open(_instance.DatabaseFilename))
-			{
-				// Load an initial version of each world object.
-				ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
-				foreach (GameObject worldObject in worldObjects.FindAll())
-				{
-					_instance.WorldObjects.Add(worldObject);
-				}
-			}
+            jsonString = File.ReadAllText(WorldObjectsFilename);
+            WorldObjects = JsonSerializer.Deserialize<List<GameObject>>(jsonString);
+
+            Database.Instance.Open(DatabaseFilename);
+
+            SaveTimer.Start();
 		}
 
 		public void Save()
         {
-            string jsonString = System.Text.Json.JsonSerializer.Serialize<List<Player>>(Players);
+            string jsonString = JsonSerializer.Serialize<List<Player>>(Players);
             File.WriteAllText(PlayersFilename, jsonString);
 
-			// Save the current version of each world object.
-			ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
-            worldObjects.DeleteAll();
-			foreach (GameObject worldObject in WorldObjects)
-			{
-                worldObjects.Insert(worldObject);
-			}
+            jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects);
+            File.WriteAllText(WorldObjectsFilename, jsonString);
 		}
+
+        private static void OnTimedSaveEvent(object source, ElapsedEventArgs e)
+        {
+            Game.Instance.Save();
+        }
 
         public Player CreatePlayer(string name, string password, string salt)
         {
@@ -267,8 +272,8 @@ namespace Aurora
             List<Dictionary<string, object>> roomsTable = Database.Instance.ReadTable("rooms", "room_id", roomId);
             if (roomsTable.Count > 0)
             {
-                List<BsonValue> exitsList = roomsTable[0]["exits"] as List<BsonValue>;
-                foreach (BsonDocument exit in exitsList)
+                List<LiteDB.BsonValue> exitsList = roomsTable[0]["exits"] as List<LiteDB.BsonValue>;
+                foreach (LiteDB.BsonDocument exit in exitsList)
                 {
                     exits.Add(((string)exit["direction"], (int)exit["room_id"], GetRoomName((int)exit["room_id"])));
                 }
