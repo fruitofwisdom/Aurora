@@ -1,0 +1,159 @@
+[
+  {
+    "RoomId":  0,
+    "Name": "Limbo",
+    "Description": "You are resting in limbo. Space extends around you endlessly..."
+  },
+  {
+    "RoomId":  1,
+    "Name": "Developer Room",
+    "Description": "A small, messy room, with discarded pieces of broken code scattered about."
+  },
+  {
+    "RoomId":  2,
+    "Name": "Your House",
+    "Description": "Your humble home is just that, the place where you rest your head and keep your belongings between adventures. Well, supposed adventures. You haven't done much of that lately... time to be off then. To the south lies your journey.",
+    "Exits":
+      [
+        { "Direction": "south", "RoomId": 3},
+        { "Direction": "out", "RoomId": 3}
+      ]
+  },
+  {
+    "RoomId":  3,
+    "Name": "Old Town",
+    "Description": "Low, squat buildings made of wood and stucco line this square. Their peaked roofs help keep snow off in the winter. The city square is to the east and your modest home is to the north.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 2},
+        { "Direction": "east", "RoomId": 4},
+        { "Direction": "in", "RoomId": 2}
+      ]
+  },
+  {
+    "RoomId":  4,
+    "Name": "City Square",
+    "Description": "You stand in the heart of the city, where its main thoroughfare intersects with its quaint shopping district. To the north you can see the harbor, a large cathedral rises on the hill to the south, and the shopping street crosses east to west.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 5},
+        { "Direction": "east", "RoomId": 6},
+        { "Direction": "south", "RoomId": 7},
+        { "Direction": "west", "RoomId": 3}
+    ]
+  },
+  {
+    "RoomId":  5,
+    "Name": "Waterfront",
+    "Description": "Your gaze lingers over the mountains rising beyond the fog across the water of the bay. To your west is the harbor and to your east lies the residential district.",
+    "Exits":
+      [
+        { "Direction": "east", "RoomId": 8},
+        { "Direction": "south", "RoomId": 4},
+        { "Direction": "west", "RoomId": 9}
+      ]
+  },
+  {
+    "RoomId":  6,
+    "Name": "Shopping District",
+    "Description": "A colorful street full of shops continues to the east and west. The smell of fresh-baked goods wafts from a door to the north and the clanging of metal from another to the south. East continues to the city outskirts.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 10},
+        { "Direction": "east", "RoomId": 11},
+        { "Direction": "south", "RoomId": 12},
+        { "Direction": "west", "RoomId": 4}
+      ]
+  },
+  {
+    "RoomId":  7,
+    "Name": "Outside the Cathedral",
+    "Description": "Standing below the majestic spires of the cathedral, you can't help but feel intimidated by its presence over the city. The doors to the cathedral are open and the road continues north to the city square.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 4},
+        { "Direction": "south", "RoomId": 13},
+       { "Direction": "in", "RoomId": 13}
+      ]
+  },
+  {
+    "RoomId":  8,
+    "Name": "Residential District",
+    "Description": "More homes line the street overlooking the harbor to the north. These houses are narrow, two- or three-stories, and their windows are barred against the cold wind. The waterfront lies to the west and the outskirts to the east.",
+    "Exits":
+      [
+        { "Direction": "east", "RoomId": 14},
+        { "Direction": "west", "RoomId": 5}
+      ]
+  },
+  {
+    "RoomId":  9,
+    "Name": "Harbor",
+    "Description": "The busy waterfront sprawls north of you out into the bay. Fishermen are busy bringing in their catch for the day, the smell of sea strong here. The waterfront is back to the east.",
+    "Exits":
+      [
+        { "Direction": "east", "RoomId": 5}
+      ]
+  },
+  {
+    "RoomId":  10,
+    "Name": "The Fat Baker",
+    "Description": "Contrary to the shop's name, the baker is in fact a pretty, young lady, tending to some bread fresh out of the oven. The shelves are lined with the most delicious goods imaginable. The door to the south leads out, but you are hesitant to go.",
+    "Exits":
+      [
+        { "Direction": "south", "RoomId": 6},
+        { "Direction": "out", "RoomId": 6}
+      ]
+  },
+  {
+    "RoomId":  11,
+    "Name": "Southern Outskirts",
+    "Description": "The city comes to an end here, with the cobblestone road continuing to the east into the hills in the distance. You can reach the bay to the north and the shopping district to the west.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 14},
+        { "Direction": "east", "RoomId": 15},
+        { "Direction": "west", "RoomId": 6}
+      ]
+  },
+  {
+    "RoomId":  12,
+    "Name": "Edgar's Tools",
+    "Description": "Edgar stands proudly behind the counter of his shop, swords, axes, spears, shields, armor, and other metal goods displayed around the store. What else could you need to defend yourselves in the wilds? The door leading out is to the north.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 6},
+        { "Direction": "out", "RoomId": 6}
+      ]
+  },
+  {
+    "RoomId":  13,
+    "Name": "Inside the Cathedral",
+    "Description": "The cold stone outside is contrasted with the warmth of the candles glowing within the dim light of the cathedral. The midday sun comes in through its stainglass windows as the organ is played in the corner. The doors are open to the north.",
+    "Exits":
+      [
+        { "Direction": "north", "RoomId": 7},
+        { "Direction": "out", "RoomId": 7}
+      ]
+  },
+  {
+    "RoomId":  14,
+    "Name": "Northern Outskirts",
+    "Description": "The bay seems to get colder as you leave town and the way rockier to the east. You would be better off joining the cobblestone road to the south or going back to town to the west.",
+    "Exits":
+      [
+        { "Direction": "south", "RoomId": 11},
+        { "Direction": "west", "RoomId": 8}
+      ]
+  },
+  {
+    "RoomId":  15,
+    "Name": "Road Out of Town",
+    "Description": "Cobbled streets continue dutifully out of the city and into the rolling hills. Low brush surrounds the road here and a helpful marker points east towards the start of the foothills past a river in the distance.",
+    "Exits":
+      [
+        { "Direction": "east", "RoomId": 16},
+        { "Direction": "west", "RoomId": 11}
+      ]
+  }
+]

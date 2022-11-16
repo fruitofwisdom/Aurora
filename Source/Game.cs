@@ -10,12 +10,14 @@ namespace Aurora
         // These fields are deserialized from JSON.
         public string Name { get; set; }
         public int StartingRoomId { get; set; }
-        public string DatabaseFilename { get; set; }
         public string PlayersFilename { get; set; }
-        public string WorldObjectsFilename { get; set; }
+		public string RoomsFilename { get; set; }
+		public string WorldObjectsFilename { get; set; }
 
         // All the players of the game.
         private List<Player> Players;
+        // All the rooms.
+        private List<Room> Rooms;
         // All the current game objects in the world.
         private List<GameObject> WorldObjects;
 
@@ -38,8 +40,8 @@ namespace Aurora
         {
             Name = "Unknown Game";
             StartingRoomId = 0;
-            DatabaseFilename = "unknown.db";
             Players = new List<Player>();
+            Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
 
 			// Automatically save every 15 seconds.
@@ -75,10 +77,11 @@ namespace Aurora
 			string jsonString = File.ReadAllText(PlayersFilename);
             Players = JsonSerializer.Deserialize<List<Player>>(jsonString);
 
+            jsonString = File.ReadAllText(RoomsFilename);
+            Rooms = JsonSerializer.Deserialize<List<Room>>(jsonString);
+
             jsonString = File.ReadAllText(WorldObjectsFilename);
             WorldObjects = JsonSerializer.Deserialize<List<GameObject>>(jsonString);
-
-            Database.Instance.Open(DatabaseFilename);
 
             SaveTimer.Start();
 		}
@@ -87,6 +90,8 @@ namespace Aurora
         {
             string jsonString = JsonSerializer.Serialize<List<Player>>(Players);
             File.WriteAllText(PlayersFilename, jsonString);
+
+            // TODO: Save rooms too?
 
             jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects);
             File.WriteAllText(WorldObjectsFilename, jsonString);
@@ -212,30 +217,45 @@ namespace Aurora
 			return toReturn;
         }
 
-		public static string GetRoomName(int roomId)
+        public Room GetRoom(int roomId)
+        {
+            Room toReturn = null;
+
+			foreach (Room room in Rooms)
+			{
+				if (room.RoomId == roomId)
+				{
+                    toReturn = room;
+				}
+			}
+
+            return toReturn;
+		}
+
+		public string GetRoomName(int roomId)
         {
             string roomName = "Unknown Room";
 
-            List<Dictionary<string, object>> roomsTable = Database.Instance.ReadTable("rooms", "room_id", roomId);
-            if (roomsTable.Count > 0)
+            Room room = GetRoom(roomId);
+            if (room != null)
             {
-                roomName = (string)roomsTable[0]["name"];
+                roomName = room.Name;
             }
 
             return roomName;
         }
 
-        public static string GetRoomDescription(int roomId)
+        public string GetRoomDescription(int roomId)
         {
             string roomDescription = "Unknown Description";
 
-            List<Dictionary<string, object>> roomsTable = Database.Instance.ReadTable("rooms", "room_id", roomId);
-            if (roomsTable.Count > 0)
-            {
-                roomDescription = (string)roomsTable[0]["description"];
-            }
+			Room room = GetRoom(roomId);
+			if (room != null)
+			{
+				roomDescription = room.Description;
+			}
 
-            return roomDescription;
+			return roomDescription;
         }
 
         public string GetRoomContents(Player player)
@@ -265,17 +285,17 @@ namespace Aurora
 
         // Returns a list of the exits in a room, including the direction, room_id, and the
         // adjoining room's name.
-        public static List<(string, int, string)> GetRoomExits(int roomId)
+        public List<(string, int, string)> GetRoomExits(int roomId)
         {
-            List<(string, int, string)> exits = new();
+            List<(string, int, string)> exits = null;
 
-            List<Dictionary<string, object>> roomsTable = Database.Instance.ReadTable("rooms", "room_id", roomId);
-            if (roomsTable.Count > 0)
+            Room room = GetRoom(roomId);
+            if (room != null)
             {
-                List<LiteDB.BsonValue> exitsList = roomsTable[0]["exits"] as List<LiteDB.BsonValue>;
-                foreach (LiteDB.BsonDocument exit in exitsList)
+                exits = new();
+                foreach (Exit exit in room.Exits)
                 {
-                    exits.Add(((string)exit["direction"], (int)exit["room_id"], GetRoomName((int)exit["room_id"])));
+                    exits.Add((exit.Direction, exit.RoomId, GetRoomName(exit.RoomId)));
                 }
             }
 
@@ -283,7 +303,7 @@ namespace Aurora
         }
 
         // Returns the room_id of the room in a direction or null if there is no such exit.
-        public static int? RoomContainsExit(int roomId, string direction)
+        public int? RoomContainsExit(int roomId, string direction)
         {
             int? roomContainsExit = null;
 
@@ -299,10 +319,9 @@ namespace Aurora
             return roomContainsExit;
         }
 
-        public static bool RoomExists(int roomId)
+        public bool RoomExists(int roomId)
         {
-            List<Dictionary<string, object>> roomsTable = Database.Instance.ReadTable("rooms", "room_id", roomId);
-            return roomsTable.Count > 0;
+            return GetRoom(roomId) != null;
         }
 
         public void ReportPlayerMoved(Player player, int fromRoomId, int toRoomId)

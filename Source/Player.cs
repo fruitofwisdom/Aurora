@@ -152,10 +152,10 @@ namespace Aurora
         public void PrintRoom()
         {
             LocalConnection.SendMessage("\r\n");
-            LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.GetRoomName(CurrentRoomId) + "\r\n");
+            LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.Instance.GetRoomName(CurrentRoomId) + "\r\n");
             if (DescriptionNeeded)
             {
-                LocalConnection.SendMessage(Game.GetRoomDescription(CurrentRoomId) + "\r\n");
+                LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
                 DescriptionNeeded = false;
             }
             string roomContents = Game.Instance.GetRoomContents(this);
@@ -195,7 +195,7 @@ namespace Aurora
 
         private void PrintExits()
         {
-            List<(string, int, string)> exits = Game.GetRoomExits(CurrentRoomId);
+            List<(string, int, string)> exits = Game.Instance.GetRoomExits(CurrentRoomId);
 
             if (exits.Count == 0)
             {
@@ -243,10 +243,10 @@ namespace Aurora
         {
             bool didExit = false;
 
-            int? newRoomId = Game.RoomContainsExit(CurrentRoomId, command);
+            int? newRoomId = Game.Instance.RoomContainsExit(CurrentRoomId, command);
             if (newRoomId != null)
             {
-                if (Game.RoomExists((int)newRoomId))
+                if (Game.Instance.RoomExists((int)newRoomId))
                 {
                     Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (int)newRoomId);
                     CurrentRoomId = (int)newRoomId;
