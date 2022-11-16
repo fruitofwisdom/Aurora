@@ -1,5 +1,6 @@
 ﻿using LiteDB;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Aurora
 {
@@ -9,11 +10,12 @@ namespace Aurora
         public string Name { get; set; }
         public int StartingRoomId { get; set; }
         public string DatabaseFilename { get; set; }
+        public string PlayersFilename { get; set; }
 
+        // All the players of the game.
+        private List<Player> Players;
         // All the current game objects in the world.
-        public List<GameObject> WorldObjects { get; private set; }
-        // All the current players in the game.
-        public List<Player> Players { get; private set; }
+        private List<GameObject> WorldObjects;
 
         private static Game _instance = null;
         public static Game Instance
@@ -43,34 +45,44 @@ namespace Aurora
 
             try
             {
-                string jsonString = System.IO.File.ReadAllText(gameFilename);
+                string jsonString = File.ReadAllText(gameFilename);
                 _instance = System.Text.Json.JsonSerializer.Deserialize<Game>(jsonString);
+                _instance.Load();
+				running = true;
 
-                if (Database.Instance.Open(_instance.DatabaseFilename))
-                {
-                    ServerInfo.Instance.Report("[Game] Game \"" + _instance.Name + "\" loaded.\n");
-                    ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
-
-                    // Load an initial version of each world object.
-                    ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
-                    foreach (GameObject worldObject in worldObjects.FindAll())
-                    {
-                        _instance.WorldObjects.Add(worldObject);
-                    }
-
-                    running = true;
-                }
+				ServerInfo.Instance.Report("[Game] Game \"" + _instance.Name + "\" loaded.\n");
+				ServerInfo.Instance.RaiseEvent(new ServerInfoGameArgs(true));
             }
             catch (System.Exception exception)
             {
 				ServerInfo.Instance.Report("[Game] Game \"" + _instance.Name + "\" failed to load.\n");
+                ServerInfo.Instance.Report("[Game] Exception caught by the game: " + exception.Message + "\n");
 			}
 
 			return running;
 		}
 
-        public void Save()
+        public void Load()
         {
+			string jsonString = File.ReadAllText(PlayersFilename);
+            Players = System.Text.Json.JsonSerializer.Deserialize<List<Player>>(jsonString);
+
+			if (Database.Instance.Open(_instance.DatabaseFilename))
+			{
+				// Load an initial version of each world object.
+				ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
+				foreach (GameObject worldObject in worldObjects.FindAll())
+				{
+					_instance.WorldObjects.Add(worldObject);
+				}
+			}
+		}
+
+		public void Save()
+        {
+            string jsonString = System.Text.Json.JsonSerializer.Serialize<List<Player>>(Players);
+            File.WriteAllText(PlayersFilename, jsonString);
+
 			// Save the current version of each world object.
 			ILiteCollection<GameObject> worldObjects = Database.Instance.GetCollection<GameObject>("worldObjects");
             worldObjects.DeleteAll();
@@ -80,42 +92,35 @@ namespace Aurora
 			}
 		}
 
+        public Player CreatePlayer(string name, string password, string salt)
+        {
+            Player newPlayer = new Player(name, StartingRoomId, password, salt);
+            Players.Add(newPlayer);
+            return newPlayer;
+        }
+
 		public bool PlayerCanJoin(string name)
         {
-            bool playerCanJoin = true;
+            // If a player already has a connection, they can't join again.
+            Player player = GetPlayer(name);
+            return player == null || !player.HasConnection();
+        }
 
-            // If a player has already joined, they can't join again.
-            foreach (Player player in Players)
-            {
-                if (player.Name == name)
-                {
-                    playerCanJoin = false;
-                }
-            }
-
-            return playerCanJoin;
+        public bool PlayerExists(string name)
+        {
+            return GetPlayer(name) != null;
         }
 
         public void PlayerJoined(Player player)
         {
-            Players.Add(player);
-            Game.Instance.ReportPlayerMoved(player, -1, player.CurrentRoomId);
+            ReportPlayerMoved(player, -1, player.CurrentRoomId);
             ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has joined.\n");
         }
 
         public void PlayerQuit(Player player)
         {
-            if (Players.Contains(player))
-            {
-                bool didSave = player.Save();
-                if (!didSave)
-                {
-					ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" failed to save.\n");
-				}
-				Players.Remove(player);
-                ReportPlayerMoved(player, player.CurrentRoomId, -1);
-                ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
-            }
+            ReportPlayerMoved(player, player.CurrentRoomId, -1);
+            ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
         }
 
         public static GameObject GetGameObject(string gameObjectName, int currentRoomId)
@@ -141,6 +146,66 @@ namespace Aurora
 
             return gameObject;
 		}
+
+        public Player GetPlayer(string playerName)
+        {
+            Player toReturn = null;
+
+			foreach (Player player in Players)
+			{
+				if (player.Name.ToLower() == playerName.ToLower())
+				{
+					toReturn = player;
+				}
+			}
+
+            return toReturn;
+		}
+
+        public int GetPlayerCount()
+        {
+            int toReturn = 0;
+
+            foreach (Player player in Players)
+            {
+                if (player.HasConnection())
+                {
+                    toReturn++;
+                }
+            }
+
+            return toReturn;
+        }
+
+        public List<string> GetPlayerNames()
+        {
+            List<string> toReturn = new();
+
+            foreach (Player player in Players)
+            {
+                if (player.HasConnection())
+                {
+                    toReturn.Add(player.Name);
+                }
+            }
+
+            return toReturn;
+		}
+
+        public List<Player> GetPlayersInRoom(int roomId)
+        {
+            List<Player> toReturn = new();
+
+			foreach (Player player in Players)
+            {
+                if (player.HasConnection() && player.CurrentRoomId == roomId)
+                {
+                    toReturn.Add(player);
+                }
+            }
+
+			return toReturn;
+        }
 
 		public static string GetRoomName(int roomId)
         {
@@ -168,20 +233,21 @@ namespace Aurora
             return roomDescription;
         }
 
-        public static string GetRoomContents(Player player)
+        public string GetRoomContents(Player player)
         {
             string roomContents = "";
 
             // Report all the players in a room first.
-            foreach (Player otherPlayer in Instance.Players)
+            List<Player> playersInRoom = GetPlayersInRoom(player.CurrentRoomId);
+            foreach (Player otherPlayer in playersInRoom)
             {
-                if (otherPlayer != player && otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                if (otherPlayer != player)
                 {
                     roomContents += otherPlayer.Name + " is here.\r\n";
                 }
             }
             // Then all the other objects in a room.
-            foreach (GameObject worldObject in Instance.WorldObjects)
+            foreach (GameObject worldObject in WorldObjects)
             {
                 if (worldObject.CurrentRoomId == player.CurrentRoomId)
                 {
@@ -238,7 +304,7 @@ namespace Aurora
         {
             foreach (Player otherPlayer in Players)
             {
-                if (otherPlayer == player)
+                if (otherPlayer == player || !otherPlayer.HasConnection())
                 {
                     continue;
                 }
@@ -258,7 +324,7 @@ namespace Aurora
         {
             foreach (Player otherPlayer in Players)
             {
-                if (otherPlayer == player)
+                if (otherPlayer == player || !otherPlayer.HasConnection())
                 {
                     continue;
                 }
@@ -274,7 +340,7 @@ namespace Aurora
         {
             foreach (Player otherPlayer in Players)
             {
-                if (otherPlayer == player)
+                if (otherPlayer == player || !otherPlayer.HasConnection())
                 {
                     continue;
                 }

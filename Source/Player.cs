@@ -1,6 +1,4 @@
-﻿using LiteDB;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Aurora
 {
@@ -8,10 +6,9 @@ namespace Aurora
     {
         private Connection LocalConnection;
 
-        // These public fields all serialize to the database.
+        // These public fields all serialize.
         public string Password { get; set; }
         public string Salt { get; set; }
-        [BsonField("is_admin")]
         public bool IsAdmin { get; set; } = false;
 
         private bool DescriptionNeeded = true;
@@ -26,49 +23,12 @@ namespace Aurora
             Salt = salt;
         }
 
-        public bool PasswordMatches(string password)
+        public bool HasConnection()
         {
-            bool passwordMatches = false;
-
-            Player otherPlayer = Load(Name);
-            if (otherPlayer != null)
-            {
-                // retrieve the salt from the database, hash the provided password, and see if it
-                // matches the actual password
-                string actualPassword = otherPlayer.Password;
-                string saltAsString = otherPlayer.Salt;
-                byte[] salt = Convert.FromBase64String(saltAsString);
-                string hashedPassword = Connection.HashPassword(password, salt);
-                passwordMatches = actualPassword == hashedPassword;
-            }
-
-            return passwordMatches;
+            return LocalConnection != null;
         }
 
-        // Create a new player and insert them into the database.
-        public static Player Create(string name, string password, string salt, int startingRoomId)
-        {
-            Player newPlayer = new(name, startingRoomId, password, salt);
-			ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
-            players.Insert(newPlayer);
-			return newPlayer;
-        }
-
-        // Load a player from the database.
-        public static Player Load(string name)
-        {
-            ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
-            return players.FindOne(x => x.Name == name);
-        }
-
-        // Save ("update") a player to the database.
-        public bool Save()
-        {
-            ILiteCollection<Player> players = Database.Instance.GetCollection<Player>("players");
-            return players.Update(_id, this);
-        }
-
-        public void SetConnection(Connection localConnection)
+		public void SetConnection(Connection localConnection)
         {
             LocalConnection = localConnection;
         }
@@ -150,7 +110,8 @@ namespace Aurora
                 case "quit":
                     LocalConnection.SendMessage("Good-bye!\r\n");
                     LocalConnection.Disconnect(true);
-                    break;
+                    // Return early. Our connection has gone away.
+                    return;
                 case "help":
                 case "?":
                     PrintHelp();
@@ -197,7 +158,7 @@ namespace Aurora
                 LocalConnection.SendMessage(Game.GetRoomDescription(CurrentRoomId) + "\r\n");
                 DescriptionNeeded = false;
             }
-            string roomContents = Game.GetRoomContents(this);
+            string roomContents = Game.Instance.GetRoomContents(this);
             if (roomContents != "")
             {
                 LocalConnection.SendMessage(roomContents);
@@ -253,17 +214,17 @@ namespace Aurora
 
         private void PrintWho()
         {
-            if (Game.Instance.Players.Count == 1)
+            if (Game.Instance.GetPlayerCount() == 1)
             {
                 LocalConnection.SendMessage("There is 1 player currently:\r\n");
             }
             else
             {
-                LocalConnection.SendMessage("There are " + Game.Instance.Players.Count + " players currently:\r\n");
+                LocalConnection.SendMessage("There are " + Game.Instance.GetPlayerCount() + " players currently:\r\n");
             }
-            foreach (Player player in Game.Instance.Players)
+            foreach (string playerName in Game.Instance.GetPlayerNames())
             {
-                LocalConnection.SendMessage("     " + player.Name + "\r\n");
+                LocalConnection.SendMessage("     " + playerName + "\r\n");
             }
         }
 
@@ -289,11 +250,6 @@ namespace Aurora
                 {
                     Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (int)newRoomId);
                     CurrentRoomId = (int)newRoomId;
-                    bool didSave = Save();
-                    if (!didSave)
-                    {
-						ServerInfo.Instance.Report("[Game] Player \"" + Name + "\" failed to save.\n");
-					}
 					didExit = true;
                 }
                 else
