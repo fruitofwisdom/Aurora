@@ -21,14 +21,14 @@ namespace Aurora
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string databaseFilename = (string)Properties.Settings.Default["DatabaseFilename"];
-            if (databaseFilename != "")
+            string gameFilename = (string)Properties.Settings.Default["GameFilename"];
+            if (gameFilename != "")
             {
-                Database.Instance.Configure(databaseFilename);
-            }
-            else
+                Game.Run(gameFilename);
+			}
+			else
             {
-                ServerInfo.Instance.Report("[Aurora] Please choose a database file!\n");
+                ServerInfo.Instance.Report("[Aurora] Please choose a game file!\n");
             }
         }
 
@@ -39,19 +39,21 @@ namespace Aurora
             StopServer();
         }
 
-        private void ChooseDatabase_Click(object sender, RoutedEventArgs e)
+        private void ChooseGame_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Database files (*.db)|*.db|All files (*.*)|*.*";
+            openFileDialog.Filter = "Game files (*.json)|*.json|All files (*.*)|*.*";
             openFileDialog.RestoreDirectory = true;
 
             if ((bool)openFileDialog.ShowDialog())
             {
-                Properties.Settings.Default["DatabaseFilename"] = openFileDialog.FileName;
-                Properties.Settings.Default.Save();
-                Database.Instance.Configure((string)Properties.Settings.Default["DatabaseFilename"]);
-            }
-        }
+                if (Game.Run(openFileDialog.FileName))
+                {
+					Properties.Settings.Default["GameFilename"] = openFileDialog.FileName;
+					Properties.Settings.Default.Save();
+				}
+			}
+		}
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {

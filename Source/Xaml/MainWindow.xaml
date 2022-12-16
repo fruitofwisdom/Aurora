@@ -9,7 +9,7 @@
     <Grid>
         <Menu Height="25" VerticalAlignment="Top">
             <MenuItem x:Name="FileMenuItem" Header="File" Height="25">
-                <MenuItem x:Name="ChooseDatabaseMenuItem" Header="Choose Database..." Click="ChooseDatabase_Click"/>
+                <MenuItem x:Name="ChooseGameMenuItem" Header="Choose Game..." Click="ChooseGame_Click"/>
                 <MenuItem x:Name="ExitMenuItem" Header="Exit" Click="Exit_Click"/>
             </MenuItem>
             <MenuItem x:Name="ServerMenuItem" Header="Server">

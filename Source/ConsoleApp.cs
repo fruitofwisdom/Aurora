@@ -9,14 +9,12 @@ namespace Aurora
         private readonly ServerInfoHandler EventHandler = null;
         private bool Running = false;
 
-        public ConsoleApp(string databaseFilename)
+        public ConsoleApp(string gameFilename)
         {
             EventHandler = new ServerInfoHandler(ServerInfoEventHandler);
             ServerInfo.Instance.EventReceived += ServerInfoEventHandler;
 
-            Database.Instance.Configure(databaseFilename);
-
-            Running = true;
+            Running = Game.Run(gameFilename);
         }
 
         private void ServerInfoEventHandler(object sender, ServerInfoEventArgs args)

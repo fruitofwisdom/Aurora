@@ -1,71 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Aurora
 {
-    internal class Player
+    internal class Player : GameObject
     {
-        private readonly Connection LocalConnection;
+        private Connection LocalConnection;
 
-        // these fields are stores in the database in this order
-        public string Name = "Unknown Player";
-        private string Password;
-        private string Salt;
-        public bool IsAdmin = false;
-        public long CurrentRoomId = 0;
+        // These public fields all serialize.
+        public string Password { get; set; }
+        public string Salt { get; set; }
+        public bool IsAdmin { get; set; } = false;
+        public List<GameObject> Inventory { get; set; }
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
 
-        public Player(Connection connection)
+        public Player(string name, int currentRoomId, string password, string salt)
         {
-            LocalConnection = connection;
-        }
-
-        public bool PasswordMatches(string password)
-        {
-            bool passwordMatches = false;
-
-            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTableValues.Count > 0)
-            {
-                // retrieve the salt from the database, hash the provided password, and see if it
-                // matches the actual password
-                string actualPassword = (string)playersTableValues[0][2];
-                string saltAsString = (string)playersTableValues[0][3];
-                byte[] salt = Convert.FromBase64String(saltAsString);
-                string hashedPassword = Connection.HashPassword(password, salt);
-                passwordMatches = actualPassword == hashedPassword;
-            }
-
-            return passwordMatches;
-        }
-
-        public void Initialize(string password, string salt, long startingRoomId)
-        {
-            Password = password;
+            Name = name;
+			CurrentRoomId = currentRoomId;
+			Description = "the player " + Name;
+			Password = password;
             Salt = salt;
-            CurrentRoomId = startingRoomId;
-            Save();
+            Inventory = new();
         }
 
-        public void Load()
+        public bool HasConnection()
         {
-            List<List<object>> playersTableValues = Database.Instance.ReadTable("players", "name", Name);
-            if (playersTableValues.Count > 0)
-            {
-                Password = (string)playersTableValues[0][2];
-                Salt = (string)playersTableValues[0][3];
-                IsAdmin = (long)playersTableValues[0][4] != 0;
-                CurrentRoomId = (long)playersTableValues[0][5];
-            }
+            return LocalConnection != null;
         }
 
-        public void Save()
+		public void SetConnection(Connection localConnection)
         {
-            List<string> columns = new List<string>() { "name", "password", "salt", "is_admin", "current_room_id" };
-            List<object> values = new List<object>() { Name, Password, Salt, IsAdmin, CurrentRoomId };
-            Database.Instance.WriteTable("players", columns, values);
+            LocalConnection = localConnection;
         }
 
         public void Message(string message)
@@ -112,7 +79,8 @@ namespace Aurora
                 { "w", "west" },
                 { "nw", "northwest" },
                 { "u", "up" },
-                { "d", "down" }
+                { "d", "down" },
+                { "i", "inventory" }
             };
             if (shorthand.ContainsKey(input))
             {
@@ -145,13 +113,21 @@ namespace Aurora
                 case "quit":
                     LocalConnection.SendMessage("Good-bye!\r\n");
                     LocalConnection.Disconnect(true);
-                    break;
+                    // Return early. Our connection has gone away.
+                    return;
                 case "help":
                 case "?":
                     PrintHelp();
                     break;
                 case "look":
-                    DescriptionNeeded = true;
+                    if (argument.Split(' ')[0] == "at")
+                    {
+                        LookAt(GetArgument(argument));
+                    }
+                    else
+                    {
+                        DescriptionNeeded = true;
+                    }
                     break;
                 case "exits":
                     PrintExits();
@@ -164,6 +140,16 @@ namespace Aurora
                     break;
                 case "emote":
                     Emote(argument);
+                    break;
+                case "inventory":
+                case "inv":
+                    PrintInventory();
+                    break;
+                case "take":
+                    Take(argument);
+                    break;
+                case "drop":
+                    Drop(argument);
                     break;
                 default:
                     TryExit(command);
@@ -179,13 +165,13 @@ namespace Aurora
         public void PrintRoom()
         {
             LocalConnection.SendMessage("\r\n");
-            LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.GetRoomName(CurrentRoomId) + "\r\n");
+            LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.Instance.GetRoomName(CurrentRoomId) + "\r\n");
             if (DescriptionNeeded)
             {
-                LocalConnection.SendMessage(Game.GetRoomDescription(CurrentRoomId) + "\r\n");
+                LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
                 DescriptionNeeded = false;
             }
-            string roomContents = Game.GetRoomContents(this);
+            string roomContents = Game.Instance.GetRoomContents(this);
             if (roomContents != "")
             {
                 LocalConnection.SendMessage(roomContents);
@@ -198,17 +184,49 @@ namespace Aurora
             LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
             LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
             LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
+            LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
             LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
             LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
             LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
             LocalConnection.SendMessage("     \"say\" to say something to everyone nearby.\r\n");
             LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
-            LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
+			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
+			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
+			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
         }
+
+        private void LookAt(string gameObjectName)
+        {
+			// Try looking in your inventory first.
+			bool wasInInventory = true;
+			GameObject gameObject = GetObjectFromInventory(gameObjectName);
+            if (gameObject == null)
+            {
+                // Then try looking in the world.
+				wasInInventory = false;
+				gameObject = Game.GetGameObject(gameObjectName, CurrentRoomId);
+            }
+
+            if (gameObject != null)
+            {
+                string message = "You see " + gameObject.Description;
+                if (wasInInventory)
+                {
+                    message += " in your inventory";
+                }
+                message += ".\r\n";
+				LocalConnection.SendMessage(message);
+			}
+            else
+            {
+                LocalConnection.SendMessage("You don't see a " + gameObjectName + " here.\r\n");
+            }
+		}
 
         private void PrintExits()
         {
-            List<(string, long, string)> exits = Game.GetRoomExits(CurrentRoomId);
+            List<(string, int, string)> exits = Game.Instance.GetRoomExits(CurrentRoomId);
 
             if (exits.Count == 0)
             {
@@ -217,7 +235,7 @@ namespace Aurora
             else
             {
                 LocalConnection.SendMessage("Obvious exits are:\r\n");
-                foreach ((string, long, string) exit in exits)
+                foreach ((string, int, string) exit in exits)
                 {
                     string direction = char.ToUpper(exit.Item1[0]) + exit.Item1.Substring(1);
                     LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
@@ -227,17 +245,17 @@ namespace Aurora
 
         private void PrintWho()
         {
-            if (Game.Instance.Players.Count == 1)
+            if (Game.Instance.GetPlayerCount() == 1)
             {
                 LocalConnection.SendMessage("There is 1 player currently:\r\n");
             }
             else
             {
-                LocalConnection.SendMessage("There are " + Game.Instance.Players.Count + " players currently:\r\n");
+                LocalConnection.SendMessage("There are " + Game.Instance.GetPlayerCount() + " players currently:\r\n");
             }
-            foreach (Player player in Game.Instance.Players)
+            foreach (string playerName in Game.Instance.GetPlayerNames())
             {
-                LocalConnection.SendMessage("     " + player.Name + "\r\n");
+                LocalConnection.SendMessage("     " + playerName + "\r\n");
             }
         }
 
@@ -252,19 +270,78 @@ namespace Aurora
             Game.Instance.ReportPlayerEmoted(this, argument);
         }
 
-        private void TryExit(string command)
+        private GameObject GetObjectFromInventory(string gameObjectName)
+        {
+            GameObject toReturn = null;
+
+            foreach (GameObject gameObject in Inventory)
+            {
+                if (gameObject.Name.ToLower() == gameObjectName.ToLower())
+                {
+                    toReturn = gameObject;
+                }
+            }
+
+			return toReturn;
+        }
+
+        private void PrintInventory()
+        {
+            if (Inventory.Count == 0)
+            {
+				LocalConnection.SendMessage("You're not carrying anything.\r\n");
+			}
+            else
+            {
+				LocalConnection.SendMessage("You are carrying:\r\n");
+                foreach (GameObject gameObject in Inventory)
+                {
+                    LocalConnection.SendMessage("     " + gameObject.CapitalizeName() + "\r\n");
+				}
+			}
+		}
+
+        private void Take(string argument)
+        {
+            GameObject gameObject = Game.Instance.TryTake(this, argument);
+            if (gameObject != null)
+            {
+                LocalConnection.SendMessage("You take " + gameObject.Description + ".\r\n");
+                Inventory.Add(gameObject);
+            }
+            else
+            {
+                LocalConnection.SendMessage("You can't take that!\r\n");
+            }
+        }
+
+        private void Drop(string argument)
+        {
+            GameObject gameObject = GetObjectFromInventory(argument);
+			if (gameObject != null)
+			{
+                Game.Instance.TryDrop(this, gameObject);
+				LocalConnection.SendMessage("You drop " + gameObject.Description + ".\r\n");
+				Inventory.Remove(gameObject);
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that!\r\n");
+			}
+		}
+
+		private void TryExit(string command)
         {
             bool didExit = false;
 
-            long? newRoomId = Game.RoomContainsExit(CurrentRoomId, command);
+            int? newRoomId = Game.Instance.RoomContainsExit(CurrentRoomId, command);
             if (newRoomId != null)
             {
-                if (Game.RoomExists((long)newRoomId))
+                if (Game.Instance.RoomExists((int)newRoomId))
                 {
-                    Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (long)newRoomId);
-                    CurrentRoomId = (long)newRoomId;
-                    Save();
-                    didExit = true;
+                    Game.Instance.ReportPlayerMoved(this, CurrentRoomId, (int)newRoomId);
+                    CurrentRoomId = (int)newRoomId;
+					didExit = true;
                 }
                 else
                 {

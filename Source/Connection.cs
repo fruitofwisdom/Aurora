@@ -21,7 +21,8 @@ namespace Aurora
         private DateTime TimeSinceInput;
         private InputState LocalInputState = InputState.LoginName;
         public int ClientID { get; private set; }
-        private readonly Player LocalPlayer;
+        private Player LocalPlayer = null;
+        private string LocalPlayerName = null;
         private readonly TcpClient Client;
         public Thread ClientThread { get; private set; }
 
@@ -30,7 +31,6 @@ namespace Aurora
             ClientDisconnected = false;
             TimeSinceInput = DateTime.Now;
             ClientID = clientID;
-            LocalPlayer = new Player(this);
             Client = client;
             ClientThread = new Thread(new ThreadStart(Connect));
             ClientThread.Start();
@@ -103,6 +103,7 @@ namespace Aurora
             // if we were playing, tell the game we quit
             if (LocalInputState == InputState.Play)
             {
+                LocalPlayer.SetConnection(null);
                 Game.Instance.PlayerQuit(LocalPlayer);
             }
 
@@ -174,7 +175,7 @@ namespace Aurora
                 return;
             }
 
-            if (Database.Instance.DoesValueExistInColumn("players", "name", name))
+            if (Game.Instance.PlayerExists(name))
             {
                 SendMessage("Welcome back, " + name + "!\r\n");
                 SendMessage("What is your password?\r\n> ");
@@ -187,40 +188,45 @@ namespace Aurora
                 LocalInputState = InputState.LoginNewPassword;
             }
 
-            LocalPlayer.Name = name;
-            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" is attempting to login.\n");
+            LocalPlayerName = name;
+            ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" is attempting to login.\n");
         }
 
         private void HandleLoginExistingPassword(string password)
         {
-            if (LocalPlayer.PasswordMatches(password))
+            Player player = Game.Instance.GetPlayer(LocalPlayerName);
+			if (PasswordMatches(password, player))
             {
-                SendMessage("Enjoy your stay!\r\n");
-                SendMessage("Type \"help\" for more information.\r\n");
+                LocalPlayer = player;
+				LocalPlayer.SetConnection(this);
 
-                LocalPlayer.Load();
-                Game.Instance.PlayerJoined(LocalPlayer);
-                LocalPlayer.PrintRoom();
-                LocalInputState = InputState.Play;
-            }
-            else
+				SendMessage("Enjoy your stay!\r\n");
+				SendMessage("Type \"help\" for more information.\r\n");
+
+				Game.Instance.PlayerJoined(LocalPlayer);
+				LocalPlayer.PrintRoom();
+				LocalInputState = InputState.Play;
+			}
+			else
             {
                 SendMessage("I'm sorry, that's not correct.\r\n");
 
-                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayer.Name + "\" failed to login.\n");
+                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" failed to login.\n");
                 Disconnect(true);
             }
         }
 
         private void HandleLoginNewPassword(string password)
         {
+			byte[] salt = GenerateSalt();
+			string hashedPassword = HashPassword(password, salt);
+			string saltAsString = Convert.ToBase64String(salt);
+			LocalPlayer = Game.Instance.CreatePlayer(LocalPlayerName, hashedPassword, saltAsString);
+            LocalPlayer.SetConnection(this);
+			
             SendMessage("Enjoy your stay!\r\n");
             SendMessage("Type \"help\" for more information.\r\n");
 
-            byte[] salt = GenerateSalt();
-            string hashedPassword = HashPassword(password, salt);
-            string saltAsString = Convert.ToBase64String(salt);
-            LocalPlayer.Initialize(hashedPassword, saltAsString, Game.Instance.StartingRoomId);
             Game.Instance.PlayerJoined(LocalPlayer);
             LocalPlayer.PrintRoom();
             LocalInputState = InputState.Play;
@@ -233,11 +239,22 @@ namespace Aurora
             return salt;
         }
 
-        public static string HashPassword(string password, byte[] salt)
+        private static string HashPassword(string password, byte[] salt)
         {
             Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
             byte[] hash = pbkdf2.GetBytes(20);
             return Convert.ToBase64String(hash);
+        }
+
+        private static bool PasswordMatches(string password, Player otherPlayer)
+        {
+			// retrieve the salt from the database, hash the provided password, and see if it
+			// matches the actual password
+			string actualPassword = otherPlayer.Password;
+			string saltAsString = otherPlayer.Salt;
+			byte[] salt = Convert.FromBase64String(saltAsString);
+			string hashedPassword = Connection.HashPassword(password, salt);
+			return actualPassword == hashedPassword;
         }
 
         // This function will automatically split a message at a terminal width of 80
