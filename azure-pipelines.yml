@@ -44,14 +44,15 @@ stages:
         ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  - deployment: 'Run'
-    environment: 'Aurora.auroravm'
-    dependsOn: 'Build'
+  # TODO: No good way to run the server after the build is done.
+  #- deployment: 'Run'
+  #  environment: 'Aurora.auroravm'
+  #  dependsOn: 'Build'
 
-    strategy:
-     runOnce:
-       deploy:
-         steps:
+  #  strategy:
+  #   runOnce:
+  #     deploy:
+  #       steps:
           # TODO: Use DownloadPipelineArtifacts?
           #- task: DownloadBuildArtifacts@0
           #  inputs:
