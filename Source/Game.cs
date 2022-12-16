@@ -21,6 +21,7 @@ namespace Aurora
         // All the current game objects in the world.
         private List<GameObject> WorldObjects;
 
+        private const double kSaveTime = 10000;     // 10 seconds
         private Timer SaveTimer = null;
 
         private static Game _instance = null;
@@ -44,8 +45,8 @@ namespace Aurora
             Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
 
-			// Automatically save every 15 seconds.
-			SaveTimer = new Timer(15000);
+			// Automatically save every kSaveTime seconds.
+			SaveTimer = new Timer(kSaveTime);
             SaveTimer.Elapsed += OnTimedSaveEvent;
         }
 
@@ -140,7 +141,9 @@ namespace Aurora
 			// Search through all the players in a room first.
 			foreach (Player player in Instance.Players)
             {
-                if (player.CurrentRoomId == currentRoomId && player.Name.ToLower() == gameObjectName.ToLower())
+                if (player.CurrentRoomId == currentRoomId &&
+                    player.Name.ToLower() == gameObjectName.ToLower() &&
+                    !player.Invisible)
                 {
                     gameObject = player;
 				}
@@ -148,13 +151,30 @@ namespace Aurora
 			// Then through the other objects in a room.
 			foreach (GameObject worldObject in Instance.WorldObjects)
             {
-				if (worldObject.CurrentRoomId == currentRoomId && worldObject.Name.ToLower() == gameObjectName.ToLower())
+				if (worldObject.CurrentRoomId == currentRoomId &&
+                    worldObject.Name.ToLower() == gameObjectName.ToLower() &&
+                    !worldObject.Invisible)
 				{
                     gameObject = worldObject;
 				}
 			}
 
             return gameObject;
+		}
+
+        public void TrySpawn(GameObject gameObject)
+        {
+            if (GetGameObject(gameObject.Name, gameObject.CurrentRoomId) == null)
+            {
+                WorldObjects.Add(gameObject);
+				foreach (Player player in Players)
+                {
+                    if (player.CurrentRoomId == gameObject.CurrentRoomId)
+                    {
+						player.Message(gameObject.CapitalizeName() + " has appeared.\r\n");
+					}
+				}
+			}
 		}
 
         public Player GetPlayer(string playerName)
@@ -266,7 +286,7 @@ namespace Aurora
             List<Player> playersInRoom = GetPlayersInRoom(player.CurrentRoomId);
             foreach (Player otherPlayer in playersInRoom)
             {
-                if (otherPlayer != player)
+                if (otherPlayer != player && !otherPlayer.Invisible)
                 {
                     roomContents += otherPlayer.Name + " is here.\r\n";
                 }
@@ -274,7 +294,7 @@ namespace Aurora
             // Then all the other objects in a room.
             foreach (GameObject worldObject in WorldObjects)
             {
-                if (worldObject.CurrentRoomId == player.CurrentRoomId)
+                if (worldObject.CurrentRoomId == player.CurrentRoomId && !worldObject.Invisible)
                 {
                     roomContents += worldObject.CapitalizeName() + " is here.\r\n";
                 }

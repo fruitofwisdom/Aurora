@@ -1,5 +1,17 @@
 [
   {
+    "$type": "WorldObject",
+    "Name": "manual Spawner",
+    "CurrentRoomId": 2,
+    "SpawnTime": 20000,
+    "SpawnObject": {
+      "Name": "manual",
+      "CurrentRoomId": 2,
+      "Description": "another instruction manual"
+    }
+  },
+  {
+    "$type":  "GameObject",
     "Name": "manual",
     "CurrentRoomId": 2,
     "Description": "an instruction manual"
