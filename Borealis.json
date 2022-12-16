@@ -3,5 +3,5 @@
   "StartingRoomId": 2,
   "PlayersFilename": "BorealisPlayers.json",
   "RoomsFilename": "BorealisRooms.json",
-  "WorldObjectsFilename": "BorealisWorldObjects.json"
+  "WorldObjectsFilename": "BorealisObjects.json"
 }
