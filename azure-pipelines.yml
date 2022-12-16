@@ -60,13 +60,8 @@ stages:
           #    artifactName: 'Aurora'
           #    downloadPath: '$(Agent.BuildDirectory)'
 
-          - task: BatchScript@1
-            inputs:
-              filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
-              arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
-
-          #- task: PowerShell@2
+          # TODO: There doesn't seem to be a good way to launch the server and not hang the build.
+          #- task: BatchScript@1
           #  inputs:
-          #    targetType: 'filePath'
-          #    filePath: '$(Agent.BuildDirectory)/Aurora/s/RunBorealis.ps1'
-          #    workingDirectory: '$(Agent.BuildDirectory)/Aurora/s/'
+          #    filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
+          #    arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
