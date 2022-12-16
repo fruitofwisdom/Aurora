@@ -198,10 +198,25 @@ namespace Aurora
 
         private void LookAt(string gameObjectName)
         {
-            GameObject gameObject = Game.GetGameObject(gameObjectName, CurrentRoomId);
+			// Try looking in your inventory first.
+			bool wasInInventory = true;
+			GameObject gameObject = GetObjectFromInventory(gameObjectName);
+            if (gameObject == null)
+            {
+                // Then try looking in the world.
+				wasInInventory = false;
+				gameObject = Game.GetGameObject(gameObjectName, CurrentRoomId);
+            }
+
             if (gameObject != null)
             {
-                LocalConnection.SendMessage("You see " + gameObject.Description + ".\r\n");
+                string message = "You see " + gameObject.Description;
+                if (wasInInventory)
+                {
+                    message += " in your inventory";
+                }
+                message += ".\r\n";
+				LocalConnection.SendMessage(message);
 			}
             else
             {
