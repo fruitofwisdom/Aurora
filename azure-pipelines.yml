@@ -13,7 +13,7 @@ variables:
 
 stages:
 - stage: 'BuildAndDeploy'
-  displayName: 'Build and deploy'
+  displayName: 'Build and publish the artifacts'
   jobs:
   - job: 'Build'
     pool:
@@ -44,11 +44,12 @@ stages:
         ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  # TODO: No good way to run the server after the build is done.
-  - deployment: 'Run'
+  - deployment: 'Deploy'
+    displayName: 'Deploy to the virtual machine'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
+    # TODO: No good way to run the server after the build is done.
     strategy:
      runOnce:
        deploy:
