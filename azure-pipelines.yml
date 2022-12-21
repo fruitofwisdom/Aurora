@@ -13,7 +13,7 @@ variables:
 
 stages:
 - stage: 'BuildAndDeploy'
-  displayName: 'Build and publish the artifacts'
+  displayName: 'Build and deploy'
   jobs:
   - job: 'Build'
     pool:
@@ -45,7 +45,6 @@ stages:
         publishLocation: 'Container'
 
   - deployment: 'Deploy'
-    displayName: 'Deploy to the virtual machine'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
