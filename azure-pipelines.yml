@@ -44,7 +44,7 @@ stages:
         ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  - deployment: 'Deploy'
+  - deployment: 'Deploy to VM'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
