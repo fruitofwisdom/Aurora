@@ -241,7 +241,7 @@ namespace Aurora
 
         private static string HashPassword(string password, byte[] salt)
         {
-            Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
+            Rfc2898DeriveBytes pbkdf2 = new(password, salt, 10000, HashAlgorithmName.SHA256);
             byte[] hash = pbkdf2.GetBytes(20);
             return Convert.ToBase64String(hash);
         }
