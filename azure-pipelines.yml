@@ -44,29 +44,26 @@ stages:
         ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  - deployment: 'Run'
+  - deployment: 'DeployToVM'
+    displayName: 'Deploy to VM'
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
 
+    # TODO: No good way to run the server after the build is done.
     strategy:
      runOnce:
        deploy:
          steps:
           # TODO: Use DownloadPipelineArtifacts?
-          #- task: DownloadBuildArtifacts@0
-          #  inputs:
-          #    buildType: 'current'
-          #    downloadType: 'single'
-          #    artifactName: 'Aurora'
-          #    downloadPath: '$(Agent.BuildDirectory)'
-
-          - task: BatchScript@1
+          - task: DownloadBuildArtifacts@0
             inputs:
-              filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
-              arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'Aurora'
+              downloadPath: '$(Agent.BuildDirectory)'
 
-          #- task: PowerShell@2
+          # TODO: There doesn't seem to be a good way to launch the server and not hang the build.
+          #- task: BatchScript@1
           #  inputs:
-          #    targetType: 'filePath'
-          #    filePath: '$(Agent.BuildDirectory)/Aurora/s/RunBorealis.ps1'
-          #    workingDirectory: '$(Agent.BuildDirectory)/Aurora/s/'
+          #    filename: '$(Agent.BuildDirectory)/Aurora/s/bin/release/net6.0-windows/Aurora.exe'
+          #    arguments: '$(Agent.BuildDirectory)/Aurora/s/Borealis.db'
