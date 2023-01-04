@@ -44,11 +44,12 @@ stages:
         ArtifactName: 'Aurora'
         publishLocation: 'Container'
 
-  - deployment: 'DeployToVM'
-    displayName: 'Deploy to VM'
+  - deployment: 'DownloadToVM'
+    displayName: 'Download to VM'
+    workspace:
+      clean: all
     environment: 'Aurora.auroravm'
     dependsOn: 'Build'
-
     # TODO: No good way to run the server after the build is done.
     strategy:
      runOnce:
