@@ -396,6 +396,22 @@ namespace Aurora
             }
         }
 
+        public void ReportNPCEmoted(NPC npc, string action)
+        {
+            foreach (Player otherPlayer in Players)
+            {
+                if (!otherPlayer.HasConnection())
+                {
+                    continue;
+                }
+
+                if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
+                {
+                    otherPlayer.Message(npc.CapitalizeName() + " " + action + ".\r\n");
+                }
+            }
+        }
+
         public GameObject TryTake(Player player, string gameObjectName)
         {
             GameObject toReturn = GetGameObject(gameObjectName, player.CurrentRoomId);

@@ -210,12 +210,21 @@ namespace Aurora
 
             if (gameObject != null)
             {
-                string message = "You see " + gameObject.Description;
+                string message = "";
                 if (wasInInventory)
                 {
-                    message += " in your inventory";
+                    message += "(in your inventory) ";
                 }
-                message += ".\r\n";
+                // If a description has a period at the end, treat it as its own sentence.
+                if (gameObject.Description[gameObject.Description.Length - 1] == '.')
+                {
+                    message += gameObject.Description + "\r\n";
+                }
+                // Otherwise, describe the object succinctly.
+                else
+                {
+                    message += "You see " + gameObject.Description + ".\r\n";
+                }
 				LocalConnection.SendMessage(message);
 			}
             else

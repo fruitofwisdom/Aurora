@@ -1,7 +1,7 @@
 [
   {
-    "$type": "WorldObject",
-    "Name": "manual Spawner",
+    "$type": "Spawner",
+    "Name": "manual spawner",
     "CurrentRoomId": 2,
     "SpawnTime": 20000,
     "SpawnObject": {
@@ -11,9 +11,15 @@
     }
   },
   {
-    "$type":  "GameObject",
+    "$type": "GameObject",
     "Name": "manual",
     "CurrentRoomId": 2,
     "Description": "an instruction manual"
+  },
+  {
+    "$type": "NPC",
+    "Name": "the fat baker",
+    "CurrentRoomId": 10,
+    "Description": "The baker is not, in fact, fat, but is actually a very comely lass."
   }
 ]

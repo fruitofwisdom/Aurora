@@ -4,7 +4,8 @@ namespace Aurora
 {
 	// A game object is any object that can exist in the world and be saved and loaded.
 	[JsonDerivedType(typeof(GameObject), typeDiscriminator: "GameObject")]
-	[JsonDerivedType(typeof(WorldObject), typeDiscriminator: "WorldObject")]
+	[JsonDerivedType(typeof(NPC), typeDiscriminator: "NPC")]
+	[JsonDerivedType(typeof(Spawner), typeDiscriminator: "Spawner")]
 	internal class GameObject
 	{
 		public string Name { get; set; } = "nothing";
