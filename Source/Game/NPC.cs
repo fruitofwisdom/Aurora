@@ -1,11 +1,7 @@
-﻿using System;
-
-namespace Aurora
+﻿namespace Aurora
 {
-	internal class NPC : MobileObject
+	internal class NPC : Mobile
 	{
-		private DateTime LastIdleTime;
-
 		protected override void Do(string action)
 		{
 			if (action == "Say Hello")

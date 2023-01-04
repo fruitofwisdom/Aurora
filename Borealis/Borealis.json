@@ -1,0 +1,7 @@
+{
+  "Name": "Borealis",
+  "StartingRoomId": 2,
+  "PlayersFilename": "Borealis/Players.json",
+  "RoomsFilename": "Borealis/Rooms.json",
+  "WorldObjectsFilename": "Borealis/WorldObjects.json"
+}

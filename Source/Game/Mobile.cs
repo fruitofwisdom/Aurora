@@ -12,7 +12,7 @@ namespace Aurora
 		public Behavior() { }
 	}
 
-	internal class MobileObject : GameObject
+	internal class Mobile : GameObject
 	{
 		public List<Behavior> Logic { get; set; } = null;
 
@@ -20,7 +20,7 @@ namespace Aurora
 
 		protected Timer ThinkTimer = null;
 
-		public MobileObject()
+		public Mobile()
 		{
 			// Take time to think every ThinkTime seconds.
 			ThinkTimer = new Timer(ThinkTime);
@@ -28,9 +28,9 @@ namespace Aurora
 			ThinkTimer.Start();
 		}
 
-		private static void OnTimedThinkEvent(object source, ElapsedEventArgs e, MobileObject mobileObject)
+		private static void OnTimedThinkEvent(object source, ElapsedEventArgs e, Mobile mobile)
 		{
-			mobileObject.Think(e.SignalTime);
+			mobile.Think(e.SignalTime);
 		}
 
 		protected virtual void Think(DateTime eventTime)

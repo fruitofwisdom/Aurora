@@ -25,19 +25,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Borealis.db">
+    <None Update="Borealis\Borealis.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Borealis.json">
+    <None Update="Borealis\Players.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="BorealisObjects.json">
+    <None Update="Borealis\Rooms.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="BorealisPlayers.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="BorealisRooms.json">
+    <None Update="Borealis\WorldObjects.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">
