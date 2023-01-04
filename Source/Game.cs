@@ -412,7 +412,22 @@ namespace Aurora
             }
         }
 
-        public GameObject TryTake(Player player, string gameObjectName)
+        public void ReportNPCSaid(NPC npc, string speech)
+        {
+			foreach (Player otherPlayer in Players)
+            {
+				if (!otherPlayer.HasConnection())
+                {
+                    continue;
+                }
+                if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
+                {
+					otherPlayer.Message(npc.CapitalizeName() + " says, \"" + speech + "\"\r\n");
+				}
+			}
+		}
+
+		public GameObject TryTake(Player player, string gameObjectName)
         {
             GameObject toReturn = GetGameObject(gameObjectName, player.CurrentRoomId);
 

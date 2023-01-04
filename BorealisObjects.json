@@ -20,6 +20,21 @@
     "$type": "NPC",
     "Name": "the fat baker",
     "CurrentRoomId": 10,
-    "Description": "The baker is not, in fact, fat, but is actually a very comely lass."
+    "Description": "The baker is not, in fact, fat, but is actually a very comely lass.",
+    "Logic": [
+      {
+        "Chance": 75,
+        "Action": "Nothing"
+      },
+      {
+        "Chance": 24,
+        "Action": "Say Hello"
+      },
+      {
+        "Chance": 1,
+        "Action": "Stretch"
+      }
+    ],
+    "ThinkTime": 5000
   }
 ]

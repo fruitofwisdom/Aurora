@@ -6,14 +6,15 @@ namespace Aurora
 	{
 		private DateTime LastIdleTime;
 
-		protected override void Think(DateTime eventTime)
+		protected override void Do(string action)
 		{
-			if ((eventTime - LastIdleTime).Seconds > 15)
+			if (action == "Say Hello")
 			{
-				// Do idle behavior.
-				Game.Instance.ReportNPCEmoted(this, "fidgeted slightly");
-
-				LastIdleTime = eventTime;
+				Game.Instance.ReportNPCSaid(this, "Hello, there!");
+			}
+			else if (action == "Stretch")
+			{
+				Game.Instance.ReportNPCEmoted(this, "stretches, with her arms raised towards the ceiling");
 			}
 		}
 	}
