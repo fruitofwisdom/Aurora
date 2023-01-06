@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
 
 namespace Aurora
 {
@@ -151,6 +152,9 @@ namespace Aurora
                 case "drop":
                     Drop(argument);
                     break;
+                case "shutdown":
+                    Shutdown();
+                    break;
                 default:
                     TryExit(command);
                     break;
@@ -194,7 +198,11 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
 			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
-        }
+            if (IsAdmin)
+            {
+				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
+			}
+		}
 
         private void LookAt(string gameObjectName)
         {
@@ -264,7 +272,14 @@ namespace Aurora
             }
             foreach (string playerName in Game.Instance.GetPlayerNames())
             {
-                LocalConnection.SendMessage("     " + playerName + "\r\n");
+                if (Game.Instance.PlayerIsAdmin(playerName))
+                {
+					LocalConnection.SendMessage("     " + playerName + " (admin)\r\n");
+				}
+				else
+                {
+                    LocalConnection.SendMessage("     " + playerName + "\r\n");
+                }
             }
         }
 
@@ -336,6 +351,18 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You don't have that!\r\n");
+			}
+		}
+
+        private void Shutdown()
+        {
+            if (IsAdmin)
+            {
+                Server.Instance.ShutdownAsync();
+            }
+            else
+            {
+				LocalConnection.SendMessage("Only admins may shutdown the server!\r\n");
 			}
 		}
 

@@ -134,6 +134,12 @@ namespace Aurora
             ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
         }
 
+        public bool PlayerIsAdmin(string name)
+        {
+            Player player = GetPlayer(name);
+            return player != null && player.IsAdmin;
+        }
+
         public static GameObject GetGameObject(string gameObjectName, int currentRoomId)
         {
             GameObject gameObject = null;
