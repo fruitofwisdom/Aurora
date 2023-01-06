@@ -36,5 +36,27 @@
       }
     ],
     "ThinkTime": 5000
+  },
+  {
+    "$type": "NPC",
+    "Name": "the town crier",
+    "CurrentRoomId": 4,
+    "Description": "The town crier travels around town, delivering news to citizens he meets.",
+    "RoomList": [ 3, 4, 5, 6, 7, 8, 9 ],
+    "Logic": [
+      {
+        "Chance": 50,
+        "Action": "Nothing"
+      },
+      {
+        "Chance": 25,
+        "Action": "Move"
+      },
+      {
+        "Chance": 25,
+        "Action": "Say News"
+      }
+    ],
+    "ThinkTime": 15000
   }
 ]

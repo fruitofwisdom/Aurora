@@ -396,7 +396,27 @@ namespace Aurora
             }
         }
 
-        public void ReportNPCEmoted(NPC npc, string action)
+        public void ReportMobileMoved(Mobile mobile, int fromRoomId, int toRoomId)
+        {
+			foreach (Player otherPlayer in Players)
+            {
+				if (!otherPlayer.HasConnection())
+				{
+					continue;
+				}
+
+				if (otherPlayer.CurrentRoomId == fromRoomId)
+                {
+					otherPlayer.Message(mobile.CapitalizeName() + " has left.\r\n");
+				}
+				else if (otherPlayer.CurrentRoomId == toRoomId)
+                {
+					otherPlayer.Message(mobile.CapitalizeName() + " has arrived.\r\n");
+				}
+			}
+		}
+
+		public void ReportNPCEmoted(NPC npc, string action)
         {
             foreach (Player otherPlayer in Players)
             {

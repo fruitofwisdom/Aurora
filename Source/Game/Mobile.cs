@@ -14,6 +14,7 @@ namespace Aurora
 
 	internal class Mobile : GameObject
 	{
+		public List<int> RoomList { get; set; } = null;
 		public List<Behavior> Logic { get; set; } = null;
 
 		public double ThinkTime { get; set; } = 1000;      // 1 second
@@ -53,6 +54,27 @@ namespace Aurora
 				{
 					if (randomBehavior < behavior.Chance)
 					{
+						// We'll handle any Move actions here.
+						if (behavior.Action == "Move" && RoomList.Count > 0)
+						{
+							List<(string, int, string)> exits = Game.Instance.GetRoomExits(CurrentRoomId);
+							List<int> validExits = new();
+							foreach ((string, int, string) exit in exits)
+							{
+								if (RoomList.Contains(exit.Item2))
+								{
+									validExits.Add(exit.Item2);
+								}
+							}
+							if (validExits.Count > 0)
+							{
+								int randomExit = rng.Next(0, validExits.Count);
+								Game.Instance.ReportMobileMoved(this, CurrentRoomId, validExits[randomExit]);
+								CurrentRoomId = validExits[randomExit];
+							}
+						}
+
+						// Derived classes can implement their own actions.
 						Do(behavior.Action);
 						break;
 					}
