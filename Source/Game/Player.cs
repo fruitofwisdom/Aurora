@@ -48,22 +48,28 @@ namespace Aurora
             return prepositions.Contains(word);
         }
 
+        // Combines the input into an object, removing any article at the front. For example,
+        // ["the", "fat", "baker"] becomes "fat baker".
         private static string GetObjectFromInput(string[] input, int index)
         {
             string inputObject = "";
             for (int i = index; i < input.Length; ++i)
             {
-                inputObject += input[i];
-                if (i != input.Length - 1)
+                // ignore these articles
+                if (input[i] != "a" && input[i] != "an" && input[i] != "the")
                 {
-                    inputObject += ' ';
+                    inputObject += input[i];
+                    if (i != input.Length - 1)
+                    {
+                        inputObject += ' ';
+                    }
                 }
             }
             return inputObject;
         }
 
         // Split an input into three possible parts: the verb, a preposition, and an object. For
-        // example: ("look", "at", "the fat baker") or ("drop", null, "manual")
+        // example: ("look", "at", "fat baker") or ("drop", null, "manual").
         private static (string, string, string) SplitInput(string input)
         {
             string inputVerb = null;
@@ -202,5 +208,22 @@ namespace Aurora
             // after each command, we need to tell the player about the state of the room
             PrintRoom();
         }
-    }
+
+		public void PrintRoom()
+		{
+			LocalConnection.SendMessage("\r\n");
+			LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.Instance.GetRoomName(CurrentRoomId) + "\r\n");
+			if (DescriptionNeeded)
+			{
+				LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
+				DescriptionNeeded = false;
+			}
+			string roomContents = Game.Instance.GetRoomContents(this);
+			if (roomContents != "")
+			{
+				LocalConnection.SendMessage(roomContents);
+			}
+			LocalConnection.SendMessage("> ");
+		}
+	}
 }

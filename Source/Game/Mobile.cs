@@ -23,6 +23,9 @@ namespace Aurora
 
 		public Mobile()
 		{
+			// All mobiles, by default, can't be taken by players.
+			Heavy = true;
+
 			// Take time to think every ThinkTime seconds.
 			ThinkTimer = new Timer(ThinkTime);
 			ThinkTimer.Elapsed += (source, e) => OnTimedThinkEvent(source, e, this);

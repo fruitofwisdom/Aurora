@@ -4,23 +4,6 @@ namespace Aurora
 {
 	internal partial class Player : GameObject
 	{
-		public void PrintRoom()
-		{
-			LocalConnection.SendMessage("\r\n");
-			LocalConnection.SendMessage(ColorCodes.Color.Yellow, Game.Instance.GetRoomName(CurrentRoomId) + "\r\n");
-			if (DescriptionNeeded)
-			{
-				LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
-				DescriptionNeeded = false;
-			}
-			string roomContents = Game.Instance.GetRoomContents(this);
-			if (roomContents != "")
-			{
-				LocalConnection.SendMessage(roomContents);
-			}
-			LocalConnection.SendMessage("> ");
-		}
-
 		private void PrintHelp()
 		{
 			LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
@@ -42,16 +25,16 @@ namespace Aurora
 			}
 		}
 
-		private void LookAt(string gameObjectName)
+		private void LookAt(string inputObject)
 		{
 			// Try looking in your inventory first.
 			bool wasInInventory = true;
-			GameObject gameObject = GetObjectFromInventory(gameObjectName);
+			GameObject gameObject = GetBestMatch(inputObject, Inventory);
 			if (gameObject == null)
 			{
 				// Then try looking in the world.
 				wasInInventory = false;
-				gameObject = Game.GetGameObject(gameObjectName, CurrentRoomId);
+				gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
 			}
 
 			if (gameObject != null)
@@ -75,7 +58,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("You don't see a " + gameObjectName + " here.\r\n");
+				LocalConnection.SendMessage("You don't see a " + inputObject + " here.\r\n");
 			}
 		}
 
@@ -121,30 +104,16 @@ namespace Aurora
 			}
 		}
 
-		private void Say(string argument)
+		private void Say(string inputObject)
 		{
-			LocalConnection.SendMessage("You say, \"" + argument + "\"\r\n");
-			Game.Instance.ReportPlayerSaid(this, argument);
-		}
-		private void Emote(string argument)
-		{
-			LocalConnection.SendMessage("You " + argument + ".\r\n");
-			Game.Instance.ReportPlayerEmoted(this, argument);
+			LocalConnection.SendMessage("You say, \"" + inputObject + "\"\r\n");
+			Game.Instance.ReportPlayerSaid(this, inputObject);
 		}
 
-		private GameObject GetObjectFromInventory(string gameObjectName)
+		private void Emote(string inputObject)
 		{
-			GameObject toReturn = null;
-
-			foreach (GameObject gameObject in Inventory)
-			{
-				if (gameObject.Name.ToLower() == gameObjectName.ToLower())
-				{
-					toReturn = gameObject;
-				}
-			}
-
-			return toReturn;
+			LocalConnection.SendMessage("You " + inputObject + ".\r\n");
+			Game.Instance.ReportPlayerEmoted(this, inputObject);
 		}
 
 		private void PrintInventory()
@@ -163,9 +132,9 @@ namespace Aurora
 			}
 		}
 
-		private void Take(string argument)
+		private void Take(string inputObject)
 		{
-			GameObject gameObject = Game.Instance.TryTake(this, argument);
+			GameObject gameObject = Game.Instance.TryTake(this, inputObject);
 			if (gameObject != null)
 			{
 				LocalConnection.SendMessage("You take " + gameObject.Description + ".\r\n");
@@ -177,9 +146,9 @@ namespace Aurora
 			}
 		}
 
-		private void Drop(string argument)
+		private void Drop(string inputObject)
 		{
-			GameObject gameObject = GetObjectFromInventory(argument);
+			GameObject gameObject = GetBestMatch(inputObject, Inventory);
 			if (gameObject != null)
 			{
 				Game.Instance.TryDrop(this, gameObject);
@@ -204,11 +173,11 @@ namespace Aurora
 			}
 		}
 
-		private void TryExit(string command)
+		private void TryExit(string inputVerb)
 		{
 			bool didExit = false;
 
-			int? newRoomId = Game.Instance.RoomContainsExit(CurrentRoomId, command);
+			int? newRoomId = Game.Instance.RoomContainsExit(CurrentRoomId, inputVerb);
 			if (newRoomId != null)
 			{
 				if (Game.Instance.RoomExists((int)newRoomId))
@@ -227,7 +196,7 @@ namespace Aurora
 
 			if (!didExit)
 			{
-				LocalConnection.SendMessage("You can't \"" + command + "\" here!\r\n");
+				LocalConnection.SendMessage("You can't \"" + inputVerb + "\" here!\r\n");
 			}
 
 			DescriptionNeeded = didExit;

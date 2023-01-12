@@ -140,30 +140,14 @@ namespace Aurora
             return player != null && player.IsAdmin;
         }
 
-        public static GameObject GetGameObject(string gameObjectName, int currentRoomId)
+        public GameObject GetGameObject(string gameObjectName, int roomId)
         {
             GameObject gameObject = null;
 
-			// Search through all the players in a room first.
-			foreach (Player player in Instance.Players)
-            {
-                if (player.CurrentRoomId == currentRoomId &&
-                    player.Name.ToLower() == gameObjectName.ToLower() &&
-                    !player.Invisible)
-                {
-                    gameObject = player;
-				}
-			}
-			// Then through the other objects in a room.
-			foreach (GameObject worldObject in Instance.WorldObjects)
-            {
-				if (worldObject.CurrentRoomId == currentRoomId &&
-                    worldObject.Name.ToLower() == gameObjectName.ToLower() &&
-                    !worldObject.Invisible)
-				{
-                    gameObject = worldObject;
-				}
-			}
+            List<GameObject> gameObjectsInRoom = new List<GameObject>();
+            gameObjectsInRoom.AddRange(GetPlayersInRoom(roomId));
+            gameObjectsInRoom.AddRange(GetWorldObjectsInRoom(roomId));
+            gameObject = GameObject.GetBestMatch(gameObjectName, gameObjectsInRoom);
 
             return gameObject;
 		}
@@ -173,6 +157,8 @@ namespace Aurora
             if (GetGameObject(gameObject.Name, gameObject.CurrentRoomId) == null)
             {
                 WorldObjects.Add(gameObject);
+
+                // Report the object was spawned.
 				foreach (Player player in Players)
                 {
                     if (player.CurrentRoomId == gameObject.CurrentRoomId)
@@ -234,7 +220,7 @@ namespace Aurora
 
 			foreach (Player player in Players)
             {
-                if (player.HasConnection() && player.CurrentRoomId == roomId)
+                if (player.HasConnection() && player.CurrentRoomId == roomId && !player.Invisible)
                 {
                     toReturn.Add(player);
                 }
@@ -292,18 +278,16 @@ namespace Aurora
             List<Player> playersInRoom = GetPlayersInRoom(player.CurrentRoomId);
             foreach (Player otherPlayer in playersInRoom)
             {
-                if (otherPlayer != player && !otherPlayer.Invisible)
+                if (otherPlayer != player)
                 {
                     roomContents += otherPlayer.Name + " is here.\r\n";
                 }
             }
-            // Then all the other objects in a room.
-            foreach (GameObject worldObject in WorldObjects)
+            // Then all the world objects in a room.
+            List<GameObject> worldObjectsInRoom = GetWorldObjectsInRoom(player.CurrentRoomId);
+            foreach (GameObject worldObject in worldObjectsInRoom)
             {
-                if (worldObject.CurrentRoomId == player.CurrentRoomId && !worldObject.Invisible)
-                {
-                    roomContents += worldObject.CapitalizeName() + " is here.\r\n";
-                }
+                roomContents += worldObject.CapitalizeName() + " is here.\r\n";
             }
 
             return roomContents;
@@ -348,6 +332,21 @@ namespace Aurora
         public bool RoomExists(int roomId)
         {
             return GetRoom(roomId) != null;
+        }
+
+        public List<GameObject> GetWorldObjectsInRoom(int roomId)
+        {
+            List<GameObject> worldObjects = new List<GameObject>();
+
+			foreach (GameObject worldObject in WorldObjects)
+            {
+				if (worldObject.CurrentRoomId == roomId && !worldObject.Invisible)
+				{
+                    worldObjects.Add(worldObject);
+				}
+			}
+
+            return worldObjects;
         }
 
         public void ReportPlayerMoved(Player player, int fromRoomId, int toRoomId)
@@ -455,11 +454,21 @@ namespace Aurora
 
 		public GameObject TryTake(Player player, string gameObjectName)
         {
-            GameObject toReturn = GetGameObject(gameObjectName, player.CurrentRoomId);
+            GameObject toReturn;
+
+			List <GameObject> worldObjects = GetWorldObjectsInRoom(player.CurrentRoomId);
+			toReturn = GameObject.GetBestMatch(gameObjectName, worldObjects);
+            // Heavy objects can't be taken.
+            if (toReturn != null && toReturn.Heavy)
+            {
+                toReturn = null;
+            }
 
             if (toReturn != null)
             {
                 WorldObjects.Remove(toReturn);
+
+                // Report the object was taken.
 				foreach (Player otherPlayer in Players)
 				{
 					if (otherPlayer == player || !otherPlayer.HasConnection())
@@ -479,7 +488,10 @@ namespace Aurora
 
         public void TryDrop(Player player, GameObject gameObject)
         {
+            gameObject.CurrentRoomId = player.CurrentRoomId;
             WorldObjects.Add(gameObject);
+
+            // Report the object was dropped.
 			foreach (Player otherPlayer in Players)
 			{
 				if (otherPlayer == player || !otherPlayer.HasConnection())
