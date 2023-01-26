@@ -195,6 +195,9 @@ namespace Aurora
                 case "drop":
                     Drop(inputObject);
                     break;
+                case "debugobject":
+                    DebugObject(inputObject);
+                    break;
                 case "shutdown":
                     Shutdown();
                     break;

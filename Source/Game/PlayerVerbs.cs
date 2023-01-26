@@ -21,6 +21,7 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 			if (IsAdmin)
 			{
+				LocalConnection.SendMessage("     \"debugobject\" to print debug information about an object. (admin)\r\n");
 				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
 			}
 		}
@@ -158,6 +159,37 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You don't have that!\r\n");
+			}
+		}
+
+		private void DebugObject(string inputObject)
+		{
+			// Try looking in your inventory first.
+			bool wasInInventory = true;
+			GameObject gameObject = GetBestMatch(inputObject, Inventory);
+			if (gameObject == null)
+			{
+				// Then try looking in the world.
+				wasInInventory = false;
+				gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+			}
+
+			if (gameObject != null)
+			{
+				if (wasInInventory)
+				{
+					LocalConnection.SendMessage("(in your inventory)\r\n");
+				}
+				LocalConnection.SendMessage("ObjectId: " + gameObject.ObjectId + "\r\n");
+				LocalConnection.SendMessage("Name: \"" + gameObject.Name + "\"\r\n");
+				LocalConnection.SendMessage("CurrentRoomId: " + gameObject.CurrentRoomId + "\r\n");
+				LocalConnection.SendMessage("Description: \"" + gameObject.Description + "\"\r\n");
+				LocalConnection.SendMessage(gameObject.Heavy ? "heavy\r\n" : "not heavy\r\n");
+				LocalConnection.SendMessage(gameObject.Invisible ? "invisible\r\n" : "not invisible\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't see a " + inputObject + " here.\r\n");
 			}
 		}
 

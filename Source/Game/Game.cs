@@ -89,12 +89,16 @@ namespace Aurora
 
 		public void Save()
         {
-            string jsonString = JsonSerializer.Serialize<List<Player>>(Players);
+#if DEBUG
+            var options = new JsonSerializerOptions { WriteIndented = true};
+#endif
+
+            string jsonString = JsonSerializer.Serialize<List<Player>>(Players, options);
             File.WriteAllText(PlayersFilename, jsonString);
 
             // TODO: Save rooms too?
 
-            jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects);
+            jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects, options);
             File.WriteAllText(WorldObjectsFilename, jsonString);
 		}
 
@@ -156,14 +160,15 @@ namespace Aurora
         {
             if (GetGameObject(gameObject.Name, gameObject.CurrentRoomId) == null)
             {
-                WorldObjects.Add(gameObject);
+                GameObject newGameObject = GameObject.Clone(gameObject);
+                WorldObjects.Add(newGameObject);
 
                 // Report the object was spawned.
 				foreach (Player player in Players)
                 {
-                    if (player.CurrentRoomId == gameObject.CurrentRoomId)
+                    if (player.CurrentRoomId == newGameObject.CurrentRoomId)
                     {
-						player.Message(gameObject.CapitalizeName() + " has appeared.\r\n");
+						player.Message(newGameObject.CapitalizeName() + " has appeared.\r\n");
 					}
 				}
 			}
