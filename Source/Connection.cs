@@ -194,7 +194,7 @@ namespace Aurora
 
         private void HandleLoginExistingPassword(string password)
         {
-            Player player = Game.Instance.GetPlayer(LocalPlayerName);
+            Player player = Game.Instance.GetPlayer(LocalPlayerName, false);
 			if (PasswordMatches(password, player))
             {
                 LocalPlayer = player;

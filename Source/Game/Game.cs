@@ -14,12 +14,13 @@ namespace Aurora
 		public string RoomsFilename { get; set; }
 		public string WorldObjectsFilename { get; set; }
 
-        // All the players of the game.
+        // These three lists are all deserialized from individual JSON files.
         private List<Player> Players;
-        // All the rooms.
         private List<Room> Rooms;
-        // All the current game objects in the world.
         private List<GameObject> WorldObjects;
+
+        // This list is just players who are currently active.
+        private List<Player> ActivePlayers;
 
         private const double kSaveTime = 10000;     // 10 seconds
         private Timer SaveTimer = null;
@@ -44,6 +45,8 @@ namespace Aurora
             Players = new List<Player>();
             Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
+
+            ActivePlayers = new List<Player>();
 
 			// Automatically save every kSaveTime seconds.
 			SaveTimer = new Timer(kSaveTime);
@@ -116,24 +119,35 @@ namespace Aurora
 
 		public bool PlayerCanJoin(string name)
         {
-            // If a player already has a connection, they can't join again.
+            // If a player is already active, they can't join again.
             Player player = GetPlayer(name);
-            return player == null || !player.HasConnection();
+            return player == null;
         }
 
+        // Returns whether a player with a matching name exists, active or not.
         public bool PlayerExists(string name)
         {
-            return GetPlayer(name) != null;
+            foreach (Player player in Players)
+            {
+                if (player.Name.ToLower() == name.ToLower())
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void PlayerJoined(Player player)
         {
+            ActivePlayers.Add(player);
             ReportPlayerMoved(player, -1, player.CurrentRoomId);
             ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has joined.\n");
         }
 
         public void PlayerQuit(Player player)
         {
+            ActivePlayers.Remove(player);
             ReportPlayerMoved(player, player.CurrentRoomId, -1);
             ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
         }
@@ -164,7 +178,7 @@ namespace Aurora
                 WorldObjects.Add(newGameObject);
 
                 // Report the object was spawned.
-				foreach (Player player in Players)
+				foreach (Player player in ActivePlayers)
                 {
                     if (player.CurrentRoomId == newGameObject.CurrentRoomId)
                     {
@@ -174,11 +188,13 @@ namespace Aurora
 			}
 		}
 
-        public Player GetPlayer(string playerName)
+        // Returns a Player by name, optionally if the player is active or not.
+        public Player GetPlayer(string playerName, bool activePlayers = true)
         {
             Player toReturn = null;
 
-			foreach (Player player in Players)
+            List<Player> players = activePlayers ? ActivePlayers : Players;
+			foreach (Player player in players)
 			{
 				if (player.Name.ToLower() == playerName.ToLower())
 				{
@@ -189,31 +205,20 @@ namespace Aurora
             return toReturn;
 		}
 
+        // Returns the number of active players.
         public int GetPlayerCount()
         {
-            int toReturn = 0;
-
-            foreach (Player player in Players)
-            {
-                if (player.HasConnection())
-                {
-                    toReturn++;
-                }
-            }
-
-            return toReturn;
+            return ActivePlayers.Count;
         }
 
+        // Returns a list of the names of all active players.
         public List<string> GetPlayerNames()
         {
             List<string> toReturn = new();
 
-            foreach (Player player in Players)
+            foreach (Player player in ActivePlayers)
             {
-                if (player.HasConnection())
-                {
-                    toReturn.Add(player.Name);
-                }
+                toReturn.Add(player.Name);
             }
 
             return toReturn;
@@ -223,9 +228,9 @@ namespace Aurora
         {
             List<Player> toReturn = new();
 
-			foreach (Player player in Players)
+			foreach (Player player in ActivePlayers)
             {
-                if (player.HasConnection() && player.CurrentRoomId == roomId && !player.Invisible)
+                if (player.CurrentRoomId == roomId && !player.Invisible)
                 {
                     toReturn.Add(player);
                 }
@@ -341,7 +346,7 @@ namespace Aurora
 
         public List<GameObject> GetWorldObjectsInRoom(int roomId)
         {
-            List<GameObject> worldObjects = new List<GameObject>();
+            List<GameObject> worldObjects = new();
 
 			foreach (GameObject worldObject in WorldObjects)
             {
@@ -356,9 +361,9 @@ namespace Aurora
 
         public void ReportPlayerMoved(Player player, int fromRoomId, int toRoomId)
         {
-            foreach (Player otherPlayer in Players)
+            foreach (Player otherPlayer in ActivePlayers)
             {
-                if (otherPlayer == player || !otherPlayer.HasConnection())
+                if (otherPlayer == player)
                 {
                     continue;
                 }
@@ -376,9 +381,9 @@ namespace Aurora
 
         public void ReportPlayerSaid(Player player, string speech)
         {
-            foreach (Player otherPlayer in Players)
+            foreach (Player otherPlayer in ActivePlayers)
             {
-                if (otherPlayer == player || !otherPlayer.HasConnection())
+                if (otherPlayer == player)
                 {
                     continue;
                 }
@@ -392,9 +397,9 @@ namespace Aurora
 
         public void ReportPlayerEmoted(Player player, string action)
         {
-            foreach (Player otherPlayer in Players)
+            foreach (Player otherPlayer in ActivePlayers)
             {
-                if (otherPlayer == player || !otherPlayer.HasConnection())
+                if (otherPlayer == player)
                 {
                     continue;
                 }
@@ -408,13 +413,8 @@ namespace Aurora
 
         public void ReportMobileMoved(Mobile mobile, int fromRoomId, int toRoomId)
         {
-			foreach (Player otherPlayer in Players)
+			foreach (Player otherPlayer in ActivePlayers)
             {
-				if (!otherPlayer.HasConnection())
-				{
-					continue;
-				}
-
 				if (otherPlayer.CurrentRoomId == fromRoomId)
                 {
 					otherPlayer.Message(mobile.CapitalizeName() + " has left.\r\n");
@@ -428,13 +428,8 @@ namespace Aurora
 
 		public void ReportNPCEmoted(NPC npc, string action)
         {
-            foreach (Player otherPlayer in Players)
+            foreach (Player otherPlayer in ActivePlayers)
             {
-                if (!otherPlayer.HasConnection())
-                {
-                    continue;
-                }
-
                 if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
                 {
                     otherPlayer.Message(npc.CapitalizeName() + " " + action + ".\r\n");
@@ -444,12 +439,8 @@ namespace Aurora
 
         public void ReportNPCSaid(NPC npc, string speech)
         {
-			foreach (Player otherPlayer in Players)
+			foreach (Player otherPlayer in ActivePlayers)
             {
-				if (!otherPlayer.HasConnection())
-                {
-                    continue;
-                }
                 if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
                 {
 					otherPlayer.Message(npc.CapitalizeName() + " says, \"" + speech + "\"\r\n");
@@ -474,12 +465,12 @@ namespace Aurora
                 WorldObjects.Remove(toReturn);
 
                 // Report the object was taken.
-				foreach (Player otherPlayer in Players)
+				foreach (Player otherPlayer in ActivePlayers)
 				{
-					if (otherPlayer == player || !otherPlayer.HasConnection())
-					{
-						continue;
-					}
+                    if (otherPlayer == player)
+                    {
+                        continue;
+                    }
 
 					if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
                     {
@@ -497,12 +488,12 @@ namespace Aurora
             WorldObjects.Add(gameObject);
 
             // Report the object was dropped.
-			foreach (Player otherPlayer in Players)
+			foreach (Player otherPlayer in ActivePlayers)
 			{
-				if (otherPlayer == player || !otherPlayer.HasConnection())
-				{
-					continue;
-				}
+                if (otherPlayer == player)
+                {
+                    continue;
+                }
 
 				if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
 				{
