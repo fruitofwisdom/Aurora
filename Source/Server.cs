@@ -34,6 +34,8 @@ namespace Aurora
             TcpListener = null;
             TotalClients = 0;
             Connections = new List<Connection>();
+
+            Thread.CurrentThread.Name = "Aurora Server Thread";
         }
 
         private void Listen()
