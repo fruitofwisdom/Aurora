@@ -25,11 +25,6 @@ namespace Aurora
             Inventory = new();
         }
 
-        public bool HasConnection()
-        {
-            return LocalConnection != null;
-        }
-
 		public void SetConnection(Connection localConnection)
         {
             LocalConnection = localConnection;
@@ -106,11 +101,27 @@ namespace Aurora
             return (inputVerb, inputPreposition, inputObject);
         }
 
-        private static string LookupShorthand(string input)
+		private static string GetArgument(string input)
+		{
+			string argument = "";
+			string[] words = input.Split(' ');
+			for (int i = 1; i < words.Length; ++i)
+			{
+				argument += words[i];
+				if (i != words.Length - 1)
+				{
+					argument += " ";
+				}
+			}
+			argument = argument.Trim();
+			return argument;
+		}
+
+		private static string LookupShorthand(string input)
         {
             string toReturn = input;
 
-            Dictionary<string, string> shorthand = new Dictionary<string, string>()
+            Dictionary<string, string> shorthand = new()
             {
                 { "l", "look" },
                 { "n", "north" },
@@ -146,10 +157,14 @@ namespace Aurora
                 input = LastInput;
             }
 
+            // parse out the verb, any preposition, and any object
             (string, string, string) splitInput = SplitInput(input);
             string inputVerb = splitInput.Item1;
             string inputPreposition = splitInput.Item2;
             string inputObject = splitInput.Item3;
+
+            // also keep the entire non-verb portion of the input for "say", "emote", etc
+            string inputArgument = GetArgument(input);
 
             switch (inputVerb)
             {
@@ -180,10 +195,10 @@ namespace Aurora
                     PrintWho();
                     break;
                 case "say":
-                    Say(inputObject);
+                    Say(inputArgument);
                     break;
                 case "emote":
-                    Emote(inputObject);
+                    Emote(inputArgument);
                     break;
                 case "inventory":
                 case "inv":

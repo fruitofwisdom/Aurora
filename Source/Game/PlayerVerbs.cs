@@ -46,7 +46,7 @@ namespace Aurora
 					message += "(in your inventory) ";
 				}
 				// If a description has a period at the end, treat it as its own sentence.
-				if (gameObject.Description[gameObject.Description.Length - 1] == '.')
+				if (gameObject.Description[^1] == '.')
 				{
 					message += gameObject.Description + "\r\n";
 				}
@@ -76,7 +76,7 @@ namespace Aurora
 				LocalConnection.SendMessage("Obvious exits are:\r\n");
 				foreach ((string, int, string) exit in exits)
 				{
-					string direction = char.ToUpper(exit.Item1[0]) + exit.Item1.Substring(1);
+					string direction = char.ToUpper(exit.Item1[0]) + exit.Item1[1..];
 					LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
 				}
 			}
@@ -180,6 +180,7 @@ namespace Aurora
 				{
 					LocalConnection.SendMessage("(in your inventory)\r\n");
 				}
+				LocalConnection.SendMessage("Class: " + gameObject.GetType().ToString() + "\r\n");
 				LocalConnection.SendMessage("ObjectId: " + gameObject.ObjectId + "\r\n");
 				LocalConnection.SendMessage("Name: \"" + gameObject.Name + "\"\r\n");
 				LocalConnection.SendMessage("CurrentRoomId: " + gameObject.CurrentRoomId + "\r\n");
