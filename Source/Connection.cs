@@ -33,6 +33,7 @@ namespace Aurora
             ClientID = clientID;
             Client = client;
             ClientThread = new Thread(new ThreadStart(Connect));
+            ClientThread.Name = "Aurora Client (" + ClientID + ") Thread";
             ClientThread.Start();
 
             ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") connected.\n");
