@@ -20,10 +20,7 @@ namespace Aurora
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new Server();
-                }
+                _instance ??= new Server();
                 return _instance;
             }
         }
@@ -58,14 +55,14 @@ namespace Aurora
                     if (TcpListener.Pending())
                     {
                         TcpClient tcpClient = TcpListener.AcceptTcpClient();
-                        Connection connection = new Connection(tcpClient, TotalClients++);
+                        Connection connection = new(tcpClient, TotalClients++);
                         Connections.Add(connection);
                         ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
                     }
 
                     // if any client has quit, close its thread
                     // NOTE: Build a copy of Connections so we can safely remove from the original. -Ward
-                    List<Connection> originalConnections = new List<Connection>(Connections);
+                    List<Connection> originalConnections = new(Connections);
                     foreach (Connection currentConnection in originalConnections)
                     {
                         if (currentConnection.ClientDisconnected)
@@ -120,10 +117,7 @@ namespace Aurora
             Connections.Clear();
             ServerInfo.Instance.RaiseEvent(new ServerInfoConnectionsArgs(Connections.Count));
 
-            if (TcpListener != null)
-            {
-                TcpListener.Stop();
-            }
+            TcpListener?.Stop();
 
             ServerInfo.Instance.RaiseEvent(new ServerInfoServerArgs(Running));
         }
