@@ -40,8 +40,10 @@ namespace Aurora
         {
             try
             {
-                // start listening on port 6006
-                ServerInfo.Instance.Report("[Server] Starting the server...\n");
+				Thread.CurrentThread.Name = "Aurora Server Thread";
+
+				// start listening on port 6006
+				ServerInfo.Instance.Report("[Server] Starting the server...\n");
                 TcpListener = new TcpListener(System.Net.IPAddress.Any, 6006);
                 TcpListener.Start();
 

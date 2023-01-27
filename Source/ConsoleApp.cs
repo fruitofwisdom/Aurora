@@ -11,6 +11,8 @@ namespace Aurora
 
         public ConsoleApp(string gameFilename)
         {
+            Thread.CurrentThread.Name = "Aurora Console App Thread";
+
             EventHandler = new ServerInfoHandler(ServerInfoEventHandler);
             ServerInfo.Instance.EventReceived += ServerInfoEventHandler;
 
