@@ -2,30 +2,8 @@
 
 namespace Aurora
 {
-	internal partial class Player : GameObject
+	internal partial class Player : Fighter
 	{
-		private void PrintHelp()
-		{
-			LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
-			LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
-			LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
-			LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
-			LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
-			LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
-			LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
-			LocalConnection.SendMessage("     \"say\" to say something to everyone nearby.\r\n");
-			LocalConnection.SendMessage("     \"emote\" to express yourself.\r\n");
-			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
-			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
-			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
-			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
-			if (IsAdmin)
-			{
-				LocalConnection.SendMessage("     \"debugobject\" to print debug information about an object. (admin)\r\n");
-				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
-			}
-		}
-
 		private void LookAt(string inputObject)
 		{
 			// Try looking in your inventory first.
@@ -115,6 +93,14 @@ namespace Aurora
 		{
 			LocalConnection.SendMessage("You " + inputObject + ".\r\n");
 			Game.Instance.ReportPlayerEmoted(this, inputObject);
+		}
+
+		private void PrintStats()
+		{
+			LocalConnection.SendMessage("You are level " + Level + " with " + XP + " experience points.\r\n");
+			LocalConnection.SendMessage("You have " + CurrentHP + " out of " + MaxHP + " hit points.\r\n");
+			LocalConnection.SendMessage("Your strength is " + Strength + ".\r\n");
+			LocalConnection.SendMessage("Your defense is " + Defense + ".\r\n");
 		}
 
 		private void PrintInventory()

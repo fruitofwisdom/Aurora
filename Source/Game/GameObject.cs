@@ -35,10 +35,10 @@ namespace Aurora
 
 		// Create and return a new GameObject that is a clone (via-serialization) of the provided
 		// GameObject. The new GameObject will have a new ObjectId as well.
-		public static GameObject Clone(GameObject gameObject)
+		public static T Clone<T>(T gameObject) where T : GameObject
 		{
-			string gameObjectString = JsonSerializer.Serialize(gameObject);
-			GameObject newGameObject = JsonSerializer.Deserialize<GameObject>(gameObjectString);
+			string gameObjectString = JsonSerializer.Serialize<T>(gameObject);
+			T newGameObject = JsonSerializer.Deserialize<T>(gameObjectString);
 			// The correct, incremented ObjectId gets overwritten by deserialization. Restore it.
 			newGameObject.ObjectId = NumObjects;
 			return newGameObject;

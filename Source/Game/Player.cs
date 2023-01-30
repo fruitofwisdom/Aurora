@@ -2,7 +2,7 @@
 
 namespace Aurora
 {
-    internal partial class Player : GameObject
+    internal partial class Player : Fighter
     {
         private Connection LocalConnection;
 
@@ -200,6 +200,9 @@ namespace Aurora
                 case "emote":
                     Emote(inputArgument);
                     break;
+                case "stats":
+                    PrintStats();
+                    break;
                 case "inventory":
                 case "inv":
                     PrintInventory();
@@ -241,7 +244,49 @@ namespace Aurora
 			{
 				LocalConnection.SendMessage(roomContents);
 			}
+
+            PrintPrompt();
+		}
+
+        private void PrintPrompt()
+        {
+            LocalConnection.SendMessage(ColorCodes.Color.Green, Level + " ");
+            // display the current HP in different colors based on how hurt we are
+            if (CurrentHP / MaxHP < 0.25)
+            {
+                LocalConnection.SendMessage(ColorCodes.Color.Red, CurrentHP + "/" + MaxHP);
+            }
+            else if (CurrentHP / MaxHP < 0.75)
+            {
+                LocalConnection.SendMessage(ColorCodes.Color.Yellow, CurrentHP + "/" + MaxHP);
+            }
+            else
+            {
+                LocalConnection.SendMessage(CurrentHP + "/" + MaxHP);
+            }
 			LocalConnection.SendMessage("> ");
+        }
+
+		private void PrintHelp()
+		{
+			LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
+			LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
+			LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
+			LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
+			LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
+			LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
+			LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
+			LocalConnection.SendMessage("     \"say\" or \"emote\" to express yourself.\r\n");
+			LocalConnection.SendMessage("     \"stats\" to see your current level, HP, etc.\r\n");
+			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
+			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
+			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
+			if (IsAdmin)
+			{
+				LocalConnection.SendMessage("     \"debugobject\" to print debug information about an object. (admin)\r\n");
+				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
+			}
 		}
 	}
 }

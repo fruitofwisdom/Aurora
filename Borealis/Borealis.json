@@ -1,7 +1,16 @@
 {
   "Name": "Borealis",
-  "StartingRoomId": 2,
   "PlayersFilename": "Borealis/Players.json",
   "RoomsFilename": "Borealis/Rooms.json",
-  "WorldObjectsFilename": "Borealis/WorldObjects.json"
+  "WorldObjectsFilename": "Borealis/WorldObjects.json",
+  "InitialPlayer": {
+    "CurrentRoomId": 2,
+    "CurrentHP": 10,
+    "MaxHP": 10,
+    "Strength": 1,
+    "Defense": 1
+  },
+  "XpPerLevel": [
+    100, 200, 300, 400, 500
+  ]
 }

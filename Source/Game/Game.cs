@@ -9,13 +9,16 @@ namespace Aurora
     {
         // These fields are deserialized from JSON.
         public string Name { get; set; }
-        public int StartingRoomId { get; set; }
         public string PlayersFilename { get; set; }
 		public string RoomsFilename { get; set; }
 		public string WorldObjectsFilename { get; set; }
+        // All new players are cloned from this initial player.
+		public Player InitialPlayer { get; set; }
+        // The amount of experience needed to reach each level.
+        public int[] XpPerLevel { get; set; }
 
-        // These three lists are all deserialized from individual JSON files.
-        private List<Player> Players;
+		// These three lists are all deserialized from individual JSON files.
+		private List<Player> Players;
         private List<Room> Rooms;
         private List<GameObject> WorldObjects;
 
@@ -41,10 +44,11 @@ namespace Aurora
         public Game()
         {
             Name = "Unknown Game";
-            StartingRoomId = 0;
             Players = new List<Player>();
             Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
+            InitialPlayer = null;
+            XpPerLevel = new int[ 9999 ];
 
             ActivePlayers = new List<Player>();
 
@@ -112,7 +116,11 @@ namespace Aurora
 
         public Player CreatePlayer(string name, string password, string salt)
         {
-            Player newPlayer = new Player(name, StartingRoomId, password, salt);
+            Player newPlayer = GameObject.Clone<Player>(InitialPlayer);
+            newPlayer.Name = name;
+            newPlayer.Password = password;
+            newPlayer.Salt = salt;
+            newPlayer.Description = "the player " + name;
             Players.Add(newPlayer);
             return newPlayer;
         }
