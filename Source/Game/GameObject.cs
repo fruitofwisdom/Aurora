@@ -6,9 +6,11 @@ using System.Text.Json.Serialization;
 namespace Aurora
 {
 	// A game object is any object that can exist in the world and be saved and loaded.
+	[JsonDerivedType(typeof(Enemy), typeDiscriminator: "Enemy")]
+	[JsonDerivedType(typeof(EnemySpawner), typeDiscriminator: "EnemySpawner")]
+	// TODO: No need for raw GameObjects?
 	[JsonDerivedType(typeof(GameObject), typeDiscriminator: "GameObject")]
 	[JsonDerivedType(typeof(NPC), typeDiscriminator: "NPC")]
-	[JsonDerivedType(typeof(Spawner), typeDiscriminator: "Spawner")]
 	internal class GameObject
 	{
 		// Each GameObject gets a sequentially numbered ID.
@@ -30,7 +32,7 @@ namespace Aurora
 
 		public string CapitalizeName()
 		{
-			return char.ToUpper(Name[0]) + Name.Substring(1);
+			return char.ToUpper(Name[0]) + Name[1..];
 		}
 
 		// Create and return a new GameObject that is a clone (via-serialization) of the provided
@@ -58,7 +60,7 @@ namespace Aurora
 				if (objectNameHashSet.Intersect(searchNameHashSet).Count() > bestIntersectCount)
 				{
 					bestMatch = gameObject;
-					bestIntersectCount = objectNameHashSet.Count();
+					bestIntersectCount = objectNameHashSet.Count;
 				}
 			}
 

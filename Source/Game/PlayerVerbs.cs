@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Aurora
 {
@@ -145,6 +146,41 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You don't have that!\r\n");
+			}
+		}
+
+		private void Attack(string inputObject)
+		{
+			GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+			if (target != null && target is Fighter)
+			{
+				Target = target as Fighter;
+				LastAttackTime = DateTime.MinValue;
+				LocalConnection.SendMessage("You start attacking " + target.Name + "!\r\n");
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Yellow,
+					"[Player] Player " + Name + "(" + ObjectId + ") is attacking " +
+					target.Name + "(" + target.ObjectId + ").\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You can't attack that!\r\n");
+			}
+		}
+
+		private void Yield()
+		{
+			if (Target != null)
+			{
+				LocalConnection.SendMessage("You stop attacking " + Target.Name + "!\r\n");
+				Target = null;
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Yellow,
+					"[Player] Player " + Name + "(" + ObjectId + ") is yielding.\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You aren't attacking anything!\r\n");
 			}
 		}
 

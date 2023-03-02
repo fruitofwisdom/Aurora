@@ -11,9 +11,11 @@ namespace Aurora
         public string Name { get; set; }
         public string PlayersFilename { get; set; }
 		public string RoomsFilename { get; set; }
-		public string WorldObjectsFilename { get; set; }
+        public string WorldObjectsFilename { get; set; }
+        // Where players initially spawn from and respawn to.
+        public int StartingRoomId { get; set; }
         // All new players are cloned from this initial player.
-		public Player InitialPlayer { get; set; }
+        public Player InitialPlayer { get; set; }
         // The amount of experience needed to reach each level.
         public int[] XpPerLevel { get; set; }
 
@@ -23,7 +25,7 @@ namespace Aurora
         private List<GameObject> WorldObjects;
 
         // This list is just players who are currently active.
-        private List<Player> ActivePlayers;
+        private readonly List<Player> ActivePlayers;
 
         private const double kSaveTime = 10000;     // 10 seconds
         private Timer SaveTimer = null;
@@ -121,6 +123,7 @@ namespace Aurora
             newPlayer.Password = password;
             newPlayer.Salt = salt;
             newPlayer.Description = "the player " + name;
+            newPlayer.CurrentRoomId = StartingRoomId;
             Players.Add(newPlayer);
             return newPlayer;
         }
@@ -160,6 +163,11 @@ namespace Aurora
             ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
         }
 
+        public bool PlayerIsActive(Player player)
+        {
+            return ActivePlayers.Contains(player);
+        }
+
         public bool PlayerIsAdmin(string name)
         {
             Player player = GetPlayer(name);
@@ -170,7 +178,7 @@ namespace Aurora
         {
             GameObject gameObject = null;
 
-            List<GameObject> gameObjectsInRoom = new List<GameObject>();
+            List<GameObject> gameObjectsInRoom = new();
             gameObjectsInRoom.AddRange(GetPlayersInRoom(roomId));
             gameObjectsInRoom.AddRange(GetWorldObjectsInRoom(roomId));
             gameObject = GameObject.GetBestMatch(gameObjectName, gameObjectsInRoom);
@@ -178,11 +186,11 @@ namespace Aurora
             return gameObject;
 		}
 
-        public void TrySpawn(GameObject gameObject)
+        public void TrySpawn<T>(T gameObject) where T : GameObject
         {
             if (GetGameObject(gameObject.Name, gameObject.CurrentRoomId) == null)
             {
-                GameObject newGameObject = GameObject.Clone(gameObject);
+                T newGameObject = GameObject.Clone<T>(gameObject);
                 WorldObjects.Add(newGameObject);
 
                 // Report the object was spawned.
@@ -352,7 +360,22 @@ namespace Aurora
             return GetRoom(roomId) != null;
         }
 
-        public List<GameObject> GetWorldObjectsInRoom(int roomId)
+        public List<Player> GetOtherPlayersInRoom(Player player)
+        {
+            List<Player> otherPlayers = new();
+
+            foreach (Player otherPlayer in ActivePlayers)
+            {
+                if (otherPlayer != player && otherPlayer.CurrentRoomId == player.CurrentRoomId)
+                {
+                    otherPlayers.Add(otherPlayer);
+                }
+            }
+
+            return otherPlayers;
+		}
+
+		public List<GameObject> GetWorldObjectsInRoom(int roomId)
         {
             List<GameObject> worldObjects = new();
 
@@ -367,92 +390,103 @@ namespace Aurora
             return worldObjects;
         }
 
-        public void ReportPlayerMoved(Player player, int fromRoomId, int toRoomId)
+        public void ReportAttack(Fighter attacker, Fighter defender, bool didHit)
         {
-            foreach (Player otherPlayer in ActivePlayers)
+            List<Player> players = GetPlayersInRoom(attacker.CurrentRoomId);
+            foreach (Player player in players)
             {
-                if (otherPlayer == player)
+                if (player != attacker && player != defender)
                 {
-                    continue;
-                }
-
-                if (otherPlayer.CurrentRoomId == fromRoomId)
-                {
-                    otherPlayer.Message(player.Name + " has left.\r\n");
-                }
-                else if (otherPlayer.CurrentRoomId == toRoomId)
-                {
-                    otherPlayer.Message(player.Name + " has arrived.\r\n");
+                    player.Message(attacker.Name + " attacks " + defender.Name +
+                        (didHit ? " and hits!" : " and misses!") + "\r\n");
                 }
             }
         }
 
-        public void ReportPlayerSaid(Player player, string speech)
+        public void ReportDeath(Fighter attacker, Fighter defender)
         {
-            foreach (Player otherPlayer in ActivePlayers)
+            List<Player> players = GetPlayersInRoom(defender.CurrentRoomId);
+			foreach (Player player in players)
             {
-                if (otherPlayer == player)
+                if (player != attacker && player != defender)
                 {
-                    continue;
-                }
-
-                if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
-                {
-                    otherPlayer.Message(player.Name + " says, \"" + speech + "\"\r\n");
+                    player.Message(defender.Name + " was killed by " + attacker.Name + "!\r\n");
                 }
             }
-        }
+		}
 
-        public void ReportPlayerEmoted(Player player, string action)
+		public void ReportMobileMoved(Mobile mobile, int fromRoomId, int toRoomId)
         {
-            foreach (Player otherPlayer in ActivePlayers)
+			foreach (Player player in ActivePlayers)
             {
-                if (otherPlayer == player)
+				if (player.CurrentRoomId == fromRoomId)
                 {
-                    continue;
-                }
-
-                if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
-                {
-                    otherPlayer.Message(player.Name + " " + action + ".\r\n");
-                }
-            }
-        }
-
-        public void ReportMobileMoved(Mobile mobile, int fromRoomId, int toRoomId)
-        {
-			foreach (Player otherPlayer in ActivePlayers)
-            {
-				if (otherPlayer.CurrentRoomId == fromRoomId)
-                {
-					otherPlayer.Message(mobile.CapitalizeName() + " has left.\r\n");
+					player.Message(mobile.CapitalizeName() + " has left.\r\n");
 				}
-				else if (otherPlayer.CurrentRoomId == toRoomId)
+				else if (player.CurrentRoomId == toRoomId)
                 {
-					otherPlayer.Message(mobile.CapitalizeName() + " has arrived.\r\n");
+					player.Message(mobile.CapitalizeName() + " has arrived.\r\n");
 				}
 			}
 		}
 
 		public void ReportNPCEmoted(NPC npc, string action)
         {
-            foreach (Player otherPlayer in ActivePlayers)
+            foreach (Player player in ActivePlayers)
             {
-                if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
+                if (player.CurrentRoomId == npc.CurrentRoomId)
                 {
-                    otherPlayer.Message(npc.CapitalizeName() + " " + action + ".\r\n");
+					player.Message(npc.CapitalizeName() + " " + action + ".\r\n");
                 }
             }
         }
 
         public void ReportNPCSaid(NPC npc, string speech)
         {
-			foreach (Player otherPlayer in ActivePlayers)
+			foreach (Player player in ActivePlayers)
             {
-                if (otherPlayer.CurrentRoomId == npc.CurrentRoomId)
+                if (player.CurrentRoomId == npc.CurrentRoomId)
                 {
-					otherPlayer.Message(npc.CapitalizeName() + " says, \"" + speech + "\"\r\n");
+					player.Message(npc.CapitalizeName() + " says, \"" + speech + "\"\r\n");
 				}
+			}
+		}
+
+		public void ReportPlayerMoved(Player player, int fromRoomId, int toRoomId)
+		{
+			foreach (Player otherPlayer in ActivePlayers)
+			{
+				if (otherPlayer == player)
+				{
+					continue;
+				}
+
+				if (otherPlayer.CurrentRoomId == fromRoomId)
+				{
+					otherPlayer.Message(player.Name + " has left.\r\n");
+				}
+				else if (otherPlayer.CurrentRoomId == toRoomId)
+				{
+					otherPlayer.Message(player.Name + " has arrived.\r\n");
+				}
+			}
+		}
+
+		public void ReportPlayerSaid(Player player, string speech)
+		{
+			List<Player> otherPlayers = GetOtherPlayersInRoom(player);
+			foreach (Player otherPlayer in otherPlayers)
+			{
+				otherPlayer.Message(player.Name + " says, \"" + speech + "\"\r\n");
+			}
+		}
+
+		public void ReportPlayerEmoted(Player player, string action)
+		{
+			List<Player> otherPlayers = GetOtherPlayersInRoom(player);
+			foreach (Player otherPlayer in otherPlayers)
+			{
+				otherPlayer.Message(player.Name + " " + action + ".\r\n");
 			}
 		}
 
@@ -473,17 +507,10 @@ namespace Aurora
                 WorldObjects.Remove(toReturn);
 
                 // Report the object was taken.
-				foreach (Player otherPlayer in ActivePlayers)
+                List<Player> otherPlayers = GetOtherPlayersInRoom(player);
+				foreach (Player otherPlayer in otherPlayers)
 				{
-                    if (otherPlayer == player)
-                    {
-                        continue;
-                    }
-
-					if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
-                    {
-						otherPlayer.Message(player.Name + " took " + toReturn.Description + ".\r\n");
-					}
+					otherPlayer.Message(player.Name + " took " + toReturn.Description + ".\r\n");
 				}
 			}
 
@@ -496,18 +523,16 @@ namespace Aurora
             WorldObjects.Add(gameObject);
 
             // Report the object was dropped.
-			foreach (Player otherPlayer in ActivePlayers)
+            List<Player> otherPlayers = GetOtherPlayersInRoom(player);
+			foreach (Player otherPlayer in otherPlayers)
 			{
-                if (otherPlayer == player)
-                {
-                    continue;
-                }
-
-				if (otherPlayer.CurrentRoomId == player.CurrentRoomId)
-				{
-					otherPlayer.Message(player.Name + " dropped " + gameObject.Description + ".\r\n");
-				}
+				otherPlayer.Message(player.Name + " dropped " + gameObject.Description + ".\r\n");
 			}
 		}
+
+        public void EnemyDied(Enemy enemy)
+        {
+            WorldObjects.Remove(enemy);
+        }
 	}
 }

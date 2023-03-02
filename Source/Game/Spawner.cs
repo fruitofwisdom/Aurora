@@ -2,16 +2,16 @@
 
 namespace Aurora
 {
-	// A Spawner can be placed in the world to respawn instances of its GameObject, such as an
-	// enemy or placed item, whenever necessary.
-	internal class Spawner : GameObject
+	// An EnemySpawner will do exactly that, try to respawn an enemy in the world periodically.
+	// However, TrySpawn will only actually spawn a GameObject if none currently exist.
+	internal class EnemySpawner : GameObject
 	{
 		public double SpawnTime { get; set; } = 20000;      // 20 seconds
-		public GameObject SpawnObject { get; set; }
+		public Enemy EnemyToSpawn { get; set; }
 
 		private Timer SpawnTimer = null;
 
-		public Spawner()
+		public EnemySpawner()
 		{
 			// All WorldObjects are invisible; only their SpawnObject is intended for interaction.
 			Invisible = true;
@@ -22,9 +22,9 @@ namespace Aurora
 			SpawnTimer.Start();
 		}
 
-		private static void OnTimedSpawnEvent(object source, ElapsedEventArgs e, Spawner worldObject)
+		private static void OnTimedSpawnEvent(object source, ElapsedEventArgs e, EnemySpawner worldObject)
 		{
-			Game.Instance.TrySpawn(worldObject.SpawnObject);
+			Game.Instance.TrySpawn(worldObject.EnemyToSpawn);
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Aurora
 {
@@ -15,7 +16,11 @@ namespace Aurora
         private bool DescriptionNeeded = true;
         private string LastInput = "";
 
-        public Player(string name, int currentRoomId, string password, string salt)
+        private Fighter Target = null;
+		private double AttackTime = 5;      // in seconds
+		private DateTime LastAttackTime = DateTime.MinValue;
+
+		public Player(string name, int currentRoomId, string password, string salt)
         {
             Name = name;
 			CurrentRoomId = currentRoomId;
@@ -34,6 +39,94 @@ namespace Aurora
         {
             LocalConnection.SendMessage(message);
         }
+
+        protected override void Think(DateTime eventTime)
+        {
+            if ((eventTime - LastAttackTime).Seconds > AttackTime)
+            {
+				if (Target != null)
+				{
+                    if (Target.CurrentRoomId != CurrentRoomId)
+                    {
+                        // our target died, left the room, or we did, etc
+                        Target = null;
+                    }
+                    else
+                    {
+                        Attack(Target);
+                    }
+				}
+
+				LastAttackTime = eventTime;
+            }
+        }
+
+		protected override void DealDamage(Fighter defender, bool didHit, int damage)
+		{
+            base.DealDamage(defender, didHit, damage);
+
+			ServerInfo.Instance.Report(
+				ColorCodes.Color.Yellow,
+				"[Player] Player " + Name + "(" + ObjectId + ") is dealing damage to " +
+                defender.Name + "(" + defender.ObjectId + ")\n");
+			if (didHit)
+            {
+                PrintPrompt();
+				LocalConnection.SendMessage("You hit the " + defender.Name + " for " + damage + " damage!\r\n");
+			}
+            else
+            {
+				PrintPrompt();
+				LocalConnection.SendMessage("Your attack misses the " + defender.Name + "!\r\n");
+			}
+		}
+
+		protected override void TakeDamage(Fighter attacker, bool didHit, int damage)
+        {
+            base.TakeDamage(attacker, didHit, damage);
+
+			ServerInfo.Instance.Report(
+				ColorCodes.Color.Yellow,
+				"[Player] Player " + Name + "(" + ObjectId + ") is taking damage from " +
+                attacker.Name + "(" + attacker.ObjectId + ").\n");
+			if (didHit)
+            {
+				PrintPrompt();
+				LocalConnection.SendMessage(attacker.CapitalizeName() + " hits you for " + damage + " damage!\r\n");
+            }
+            else
+            {
+				PrintPrompt();
+				LocalConnection.SendMessage(attacker.CapitalizeName() + "'s attack misses you!\r\n");
+			}
+		}
+
+		protected override void Die(Fighter attacker)
+		{
+			base.Die(attacker);
+
+			ServerInfo.Instance.Report(
+				ColorCodes.Color.Yellow,
+				"[Player] Player " + Name + "(" + ObjectId + ") was killed by " +
+                attacker.Name + "(" + attacker.ObjectId + ").\n");
+			LocalConnection.SendMessage("You are killed by " + attacker.Name + "!\r\n");
+            Game.Instance.ReportPlayerMoved(this, CurrentRoomId, Game.Instance.StartingRoomId);
+            CurrentRoomId = Game.Instance.StartingRoomId;
+			CurrentHP = MaxHP;
+            Target = null;
+		}
+
+		protected override void NotifyDeath(Fighter defender)
+		{
+            base.NotifyDeath(defender);
+
+            // Our target died.
+			if (defender == Target)
+            {
+				LocalConnection.SendMessage("You kill " + defender.Name + "!\r\n");
+				Target = null;
+            }
+		}
 
 		// Is a word one of the ten most commonly used prepositions?
 		private static bool IsPreposition(string word)
@@ -213,6 +306,12 @@ namespace Aurora
                 case "drop":
                     Drop(inputObject);
                     break;
+                case "attack":
+                    Attack(inputObject);
+                    break;
+                case "yield":
+                    Yield();
+                    break;
                 case "debugobject":
                     DebugObject(inputObject);
                     break;
@@ -252,11 +351,11 @@ namespace Aurora
         {
             LocalConnection.SendMessage(ColorCodes.Color.Green, Level + " ");
             // display the current HP in different colors based on how hurt we are
-            if (CurrentHP / MaxHP < 0.25)
+            if ((float)CurrentHP / MaxHP < 0.25)
             {
                 LocalConnection.SendMessage(ColorCodes.Color.Red, CurrentHP + "/" + MaxHP);
             }
-            else if (CurrentHP / MaxHP < 0.75)
+            else if ((float)CurrentHP / MaxHP < 0.75)
             {
                 LocalConnection.SendMessage(ColorCodes.Color.Yellow, CurrentHP + "/" + MaxHP);
             }
@@ -281,6 +380,8 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
 			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+            LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
+            LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 			if (IsAdmin)
 			{

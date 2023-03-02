@@ -1,4 +1,6 @@
-﻿namespace Aurora
+﻿using System;
+
+namespace Aurora
 {
     internal abstract class ServerInfoEventArgs : System.EventArgs { }
 
@@ -29,12 +31,12 @@
 
         public ServerInfoReportArgs(string report)
         {
-            Report = report;
+            Report = "<" + DateTime.Now + "> " + report;
         }
 
         public ServerInfoReportArgs(string report, ColorCodes.Color color)
         {
-            Report = report;
+            Report = "<" + DateTime.Now + "> " + report;
             Color = color;
         }
     }

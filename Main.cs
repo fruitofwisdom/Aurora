@@ -43,10 +43,10 @@ namespace Aurora
                 string version = versionInfo.ProductVersion;
                 Console.Title = "Aurora v" + version + " - " + Game.Instance.Name;
 
-                Console.WriteLine("[Aurora] Running in console-only mode.");
+                Console.WriteLine("<" + DateTime.Now + "> [Aurora] Running in console-only mode.");
                 consoleApp.Run();
 
-                Console.WriteLine("[Aurora] Good-bye!");
+                Console.WriteLine("<" + DateTime.Now + "> [Aurora] Good-bye!");
                 FreeConsole();
             }
             else

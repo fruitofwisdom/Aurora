@@ -26,6 +26,7 @@ namespace Aurora
 			// All mobiles, by default, can't be taken by players.
 			Heavy = true;
 
+			// TODO: Move Timer creation to a Spawn function?
 			// Take time to think every ThinkTime seconds.
 			ThinkTimer = new Timer(ThinkTime);
 			ThinkTimer.Elapsed += (source, e) => OnTimedThinkEvent(source, e, this);

@@ -1,22 +1,5 @@
 [
   {
-    "$type": "Spawner",
-    "Name": "manual spawner",
-    "CurrentRoomId": 2,
-    "SpawnTime": 20000,
-    "SpawnObject": {
-      "Name": "manual",
-      "CurrentRoomId": 2,
-      "Description": "another instruction manual"
-    }
-  },
-  {
-    "$type": "GameObject",
-    "Name": "manual",
-    "CurrentRoomId": 2,
-    "Description": "an instruction manual"
-  },
-  {
     "$type": "NPC",
     "Name": "the fat baker",
     "CurrentRoomId": 10,
@@ -58,5 +41,22 @@
       }
     ],
     "ThinkTime": 15000
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "deranged seagull spawner",
+    "CurrentRoomId": 2,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "deranged seagull",
+      "CurrentRoomId": 5,
+      "Description": "a deranged seagull",
+      "Level": 1,
+      "CurrentHP": 10,
+      "MaxHP": 10,
+      "Strength": 2,
+      "Defense": 2,
+      "Agility": 2
+    }
   }
 ]
