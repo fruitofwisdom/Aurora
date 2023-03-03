@@ -45,18 +45,37 @@
   {
     "$type": "EnemySpawner",
     "Name": "deranged seagull spawner",
-    "CurrentRoomId": 2,
+    "CurrentRoomId": 5,
     "SpawnTime": 20000,
     "EnemyToSpawn": {
       "Name": "deranged seagull",
-      "CurrentRoomId": 5,
       "Description": "a deranged seagull",
       "Level": 1,
-      "CurrentHP": 10,
-      "MaxHP": 10,
-      "Strength": 2,
-      "Defense": 2,
-      "Agility": 2
+      "CurrentHP": 15,
+      "MaxHP": 15,
+      "Strength": 5,
+      "Defense": 5,
+      "Agility": 5,
+      "XPReward": 10,
+      "GoldReward": 20
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "troll spawner",
+    "CurrentRoomId": 15,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "troll",
+      "Description": "a troll",
+      "Level": 7,
+      "CurrentHP": 45,
+      "MaxHP": 45,
+      "Strength": 17,
+      "Defense": 17,
+      "Agility": 17,
+      "XPReward": 70,
+      "GoldReward": 140
     }
   }
 ]

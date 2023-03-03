@@ -17,7 +17,7 @@ namespace Aurora
         private string LastInput = "";
 
         private Fighter Target = null;
-		private double AttackTime = 5;      // in seconds
+		private const double kAttackTime = 5;      // in seconds
 		private DateTime LastAttackTime = DateTime.MinValue;
 
 		public Player(string name, int currentRoomId, string password, string salt)
@@ -42,7 +42,7 @@ namespace Aurora
 
         protected override void Think(DateTime eventTime)
         {
-            if ((eventTime - LastAttackTime).Seconds > AttackTime)
+            if ((eventTime - LastAttackTime).Seconds > kAttackTime)
             {
 				if (Target != null)
 				{
@@ -61,14 +61,12 @@ namespace Aurora
             }
         }
 
-		protected override void DealDamage(Fighter defender, bool didHit, int damage)
+		protected override void DealtDamage(Fighter defender, bool didHit, int damage)
 		{
-            base.DealDamage(defender, didHit, damage);
-
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
-				"[Player] Player " + Name + "(" + ObjectId + ") is dealing damage to " +
-                defender.Name + "(" + defender.ObjectId + ")\n");
+				"[Player] Player " + DebugName() + " is dealing damage to " + defender.DebugName() + ".\n");
+			
 			if (didHit)
             {
                 PrintPrompt();
@@ -79,41 +77,46 @@ namespace Aurora
 				PrintPrompt();
 				LocalConnection.SendMessage("Your attack misses the " + defender.Name + "!\r\n");
 			}
+
+			base.DealtDamage(defender, didHit, damage);
 		}
 
 		protected override void TakeDamage(Fighter attacker, bool didHit, int damage)
         {
-            base.TakeDamage(attacker, didHit, damage);
-
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
-				"[Player] Player " + Name + "(" + ObjectId + ") is taking damage from " +
-                attacker.Name + "(" + attacker.ObjectId + ").\n");
+				"[Player] Player " + DebugName() + " is taking damage from " + attacker.DebugName() + ".\n");
+			
 			if (didHit)
             {
 				PrintPrompt();
-				LocalConnection.SendMessage(attacker.CapitalizeName() + " hits you for " + damage + " damage!\r\n");
+				LocalConnection.SendMessage("The " + attacker.Name + " hits you for " + damage + " damage!\r\n");
             }
             else
             {
 				PrintPrompt();
-				LocalConnection.SendMessage(attacker.CapitalizeName() + "'s attack misses you!\r\n");
+				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
+
+			base.TakeDamage(attacker, didHit, damage);
 		}
 
 		protected override void Die(Fighter attacker)
 		{
-			base.Die(attacker);
-
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
-				"[Player] Player " + Name + "(" + ObjectId + ") was killed by " +
-                attacker.Name + "(" + attacker.ObjectId + ").\n");
-			LocalConnection.SendMessage("You are killed by " + attacker.Name + "!\r\n");
-            Game.Instance.ReportPlayerMoved(this, CurrentRoomId, Game.Instance.StartingRoomId);
-            CurrentRoomId = Game.Instance.StartingRoomId;
-			CurrentHP = MaxHP;
+				"[Player] Player " + DebugName() + " was killed by " + attacker.DebugName() + ".\n");
+
+			base.Die(attacker);
+
+			LocalConnection.SendMessage("You are killed by the " + attacker.Name + "!\r\n");
             Target = null;
+
+			// Respawn in the starting room.
+			CurrentRoomId = Game.Instance.StartingRoomId;
+			CurrentHP = MaxHP;
+            LocalConnection.SendMessage("...NOT YET, FRIEND...\r\nYou wake up dazed. What happened? Where are you?\r\n");
+            PrintRoom();
 		}
 
 		protected override void NotifyDeath(Fighter defender)
@@ -123,7 +126,7 @@ namespace Aurora
             // Our target died.
 			if (defender == Target)
             {
-				LocalConnection.SendMessage("You kill " + defender.Name + "!\r\n");
+				LocalConnection.SendMessage("You kill the " + defender.Name + "!\r\n");
 				Target = null;
             }
 		}

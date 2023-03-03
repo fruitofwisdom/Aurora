@@ -50,7 +50,7 @@ namespace Aurora
             Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
             InitialPlayer = null;
-            XpPerLevel = new int[ 9999 ];
+            XpPerLevel = new int[99];
 
             ActivePlayers = new List<Player>();
 
@@ -92,6 +92,10 @@ namespace Aurora
 
             jsonString = File.ReadAllText(WorldObjectsFilename);
             WorldObjects = JsonSerializer.Deserialize<List<GameObject>>(jsonString);
+            foreach (GameObject gameObject in WorldObjects)
+            {
+                gameObject.Spawn();
+            }
 
             SaveTimer.Start();
 		}
@@ -151,16 +155,20 @@ namespace Aurora
 
         public void PlayerJoined(Player player)
         {
-            ActivePlayers.Add(player);
-            ReportPlayerMoved(player, -1, player.CurrentRoomId);
-            ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has joined.\n");
+			ActivePlayers.Add(player);
+			player.Spawn();
+
+			ReportPlayerMoved(player, -1, player.CurrentRoomId);
+            ServerInfo.Instance.Report("[Game] Player " + player.DebugName() + " has joined.\n");
         }
 
         public void PlayerQuit(Player player)
         {
+            player.Despawn();
             ActivePlayers.Remove(player);
+
             ReportPlayerMoved(player, player.CurrentRoomId, -1);
-            ServerInfo.Instance.Report("[Game] Player \"" + player.Name + "\" has quit.\n");
+            ServerInfo.Instance.Report("[Game] Player " + player.DebugName() + " has quit.\n");
         }
 
         public bool PlayerIsActive(Player player)
@@ -186,14 +194,18 @@ namespace Aurora
             return gameObject;
 		}
 
-        public void TrySpawn<T>(T gameObject) where T : GameObject
+        // Try to spawn something derived from GameObject as long as nothing with the same name
+        // already exists in the provided room.
+        public void TrySpawn<T>(T gameObject, int roomId) where T : GameObject
         {
-            if (GetGameObject(gameObject.Name, gameObject.CurrentRoomId) == null)
+            if (GetGameObject(gameObject.Name, roomId) == null)
             {
                 T newGameObject = GameObject.Clone<T>(gameObject);
                 WorldObjects.Add(newGameObject);
+                newGameObject.CurrentRoomId = roomId;
+				newGameObject.Spawn();
 
-                // Report the object was spawned.
+				// Report the object was spawned.
 				foreach (Player player in ActivePlayers)
                 {
                     if (player.CurrentRoomId == newGameObject.CurrentRoomId)
@@ -397,9 +409,17 @@ namespace Aurora
             {
                 if (player != attacker && player != defender)
                 {
-                    player.Message(attacker.Name + " attacks " + defender.Name +
-                        (didHit ? " and hits!" : " and misses!") + "\r\n");
-                }
+                    if (attacker is Player)
+                    {
+                        player.Message(attacker.Name + " attacks the " + defender.Name +
+                            (didHit ? " and hits!" : " and misses!") + "\r\n");
+                    }
+                    else
+                    {
+                        player.Message("The " + attacker.Name + " attacks " + defender.Name +
+							(didHit ? " and hits!" : " and misses!") + "\r\n");
+					}
+				}
             }
         }
 
@@ -410,7 +430,14 @@ namespace Aurora
             {
                 if (player != attacker && player != defender)
                 {
-                    player.Message(defender.Name + " was killed by " + attacker.Name + "!\r\n");
+                    if (defender is Player)
+                    {
+                        player.Message(defender.Name + " was killed by the " + attacker.Name + "!\r\n");
+                    }
+                    else
+                    {
+                        player.Message("The " + defender.Name + " was killed by " + attacker.Name + "!\r\n");
+                    }
                 }
             }
 		}
@@ -532,6 +559,7 @@ namespace Aurora
 
         public void EnemyDied(Enemy enemy)
         {
+            enemy.Despawn();
             WorldObjects.Remove(enemy);
         }
 	}

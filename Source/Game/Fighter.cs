@@ -5,51 +5,52 @@ namespace Aurora
 {
 	internal class Fighter : Mobile
 	{
-		public int Level { get; set; }
-		public int CurrentHP { get; set; }
-		public int MaxHP { get; set; }
-		public int XP { get; set; }
-		public int Strength { get; set; }
-		public int Defense { get; set; }
-		public int Agility { get; set; }
+		public int Level { get; set; } = 1;
+		public int CurrentHP { get; set; } = 10;
+		public int MaxHP { get; set; } = 10;
+		public int XP { get; set; } = 0;
+		public int Strength { get; set; } = 1;
+		public int Defense { get; set; } = 1;
+		public int Agility { get; set; } = 1;
 		// TODO: Have a Speed stat too?
 
 		private static readonly Random Rng = new();
 		private readonly List<Fighter> Attackers = new();
 
-		public Fighter()
-		{
-			Level = 1;
-			CurrentHP = 10;
-			MaxHP = 10;
-			XP = 0;
-			Strength = 1;
-			Defense = 1;
-			Agility = 1;
-		}
+		public Fighter() { }
 
+		// Attempt to attack (hit and damage) a defender.
 		protected void Attack(Fighter defender)
 		{
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
-				"[Fighter] " + Name + "(" + ObjectId + ") is attacking " +
-				defender.Name + "(" + defender.ObjectId + ").\n");
+				"[Fighter] " + DebugName() + " is attacking " + defender.DebugName() + ".\n");
 
 			defender.Tag(this);
 
+			// TODO: Better hit calculation?
 			int didHit = (Agility + Rng.Next(1, 20)) - (defender.Agility + Rng.Next(1, 20));
 			if (didHit > 0)
 			{
-				int damage = Math.Max((Strength + Rng.Next(1, 20)) - (defender.Defense + Rng.Next(1, 20)), 0);
-				this.DealDamage(defender, true, damage);
-				defender.TakeDamage(this, true, damage);
+				// TODO: Better damage calculation?
+				int damage = (Strength + Rng.Next(1, 20)) - (defender.Defense + Rng.Next(1, 20));
+				// Let's have a minimum amount of damage per hit.
+				if (damage <= 0)
+				{
+					damage = 1;
+				}
+
+				// Notify all interested parties that an attack hit.
+				this.DealtDamage(defender, true, damage);
 				Game.Instance.ReportAttack(this, defender, true);
+				defender.TakeDamage(this, true, damage);
 			}
 			else
 			{
-				this.DealDamage(defender, false);
-				defender.TakeDamage(this, false);
+				// Notify all interested parties that an attack missed.
+				this.DealtDamage(defender, false);
 				Game.Instance.ReportAttack(this, defender, false);
+				defender.TakeDamage(this, false);
 			}
 		}
 
@@ -60,14 +61,13 @@ namespace Aurora
 			{
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
-					"[Fighter] " + Name + "(" + ObjectId + ") has been tagged by " +
-					attacker.Name + "(" + attacker.ObjectId + ").\n");
+					"[Fighter] " + DebugName() + " has been tagged by " + attacker.DebugName() + ".\n");
 				Attackers.Add(attacker);
 			}
 		}
 
 		// This is called when we deal damage to a defender.
-		protected virtual void DealDamage(Fighter defender, bool didHit, int damage = 0) { }
+		protected virtual void DealtDamage(Fighter defender, bool didHit, int damage = 0) { }
 
 		// This is called when we take damage from an attacker.
 		protected virtual void TakeDamage(Fighter attacker, bool didHit, int damage = 0)

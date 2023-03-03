@@ -18,22 +18,20 @@ namespace Aurora
 			}
 		};
 
-		public int XPReward { get; set; }
-		public int GoldReward { get; set; }
+		public int XPReward { get; set; } = 0;
+		public int GoldReward { get; set; } = 0;
 
-		private List<Target> Targets = new();
-		private double AttackTime = 5;      // in seconds
+		private readonly List<Target> Targets = new();
+		private const double kAttackTime = 5;      // in seconds
 		private DateTime LastAttackTime = DateTime.MinValue;
 
-		public Enemy()
-		{
-			XPReward = 10;
-			GoldReward = 10;
-		}
+		private const int kAggroAmount = 3;
+
+		public Enemy() { }
 
 		protected override void Think(DateTime eventTime)
 		{
-			if ((eventTime - LastAttackTime).Seconds > AttackTime)
+			if ((eventTime - LastAttackTime).Seconds > kAttackTime)
 			{
 				Target bestTarget = null;
 				int highestAggro = 0;
@@ -60,8 +58,8 @@ namespace Aurora
 				{
 					ServerInfo.Instance.Report(
 						ColorCodes.Color.Yellow,
-						"[Enemy] " + CapitalizeName() + "(" + ObjectId + ") will lose " +
-						targetToRemove.Attacker.Name + "(" + targetToRemove.Attacker.ObjectId + ") as a target.\r\n");
+						"[Enemy] " + DebugName() + " will lose " +
+						targetToRemove.Attacker.DebugName() + " as a target.\n");
 					Targets.Remove(targetToRemove);
 				}
 
@@ -76,26 +74,25 @@ namespace Aurora
 
 		protected override void TakeDamage(Fighter attacker, bool didHit, int damage)
 		{
+			// Whenever we take damage, add a fixed amount of aggro to that target.
 			bool newAttacker = true;
 			foreach (Target target in Targets)
 			{
 				if (target.Attacker == attacker)
 				{
 					newAttacker = false;
-					target.Aggro += 3;		// TODO: Is this a good number?
+					target.Aggro += kAggroAmount;
+					ServerInfo.Instance.Report(
+						ColorCodes.Color.Yellow,
+						"[Enemy] " + DebugName() + " is increasing aggro towards " + attacker.DebugName() + ".\n");
 				}
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Enemy] " + CapitalizeName() + "(" + ObjectId + ") is increasing aggro towards " +
-					attacker.Name + "(" + attacker.ObjectId + ").\r\n");
 			}
 			if (newAttacker)
 			{
-				Targets.Add(new Target(attacker as Player, 3));
+				Targets.Add(new Target(attacker as Player, kAggroAmount));
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
-					"[Enemy] " + CapitalizeName() + "(" + ObjectId + ") is adding " +
-					attacker.Name + "(" + attacker.ObjectId + ") as a target.\r\n");
+					"[Enemy] " + DebugName() + " is adding " + attacker.DebugName() + " as a target.\n");
 			}
 
 			base.TakeDamage(attacker, didHit, damage);
@@ -107,12 +104,9 @@ namespace Aurora
 
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
-				"[Enemy] " + CapitalizeName() + "(" + ObjectId + ") was killed by " +
-				attacker.Name + "(" + attacker.ObjectId + ").\n");
+				"[Enemy] " + DebugName() + " was killed by " + attacker.DebugName() + ".\n");
 			// TODO: Divide up XP and gold reward.
 			Targets.Clear();
-			ThinkTimer.Stop();
-			ThinkTimer = null;
 
 			Game.Instance.EnemyDied(this);
 		}

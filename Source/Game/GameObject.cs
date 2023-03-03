@@ -25,24 +25,49 @@ namespace Aurora
 
 		private static int NumObjects = 0;
 
-		public GameObject()
+		public GameObject() { }
+
+		public virtual void Spawn()
 		{
-			ObjectId = ++NumObjects;
+			++NumObjects;
+			if (ObjectId == 0)
+			{
+				ObjectId = NumObjects;
+			}
 		}
+
+		public virtual void Despawn() { }
 
 		public string CapitalizeName()
 		{
 			return char.ToUpper(Name[0]) + Name[1..];
 		}
 
-		// Create and return a new GameObject that is a clone (via-serialization) of the provided
-		// GameObject. The new GameObject will have a new ObjectId as well.
+		public string DebugName()
+		{
+			return "\"" + Name + "\"(" + ObjectId + ")";
+		}
+
+		public string IndefiniteName()
+		{
+			string article = "a";
+			if (Name[0] == 'A' || Name[0] == 'a' ||
+				Name[0] == 'E' || Name[0] == 'e' ||
+				Name[0] == 'I' || Name[0] == 'i' ||
+				Name[0] == 'O' || Name[0] == 'o' ||
+				Name[0] == 'U' || Name[0] == 'u' ||
+				Name[0] == 'H' || Name[0] == 'h')
+			{
+				article = "an";
+			}
+			return article + Name;
+		}
+
+		// Create a new GameObject that is a clone (via-serialization) of the provided GameObject.
 		public static T Clone<T>(T gameObject) where T : GameObject
 		{
 			string gameObjectString = JsonSerializer.Serialize<T>(gameObject);
 			T newGameObject = JsonSerializer.Deserialize<T>(gameObjectString);
-			// The correct, incremented ObjectId gets overwritten by deserialization. Restore it.
-			newGameObject.ObjectId = NumObjects;
 			return newGameObject;
 		}
 

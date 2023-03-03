@@ -15,6 +15,11 @@ namespace Aurora
 		{
 			// All WorldObjects are invisible; only their SpawnObject is intended for interaction.
 			Invisible = true;
+		}
+
+		public override void Spawn()
+		{
+			base.Spawn();
 
 			// Try to respawn every SpawnTime seconds.
 			SpawnTimer = new Timer(SpawnTime);
@@ -22,9 +27,17 @@ namespace Aurora
 			SpawnTimer.Start();
 		}
 
-		private static void OnTimedSpawnEvent(object source, ElapsedEventArgs e, EnemySpawner worldObject)
+		public override void Despawn()
 		{
-			Game.Instance.TrySpawn(worldObject.EnemyToSpawn);
+			base.Despawn();
+
+			SpawnTimer.Stop();
+			SpawnTimer.Dispose();
+		}
+
+		private static void OnTimedSpawnEvent(object source, ElapsedEventArgs e, EnemySpawner spawner)
+		{
+			Game.Instance.TrySpawn(spawner.EnemyToSpawn, spawner.CurrentRoomId);
 		}
 	}
 }

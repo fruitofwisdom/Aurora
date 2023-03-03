@@ -149,6 +149,7 @@ namespace Aurora
 			}
 		}
 
+		// Start attacking a specified target.
 		private void Attack(string inputObject)
 		{
 			GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
@@ -156,11 +157,10 @@ namespace Aurora
 			{
 				Target = target as Fighter;
 				LastAttackTime = DateTime.MinValue;
-				LocalConnection.SendMessage("You start attacking " + target.Name + "!\r\n");
+				LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
-					"[Player] Player " + Name + "(" + ObjectId + ") is attacking " +
-					target.Name + "(" + target.ObjectId + ").\n");
+					"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
 			}
 			else
 			{
@@ -168,15 +168,16 @@ namespace Aurora
 			}
 		}
 
+		// Stop attacking.
 		private void Yield()
 		{
 			if (Target != null)
 			{
-				LocalConnection.SendMessage("You stop attacking " + Target.Name + "!\r\n");
+				LocalConnection.SendMessage("You stop attacking the " + Target.Name + "!\r\n");
 				Target = null;
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
-					"[Player] Player " + Name + "(" + ObjectId + ") is yielding.\n");
+					"[Player] Player " + DebugName() + " is yielding.\n");
 			}
 			else
 			{
