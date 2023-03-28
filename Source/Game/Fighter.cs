@@ -8,7 +8,6 @@ namespace Aurora
 		public int Level { get; set; } = 1;
 		public int CurrentHP { get; set; } = 10;
 		public int MaxHP { get; set; } = 10;
-		public int XP { get; set; } = 0;
 		public int Strength { get; set; } = 1;
 		public int Defense { get; set; } = 1;
 		public int Agility { get; set; } = 1;
@@ -88,13 +87,13 @@ namespace Aurora
 			// Let each of our attackers know that we died.
 			foreach (Fighter otherAttacker in Attackers)
 			{
-				otherAttacker.NotifyDeath(this);
+				otherAttacker.NotifyDeath(attacker, this);
 			}
 
 			Game.Instance.ReportDeath(attacker, this);
 		}
 
-		// This is called on each attacker when a defender dies.
-		protected virtual void NotifyDeath(Fighter defender) { }
+		// This is called on each attacker when a defender dies. attacker is who dealt the kill.
+		protected virtual void NotifyDeath(Fighter attacker, Fighter defender) { }
 	}
 }

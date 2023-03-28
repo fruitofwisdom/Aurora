@@ -18,6 +18,8 @@ namespace Aurora
         public Player InitialPlayer { get; set; }
         // The amount of experience needed to reach each level.
         public int[] XpPerLevel { get; set; }
+        // The name of the currency ("gold", "dollar", etc).
+        public string Currency { get; set; }
 
 		// These three lists are all deserialized from individual JSON files.
 		private List<Player> Players;
@@ -432,11 +434,11 @@ namespace Aurora
                 {
                     if (defender is Player)
                     {
-                        player.Message(defender.Name + " was killed by the " + attacker.Name + "!\r\n");
+                        player.Message(defender.Name + " was defeated by the " + attacker.Name + "!\r\n");
                     }
                     else
                     {
-                        player.Message("The " + defender.Name + " was killed by " + attacker.Name + "!\r\n");
+                        player.Message("The " + defender.Name + " was defeated by " + attacker.Name + "!\r\n");
                     }
                 }
             }

@@ -12,6 +12,8 @@ namespace Aurora
         public string Salt { get; set; }
         public bool IsAdmin { get; set; } = false;
         public List<GameObject> Inventory { get; set; }
+        public int XP { get; set; } = 0;
+        public int Gold { get; set; } = 0;
 
         private bool DescriptionNeeded = true;
         private string LastInput = "";
@@ -89,6 +91,9 @@ namespace Aurora
 			
 			if (didHit)
             {
+                // NOTE: Take damage here (and not in base.TakeDamage) so the new HP are reflected
+                // in the prompt.
+                CurrentHP -= damage;
 				PrintPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + " hits you for " + damage + " damage!\r\n");
             }
@@ -98,7 +103,7 @@ namespace Aurora
 				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
 
-			base.TakeDamage(attacker, didHit, damage);
+			base.TakeDamage(attacker, didHit, 0);
 		}
 
 		protected override void Die(Fighter attacker)
@@ -109,7 +114,7 @@ namespace Aurora
 
 			base.Die(attacker);
 
-			LocalConnection.SendMessage("You are killed by the " + attacker.Name + "!\r\n");
+			LocalConnection.SendMessage("You are defeated by the " + attacker.Name + "!\r\n");
             Target = null;
 
 			// Respawn in the starting room.
@@ -119,15 +124,41 @@ namespace Aurora
             PrintRoom();
 		}
 
-		protected override void NotifyDeath(Fighter defender)
+		protected override void NotifyDeath(Fighter attacker, Fighter defender)
 		{
-            base.NotifyDeath(defender);
+            base.NotifyDeath(attacker, defender);
 
-            // Our target died.
-			if (defender == Target)
+            if (attacker == this)
             {
-				LocalConnection.SendMessage("You kill the " + defender.Name + "!\r\n");
+				// We killed the defender.
+				LocalConnection.SendMessage("You defeat the " + defender.Name + "!\r\n");
 				Target = null;
+			}
+			else if (defender == Target)
+            {
+                // Our target was killed by someone else.
+				Target = null;
+            }
+            else if (CurrentRoomId != defender.CurrentRoomId)
+            {
+                // We participated in the kill, but it's not our target.
+                LocalConnection.SendMessage("You helped defeat the " + defender.Name + "!\r\n");
+            }
+		}
+
+		// Reward a player with a certain amount of experience and gold, potentially leveling up.
+		public void Reward(int xp, int gold)
+        {
+            if (xp > 0)
+            {
+				XP += xp;
+                // TODO: Level up calculations.
+                LocalConnection.SendMessage("You gain " + xp + " experience!\r\n");
+			}
+            if (gold > 0)
+            {
+                Gold += gold;
+                LocalConnection.SendMessage("You find " + gold + " " + Game.Instance.Currency + "!\r\n");
             }
 		}
 
@@ -262,6 +293,9 @@ namespace Aurora
             // also keep the entire non-verb portion of the input for "say", "emote", etc
             string inputArgument = GetArgument(input);
 
+            // Do we need to print the room after this input?
+            bool needToPrintRoom = true;
+
             switch (inputVerb)
             {
                 case "exit":
@@ -310,10 +344,10 @@ namespace Aurora
                     Drop(inputObject);
                     break;
                 case "attack":
-                    Attack(inputObject);
+                    needToPrintRoom = Attack(inputObject);
                     break;
                 case "yield":
-                    Yield();
+                    needToPrintRoom = Yield();
                     break;
                 case "debugobject":
                     DebugObject(inputObject);
@@ -328,8 +362,11 @@ namespace Aurora
 
             LastInput = input;
 
-            // after each command, we need to tell the player about the state of the room
-            PrintRoom();
+            // After each input, we may need to tell the player about the state of the room again.
+            if (needToPrintRoom)
+            {
+                PrintRoom();
+            }
         }
 
 		public void PrintRoom()

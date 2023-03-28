@@ -105,17 +105,32 @@ namespace Aurora
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
 				"[Enemy] " + DebugName() + " was killed by " + attacker.DebugName() + ".\n");
-			// TODO: Divide up XP and gold reward.
+			// Distribute XP and gold in proportion to aggro generated per target.
+			int totalAggro = 0;
+			foreach (Target target in Targets)
+			{
+				totalAggro += target.Aggro;
+			}
+			foreach (Target target in Targets)
+			{
+				ServerInfo.Instance.Report(
+					ColorCodes.Color.Yellow,
+					"[Enemy] " + DebugName() + " had " + target.Aggro + " aggro towards " + target.Attacker.DebugName() + ".\n");
+				double aggroPercent = (double)target.Aggro / totalAggro;
+				int sharedXP = (int)Math.Ceiling(XPReward * aggroPercent);
+				int sharedGold = (int)Math.Ceiling(GoldReward * aggroPercent);
+				target.Attacker.Reward(sharedXP, sharedGold);
+			}
 			Targets.Clear();
 
 			Game.Instance.EnemyDied(this);
 		}
 
-		protected override void NotifyDeath(Fighter defender)
+		protected override void NotifyDeath(Fighter attacker, Fighter defender)
 		{
-			base.NotifyDeath(defender);
+			base.NotifyDeath(attacker, defender);
 
-			// One of our potential targets died.
+			// If one of our targets died, remove them from the list.
 			Target toRemove = null;
 			foreach (Target target in Targets)
 			{

@@ -106,7 +106,7 @@ namespace Aurora
 
 		private void PrintInventory()
 		{
-			if (Inventory.Count == 0)
+			if (Inventory.Count == 0 && Gold == 0)
 			{
 				LocalConnection.SendMessage("You're not carrying anything.\r\n");
 			}
@@ -116,6 +116,10 @@ namespace Aurora
 				foreach (GameObject gameObject in Inventory)
 				{
 					LocalConnection.SendMessage("     " + gameObject.CapitalizeName() + "\r\n");
+				}
+				if (Gold > 0)
+				{
+					LocalConnection.SendMessage("     " + Gold + " " + Game.Instance.Currency + "\r\n");
 				}
 			}
 		}
@@ -150,27 +154,37 @@ namespace Aurora
 		}
 
 		// Start attacking a specified target.
-		private void Attack(string inputObject)
+		private bool Attack(string inputObject)
 		{
+			bool needToPrintRoom = true;
+
 			GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
 			if (target != null && target is Fighter)
 			{
 				Target = target as Fighter;
 				LastAttackTime = DateTime.MinValue;
+
 				LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
 					"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
+
+				// Now that combat has started, no need to print the room right away.
+				needToPrintRoom = false;
 			}
 			else
 			{
 				LocalConnection.SendMessage("You can't attack that!\r\n");
 			}
+
+			return needToPrintRoom;
 		}
 
 		// Stop attacking.
-		private void Yield()
+		private bool Yield()
 		{
+			bool needToPrintRoom = true;
+
 			if (Target != null)
 			{
 				LocalConnection.SendMessage("You stop attacking the " + Target.Name + "!\r\n");
@@ -178,11 +192,15 @@ namespace Aurora
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
 					"[Player] Player " + DebugName() + " is yielding.\n");
+				// Now that combat has ended, no need to print the room right away.
+				needToPrintRoom = false;
 			}
 			else
 			{
 				LocalConnection.SendMessage("You aren't attacking anything!\r\n");
 			}
+
+			return needToPrintRoom;
 		}
 
 		private void DebugObject(string inputObject)
