@@ -58,7 +58,7 @@ namespace Aurora
 				{
 					ServerInfo.Instance.Report(
 						ColorCodes.Color.Yellow,
-						"[Enemy] " + DebugName() + " will lose " +
+						"[Enemy] " + DebugName() + " is removing " +
 						targetToRemove.Attacker.DebugName() + " as a target.\n");
 					Targets.Remove(targetToRemove);
 				}
@@ -82,9 +82,6 @@ namespace Aurora
 				{
 					newAttacker = false;
 					target.Aggro += kAggroAmount;
-					ServerInfo.Instance.Report(
-						ColorCodes.Color.Yellow,
-						"[Enemy] " + DebugName() + " is increasing aggro towards " + attacker.DebugName() + ".\n");
 				}
 			}
 			if (newAttacker)
@@ -92,7 +89,8 @@ namespace Aurora
 				Targets.Add(new Target(attacker as Player, kAggroAmount));
 				ServerInfo.Instance.Report(
 					ColorCodes.Color.Yellow,
-					"[Enemy] " + DebugName() + " is adding " + attacker.DebugName() + " as a target.\n");
+					"[Enemy] " + DebugName() + " is adding " +
+					attacker.DebugName() + " as a target.\n");
 			}
 
 			base.TakeDamage(attacker, didHit, damage);
@@ -100,11 +98,15 @@ namespace Aurora
 
 		protected override void Die(Fighter attacker)
 		{
-			base.Die(attacker);
-
 			ServerInfo.Instance.Report(
 				ColorCodes.Color.Yellow,
 				"[Enemy] " + DebugName() + " was killed by " + attacker.DebugName() + ".\n");
+
+			base.Die(attacker);
+
+			// Stop any timers and remove this enemy from the world.
+			Game.Instance.EnemyDied(this);
+
 			// Distribute XP and gold in proportion to aggro generated per target.
 			int totalAggro = 0;
 			foreach (Target target in Targets)
@@ -113,17 +115,12 @@ namespace Aurora
 			}
 			foreach (Target target in Targets)
 			{
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Enemy] " + DebugName() + " had " + target.Aggro + " aggro towards " + target.Attacker.DebugName() + ".\n");
 				double aggroPercent = (double)target.Aggro / totalAggro;
 				int sharedXP = (int)Math.Ceiling(XPReward * aggroPercent);
 				int sharedGold = (int)Math.Ceiling(GoldReward * aggroPercent);
 				target.Attacker.Reward(sharedXP, sharedGold);
 			}
 			Targets.Clear();
-
-			Game.Instance.EnemyDied(this);
 		}
 
 		protected override void NotifyDeath(Fighter attacker, Fighter defender)

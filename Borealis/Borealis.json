@@ -18,12 +18,17 @@
       }
     ]
   },
-  "XpPerLevel": [
+  "XPNeededPerLevel": [
+    0,
     100,
-    200,
-    300,
-    400,
-    500
+    250,
+    450,
+    700,
+    1000
   ],
+  "MaxHPPerLevel": 10,
+  "StrengthPerLevel": 4,
+  "DefensePerLevel": 4,
+  "AgilityPerLevel": 4,
   "Currency": "gold"
 }

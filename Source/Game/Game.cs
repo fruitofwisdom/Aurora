@@ -17,7 +17,12 @@ namespace Aurora
         // All new players are cloned from this initial player.
         public Player InitialPlayer { get; set; }
         // The amount of experience needed to reach each level.
-        public int[] XpPerLevel { get; set; }
+        public int[] XPNeededPerLevel { get; set; }
+        // How much players' stats increase per level.
+        public int MaxHPPerLevel { get; set; }
+        public int StrengthPerLevel { get; set; }
+        public int DefensePerLevel { get; set; }
+        public int AgilityPerLevel { get; set; }
         // The name of the currency ("gold", "dollar", etc).
         public string Currency { get; set; }
 
@@ -52,7 +57,6 @@ namespace Aurora
             Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
             InitialPlayer = null;
-            XpPerLevel = new int[99];
 
             ActivePlayers = new List<Player>();
 
@@ -402,6 +406,20 @@ namespace Aurora
 			}
 
             return worldObjects;
+        }
+
+        // Return what level an amount of XP would qualify for.
+        public int GetLevelForXp(int xp)
+        {
+            int level = 0;
+            foreach (int xpNeeded in XPNeededPerLevel)
+            {
+                if (xp >= xpNeeded)
+                {
+                    level++;
+                }
+            }
+            return level;
         }
 
         public void ReportAttack(Fighter attacker, Fighter defender, bool didHit)

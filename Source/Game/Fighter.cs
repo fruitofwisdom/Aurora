@@ -21,10 +21,6 @@ namespace Aurora
 		// Attempt to attack (hit and damage) a defender.
 		protected void Attack(Fighter defender)
 		{
-			ServerInfo.Instance.Report(
-				ColorCodes.Color.Yellow,
-				"[Fighter] " + DebugName() + " is attacking " + defender.DebugName() + ".\n");
-
 			defender.Tag(this);
 
 			// TODO: Better hit calculation?
@@ -58,9 +54,6 @@ namespace Aurora
 		{
 			if (!Attackers.Contains(attacker))
 			{
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Fighter] " + DebugName() + " has been tagged by " + attacker.DebugName() + ".\n");
 				Attackers.Add(attacker);
 			}
 		}

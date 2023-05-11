@@ -65,10 +65,6 @@ namespace Aurora
 
 		protected override void DealtDamage(Fighter defender, bool didHit, int damage)
 		{
-			ServerInfo.Instance.Report(
-				ColorCodes.Color.Yellow,
-				"[Player] Player " + DebugName() + " is dealing damage to " + defender.DebugName() + ".\n");
-			
 			if (didHit)
             {
                 PrintPrompt();
@@ -85,10 +81,6 @@ namespace Aurora
 
 		protected override void TakeDamage(Fighter attacker, bool didHit, int damage)
         {
-			ServerInfo.Instance.Report(
-				ColorCodes.Color.Yellow,
-				"[Player] Player " + DebugName() + " is taking damage from " + attacker.DebugName() + ".\n");
-			
 			if (didHit)
             {
                 // NOTE: Take damage here (and not in base.TakeDamage) so the new HP are reflected
@@ -152,14 +144,28 @@ namespace Aurora
             if (xp > 0)
             {
 				XP += xp;
-                // TODO: Level up calculations.
                 LocalConnection.SendMessage("You gain " + xp + " experience!\r\n");
+
+                int newLevel = Game.Instance.GetLevelForXp(XP);
+                // NOTE: Players cannot currently go down a level.
+				if (newLevel > Level)
+                {
+                    int numLevelsGained = newLevel - Level;
+                    Level = newLevel;
+                    MaxHP += Game.Instance.MaxHPPerLevel * numLevelsGained;
+                    Strength += Game.Instance.StrengthPerLevel * numLevelsGained;
+                    Defense += Game.Instance.DefensePerLevel * numLevelsGained;
+                    Agility += Game.Instance.AgilityPerLevel * numLevelsGained;
+                    LocalConnection.SendMessage("You are now level " + Level + "!\r\n");
+                }
 			}
             if (gold > 0)
             {
                 Gold += gold;
                 LocalConnection.SendMessage("You find " + gold + " " + Game.Instance.Currency + "!\r\n");
             }
+
+            PrintRoom();
 		}
 
 		// Is a word one of the ten most commonly used prepositions?
