@@ -7,8 +7,11 @@ namespace Aurora
 {
     internal class Game
     {
-        // These fields are deserialized from JSON.
-        public string Name { get; set; }
+		// These fields are deserialized from JSON.
+		#region JSON-serialized public fields.
+		public string Name { get; set; }
+        // The title as it should be displayed upon connection (e.g., as ASCII art).
+        public string[] Title { get; set; }
         public string PlayersFilename { get; set; }
 		public string RoomsFilename { get; set; }
         public string WorldObjectsFilename { get; set; }
@@ -25,6 +28,8 @@ namespace Aurora
         public int AgilityPerLevel { get; set; }
         // The name of the currency ("gold", "dollar", etc).
         public string Currency { get; set; }
+        public string WelcomeMessage { get; set; }
+		#endregion
 
 		// These three lists are all deserialized from individual JSON files.
 		private List<Player> Players;
@@ -35,17 +40,14 @@ namespace Aurora
         private readonly List<Player> ActivePlayers;
 
         private const double kSaveTime = 10000;     // 10 seconds
-        private Timer SaveTimer = null;
+        private readonly Timer SaveTimer = null;
 
         private static Game _instance = null;
         public static Game Instance
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = new Game();
-                }
+                _instance ??= new Game();
                 return _instance;
             }
         }
@@ -190,14 +192,10 @@ namespace Aurora
 
         public GameObject GetGameObject(string gameObjectName, int roomId)
         {
-            GameObject gameObject = null;
-
             List<GameObject> gameObjectsInRoom = new();
             gameObjectsInRoom.AddRange(GetPlayersInRoom(roomId));
             gameObjectsInRoom.AddRange(GetWorldObjectsInRoom(roomId));
-            gameObject = GameObject.GetBestMatch(gameObjectName, gameObjectsInRoom);
-
-            return gameObject;
+            return GameObject.GetBestMatch(gameObjectName, gameObjectsInRoom);
 		}
 
         // Try to spawn something derived from GameObject as long as nothing with the same name

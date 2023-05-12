@@ -18,25 +18,28 @@ namespace Aurora
         };
 
         public bool ClientDisconnected { get; private set; }
-        private DateTime TimeSinceInput;
-        private InputState LocalInputState = InputState.LoginName;
-        public int ClientID { get; private set; }
+		private readonly TcpClient Client;
+		public int ClientID { get; private set; }
+		public Thread ClientThread { get; private set; }
+
+		private DateTime TimeSinceInput;
+		private InputState LocalInputState = InputState.LoginName;
+        private int PasswordTries = 3;
+		
         private Player LocalPlayer = null;
         private string LocalPlayerName = null;
-        private readonly TcpClient Client;
-        public Thread ClientThread { get; private set; }
 
         public Connection(TcpClient client, int clientID)
         {
             ClientDisconnected = false;
-            TimeSinceInput = DateTime.Now;
-            ClientID = clientID;
             Client = client;
-            ClientThread = new Thread(new ThreadStart(Connect));
+			ClientID = clientID;
+			ClientThread = new Thread(new ThreadStart(Connect));
             ClientThread.Name = "Aurora Client (" + ClientID + ") Thread";
             ClientThread.Start();
+			TimeSinceInput = DateTime.Now;
 
-            ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") connected.\n");
+			ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") connected.\n");
 
             // on a single-core machine, give our new thread some time
             Thread.Sleep(0);
@@ -56,7 +59,11 @@ namespace Aurora
                 }
                 FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
                 string version = versionInfo.ProductVersion;
-                SendMessage("Welcome to \"" + Game.Instance.Name + "\", running on Aurora version " + version + "!\r\n\r\n");
+                foreach (string line in Game.Instance.Title)
+                {
+                    SendMessage(line + "\r\n");
+                }
+                SendMessage("Running on Aurora version " + version + "!\r\n\r\n");
                 SendMessage("What is your name?\r\n> ");
 
                 // loop until the client has left and the thread is terminated
@@ -170,9 +177,16 @@ namespace Aurora
             if (!Game.Instance.PlayerCanJoin(name))
             {
                 SendMessage("\"" + name + "\" is already playing!\r\n");
-
                 ServerInfo.Instance.Report("[Connection] Player \"" + name + "\" was already playing.\n");
                 Disconnect(true);
+                return;
+            }
+
+            if (!NameIsValid(name))
+            {
+                SendMessage("\"" + name + "\" is not a valid name!\r\n");
+                SendMessage("> ");
+                ServerInfo.Instance.Report("[Connection] Name \"" + name + "\" was not a valid name.\n");
                 return;
             }
 
@@ -198,22 +212,22 @@ namespace Aurora
             Player player = Game.Instance.GetPlayer(LocalPlayerName, false);
 			if (PasswordMatches(password, player))
             {
-                LocalPlayer = player;
-				LocalPlayer.SetConnection(this);
-
-				SendMessage("Enjoy your stay!\r\n");
-				SendMessage("Type \"help\" for more information.\r\n");
-
-				Game.Instance.PlayerJoined(LocalPlayer);
-				LocalPlayer.PrintRoom();
-				LocalInputState = InputState.Play;
+                LoginPlayer(player);
 			}
 			else
             {
                 SendMessage("I'm sorry, that's not correct.\r\n");
-
-                ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" failed to login.\n");
-                Disconnect(true);
+                if (--PasswordTries > 0)
+                {
+                    SendMessage("You have " + PasswordTries +  " " +
+                        (PasswordTries > 1 ? "tries" : "try") + " remaining.\r\n");
+                    SendMessage("> ");
+                }
+                else
+                {
+                    ServerInfo.Instance.Report("[Connection] Player \"" + LocalPlayerName + "\" failed to login.\n");
+                    Disconnect(true);
+                }
             }
         }
 
@@ -222,15 +236,30 @@ namespace Aurora
 			byte[] salt = GenerateSalt();
 			string hashedPassword = HashPassword(password, salt);
 			string saltAsString = Convert.ToBase64String(salt);
-			LocalPlayer = Game.Instance.CreatePlayer(LocalPlayerName, hashedPassword, saltAsString);
-            LocalPlayer.SetConnection(this);
-			
-            SendMessage("Enjoy your stay!\r\n");
-            SendMessage("Type \"help\" for more information.\r\n");
+            Player player = Game.Instance.CreatePlayer(LocalPlayerName, hashedPassword, saltAsString);
+            LoginPlayer(player);
+        }
 
-            Game.Instance.PlayerJoined(LocalPlayer);
-            LocalPlayer.PrintRoom();
-            LocalInputState = InputState.Play;
+        private static bool NameIsValid(string name)
+        {
+            // Names must be 4 characters or longer (prevents garbage from port scanning).
+            if (name.Length < 4)
+            {
+                return false;
+            }
+
+            // Names must only contain letters or numbers (prevents spaces or special characters).
+            foreach (char letter in name)
+            {
+                if (!Char.IsLetterOrDigit(letter))
+                {
+                    return false;
+                }
+            }
+
+            // TODO: Handle disallowing inappropriate names.
+
+            return true;
         }
 
         private static byte[] GenerateSalt()
@@ -257,6 +286,19 @@ namespace Aurora
 			string hashedPassword = Connection.HashPassword(password, salt);
 			return actualPassword == hashedPassword;
         }
+
+        private void LoginPlayer(Player player)
+        {
+            LocalPlayer = player;
+			LocalPlayer.SetConnection(this);
+
+			SendMessage(Game.Instance.WelcomeMessage + "\r\n");
+			SendMessage("Type \"help\" for more information.\r\n");
+
+			Game.Instance.PlayerJoined(LocalPlayer);
+			LocalPlayer.PrintRoom();
+			LocalInputState = InputState.Play;
+		}
 
         // This function will automatically split a message at a terminal width of 80
         // characters, inserting newlines as appropriate. Any ending newlines that are

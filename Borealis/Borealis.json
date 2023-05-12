@@ -1,5 +1,13 @@
 {
   "Name": "Borealis",
+  "Title": [
+    "__________                            .__  .__",
+    "\\______   \\ ___________   ____ _____  |  | |__| ______",
+    " |    |  _//  _ \\_  __ \\_/ __ \\\\__  \\ |  | |  |/  ___/",
+    " |    |   (  <_> )  | \\/\\  ___/ / __ \\|  |_|  |\\___ \\",
+    " |______  /\\____/|__|    \\___  >____  /____/__/____  >",
+    "        \\/                   \\/     \\/             \\/"
+  ],
   "PlayersFilename": "Borealis/Players.json",
   "RoomsFilename": "Borealis/Rooms.json",
   "WorldObjectsFilename": "Borealis/WorldObjects.json",
@@ -30,5 +38,6 @@
   "StrengthPerLevel": 4,
   "DefensePerLevel": 4,
   "AgilityPerLevel": 4,
-  "Currency": "gold"
+  "Currency": "gold",
+  "WelcomeMessage": "Welcome to Borealis! This game is a test for the Aurora MUD engine. The latest features include combat and leveling up. Thanks for playing!"
 }
