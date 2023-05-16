@@ -3,75 +3,75 @@ using System.Collections.Generic;
 
 namespace Aurora
 {
-    internal partial class Player : Fighter
-    {
-        private Connection LocalConnection;
+	internal partial class Player : Fighter
+	{
+		private Connection LocalConnection;
 
-        // These public fields all serialize.
-        public string Password { get; set; }
-        public string Salt { get; set; }
-        public bool IsAdmin { get; set; } = false;
-        public List<GameObject> Inventory { get; set; }
-        public int XP { get; set; } = 0;
-        public int Gold { get; set; } = 0;
+		// These public fields all serialize.
+		public string Password { get; set; }
+		public string Salt { get; set; }
+		public bool IsAdmin { get; set; } = false;
+		public List<GameObject> Inventory { get; set; }
+		public int XP { get; set; } = 0;
+		public int Gold { get; set; } = 0;
 
-        private bool DescriptionNeeded = true;
-        private string LastInput = "";
+		private bool DescriptionNeeded = true;
+		private string LastInput = "";
 
-        private Fighter Target = null;
+		private Fighter Target = null;
 		private const double kAttackTime = 5;      // in seconds
 		private DateTime LastAttackTime = DateTime.MinValue;
 
 		public Player(string name, int currentRoomId, string password, string salt)
-        {
-            Name = name;
+		{
+			Name = name;
 			CurrentRoomId = currentRoomId;
 			Description = "the player " + Name;
 			Password = password;
-            Salt = salt;
-            Inventory = new();
-        }
+			Salt = salt;
+			Inventory = new();
+		}
 
 		public void SetConnection(Connection localConnection)
-        {
-            LocalConnection = localConnection;
-        }
+		{
+			LocalConnection = localConnection;
+		}
 
-        public void Message(string message)
-        {
-            LocalConnection.SendMessage(message);
-        }
+		public void Message(string message)
+		{
+			LocalConnection.SendMessage(message);
+		}
 
-        protected override void Think(DateTime eventTime)
-        {
-            if ((eventTime - LastAttackTime).Seconds > kAttackTime)
-            {
+		protected override void Think(DateTime eventTime)
+		{
+			if ((eventTime - LastAttackTime).Seconds > kAttackTime)
+			{
 				if (Target != null)
 				{
-                    if (Target.CurrentRoomId != CurrentRoomId)
-                    {
-                        // our target died, left the room, or we did, etc
-                        Target = null;
-                    }
-                    else
-                    {
-                        Attack(Target);
-                    }
+					if (Target.CurrentRoomId != CurrentRoomId)
+					{
+						// our target died, left the room, or we did, etc
+						Target = null;
+					}
+					else
+					{
+						Attack(Target);
+					}
 				}
 
 				LastAttackTime = eventTime;
-            }
-        }
+			}
+		}
 
 		protected override void DealtDamage(Fighter defender, bool didHit, int damage)
 		{
 			if (didHit)
-            {
-                PrintPrompt();
+			{
+				PrintPrompt();
 				LocalConnection.SendMessage("You hit the " + defender.Name + " for " + damage + " damage!\r\n");
 			}
-            else
-            {
+			else
+			{
 				PrintPrompt();
 				LocalConnection.SendMessage("Your attack misses the " + defender.Name + "!\r\n");
 			}
@@ -80,17 +80,17 @@ namespace Aurora
 		}
 
 		protected override void TakeDamage(Fighter attacker, bool didHit, int damage)
-        {
+		{
 			if (didHit)
-            {
-                // NOTE: Take damage here (and not in base.TakeDamage) so the new HP are reflected
-                // in the prompt.
-                CurrentHP -= damage;
+			{
+				// NOTE: Take damage here (and not in base.TakeDamage) so the new HP are reflected
+				// in the prompt.
+				CurrentHP -= damage;
 				PrintPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + " hits you for " + damage + " damage!\r\n");
-            }
-            else
-            {
+			}
+			else
+			{
 				PrintPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
@@ -107,132 +107,132 @@ namespace Aurora
 			base.Die(attacker);
 
 			LocalConnection.SendMessage("You are defeated by the " + attacker.Name + "!\r\n");
-            Target = null;
+			Target = null;
 
 			// Respawn in the starting room.
 			CurrentRoomId = Game.Instance.StartingRoomId;
 			CurrentHP = MaxHP;
-            LocalConnection.SendMessage("...NOT YET, FRIEND...\r\nYou wake up dazed. What happened? Where are you?\r\n");
-            PrintRoom();
+			LocalConnection.SendMessage("...NOT YET, FRIEND...\r\nYou wake up dazed. What happened? Where are you?\r\n");
+			PrintRoom();
 		}
 
 		protected override void NotifyDeath(Fighter attacker, Fighter defender)
 		{
-            base.NotifyDeath(attacker, defender);
+			base.NotifyDeath(attacker, defender);
 
-            if (attacker == this)
-            {
+			if (attacker == this)
+			{
 				// We killed the defender.
 				LocalConnection.SendMessage("You defeat the " + defender.Name + "!\r\n");
 				Target = null;
 			}
 			else if (defender == Target)
-            {
-                // Our target was killed by someone else.
+			{
+				// Our target was killed by someone else.
 				Target = null;
-            }
-            else if (CurrentRoomId != defender.CurrentRoomId)
-            {
-                // We participated in the kill, but it's not our target.
-                LocalConnection.SendMessage("You helped defeat the " + defender.Name + "!\r\n");
-            }
+			}
+			else if (CurrentRoomId != defender.CurrentRoomId)
+			{
+				// We participated in the kill, but it's not our target.
+				LocalConnection.SendMessage("You helped defeat the " + defender.Name + "!\r\n");
+			}
 		}
 
 		// Reward a player with a certain amount of experience and gold, potentially leveling up.
 		public void Reward(int xp, int gold)
-        {
-            if (xp > 0)
-            {
+		{
+			if (xp > 0)
+			{
 				XP += xp;
-                LocalConnection.SendMessage("You gain " + xp + " experience!\r\n");
+				LocalConnection.SendMessage("You gain " + xp + " experience!\r\n");
 
-                int newLevel = Game.Instance.GetLevelForXP(XP);
-                // NOTE: Players cannot currently go down a level.
+				int newLevel = Game.Instance.GetLevelForXP(XP);
+				// NOTE: Players cannot currently go down a level.
 				if (newLevel > Level)
-                {
-                    int numLevelsGained = newLevel - Level;
-                    Level = newLevel;
-                    MaxHP += Game.Instance.MaxHPPerLevel * numLevelsGained;
-                    Strength += Game.Instance.StrengthPerLevel * numLevelsGained;
-                    Defense += Game.Instance.DefensePerLevel * numLevelsGained;
-                    Agility += Game.Instance.AgilityPerLevel * numLevelsGained;
-                    LocalConnection.SendMessage("You are now level " + Level + "!\r\n");
-                }
+				{
+					int numLevelsGained = newLevel - Level;
+					Level = newLevel;
+					MaxHP += Game.Instance.MaxHPPerLevel * numLevelsGained;
+					Strength += Game.Instance.StrengthPerLevel * numLevelsGained;
+					Defense += Game.Instance.DefensePerLevel * numLevelsGained;
+					Agility += Game.Instance.AgilityPerLevel * numLevelsGained;
+					LocalConnection.SendMessage("You are now level " + Level + "!\r\n");
+				}
 			}
-            if (gold > 0)
-            {
-                Gold += gold;
-                LocalConnection.SendMessage("You find " + gold + " " + Game.Instance.Currency + "!\r\n");
-            }
+			if (gold > 0)
+			{
+				Gold += gold;
+				LocalConnection.SendMessage("You find " + gold + " " + Game.Instance.Currency + "!\r\n");
+			}
 
-            PrintRoom();
+			PrintRoom();
 		}
 
 		// Is a word one of the ten most commonly used prepositions?
 		private static bool IsPreposition(string word)
-        {
-            List<string> prepositions = new()
-                { "of", "with", "at", "from", "into", "to", "in", "for", "on", "by" };
-            return prepositions.Contains(word);
-        }
+		{
+			List<string> prepositions = new()
+				{ "of", "with", "at", "from", "into", "to", "in", "for", "on", "by" };
+			return prepositions.Contains(word);
+		}
 
-        // Combines the input into an object, removing any article at the front. For example,
-        // ["the", "fat", "baker"] becomes "fat baker".
-        private static string GetObjectFromInput(string[] input, int index)
-        {
-            string inputObject = "";
-            for (int i = index; i < input.Length; ++i)
-            {
-                // ignore these articles
-                if (input[i] != "a" && input[i] != "an" && input[i] != "the")
-                {
-                    inputObject += input[i];
-                    if (i != input.Length - 1)
-                    {
-                        inputObject += ' ';
-                    }
-                }
-            }
-            return inputObject;
-        }
+		// Combines the input into an object, removing any article at the front. For example,
+		// ["the", "fat", "baker"] becomes "fat baker".
+		private static string GetObjectFromInput(string[] input, int index)
+		{
+			string inputObject = "";
+			for (int i = index; i < input.Length; ++i)
+			{
+				// ignore these articles
+				if (input[i] != "a" && input[i] != "an" && input[i] != "the")
+				{
+					inputObject += input[i];
+					if (i != input.Length - 1)
+					{
+						inputObject += ' ';
+					}
+				}
+			}
+			return inputObject;
+		}
 
-        // Split an input into three possible parts: the verb, a preposition, and an object. For
-        // example: ("look", "at", "fat baker") or ("drop", null, "manual").
-        private static (string, string, string) SplitInput(string input)
-        {
-            string inputVerb = null;
-            string inputPreposition = null;
-            string inputObject = null;
+		// Split an input into three possible parts: the verb, a preposition, and an object. For
+		// example: ("look", "at", "fat baker") or ("drop", null, "manual").
+		private static (string, string, string) SplitInput(string input)
+		{
+			string inputVerb = null;
+			string inputPreposition = null;
+			string inputObject = null;
 
-            string[] words = input.ToLower().Split(' ');
+			string[] words = input.ToLower().Split(' ');
 
-            if (words.Length > 0)
-            {
+			if (words.Length > 0)
+			{
 				// The first word is always treated as the verb.
 				inputVerb = LookupShorthand(words[0]);
-            }
-            if (words.Length > 1)
-            {
-                // The next word may be a preposition.
-                if (IsPreposition(words[1]))
-                {
-                    inputPreposition = words[1];
+			}
+			if (words.Length > 1)
+			{
+				// The next word may be a preposition.
+				if (IsPreposition(words[1]))
+				{
+					inputPreposition = words[1];
 
-                    if (words.Length > 2)
-                    {
-                        // The rest of the words are the object.
-                        inputObject = GetObjectFromInput(words, 2);
-                    }
+					if (words.Length > 2)
+					{
+						// The rest of the words are the object.
+						inputObject = GetObjectFromInput(words, 2);
+					}
 				}
-                else if (words.Length > 1)
+				else if (words.Length > 1)
 				{
 					// The rest of the words are the object.
 					inputObject = GetObjectFromInput(words, 1);
 				}
 			}
 
-            return (inputVerb, inputPreposition, inputObject);
-        }
+			return (inputVerb, inputPreposition, inputObject);
+		}
 
 		private static string GetArgument(string input)
 		{
@@ -251,132 +251,132 @@ namespace Aurora
 		}
 
 		private static string LookupShorthand(string input)
-        {
-            string toReturn = input;
+		{
+			string toReturn = input;
 
-            Dictionary<string, string> shorthand = new()
-            {
-                { "l", "look" },
-                { "n", "north" },
-                { "ne", "northeast" },
-                { "e", "east" },
-                { "se", "southeast" },
-                { "s", "south" },
-                { "sw", "southwest" },
-                { "w", "west" },
-                { "nw", "northwest" },
-                { "u", "up" },
-                { "d", "down" },
-                { "i", "inventory" }
-            };
-            if (shorthand.ContainsKey(input))
-            {
-                toReturn = shorthand[input];
-            }
+			Dictionary<string, string> shorthand = new()
+			{
+				{ "l", "look" },
+				{ "n", "north" },
+				{ "ne", "northeast" },
+				{ "e", "east" },
+				{ "se", "southeast" },
+				{ "s", "south" },
+				{ "sw", "southwest" },
+				{ "w", "west" },
+				{ "nw", "northwest" },
+				{ "u", "up" },
+				{ "d", "down" },
+				{ "i", "inventory" }
+			};
+			if (shorthand.ContainsKey(input))
+			{
+				toReturn = shorthand[input];
+			}
 
-            return toReturn;
-        }
+			return toReturn;
+		}
 
-        public void HandleInput(string input)
-        {
-            // the ! command will repeat any previous input
-            if (input == "!")
-            {
-                if (LastInput == "")
-                {
-                    LocalConnection.SendMessage("You haven't done anything yet.\r\n");
-                    return;
-                }
-                input = LastInput;
-            }
+		public void HandleInput(string input)
+		{
+			// the ! command will repeat any previous input
+			if (input == "!")
+			{
+				if (LastInput == "")
+				{
+					LocalConnection.SendMessage("You haven't done anything yet.\r\n");
+					return;
+				}
+				input = LastInput;
+			}
 
-            // parse out the verb, any preposition, and any object
-            (string, string, string) splitInput = SplitInput(input);
-            string inputVerb = splitInput.Item1;
-            string inputPreposition = splitInput.Item2;
-            string inputObject = splitInput.Item3;
+			// parse out the verb, any preposition, and any object
+			(string, string, string) splitInput = SplitInput(input);
+			string inputVerb = splitInput.Item1;
+			string inputPreposition = splitInput.Item2;
+			string inputObject = splitInput.Item3;
 
-            // also keep the entire non-verb portion of the input for "say", "emote", etc
-            string inputArgument = GetArgument(input);
+			// also keep the entire non-verb portion of the input for "say", "emote", etc
+			string inputArgument = GetArgument(input);
 
-            // Do we need to print the room after this input?
-            bool needToPrintRoom = true;
+			// Do we need to print the room after this input?
+			bool needToPrintRoom = true;
 
-            switch (inputVerb)
-            {
-                case "exit":
-                case "quit":
-                    LocalConnection.SendMessage("Good-bye!\r\n");
-                    LocalConnection.Disconnect(true);
-                    // Return early. Our connection has gone away.
-                    return;
-                case "help":
-                case "?":
-                    PrintHelp();
-                    break;
-                case "look":
-                    if (inputObject != null)
-                    {
-                        LookAt(inputObject);
-                    }
-                    else
-                    {
-                        DescriptionNeeded = true;
-                    }
-                    break;
-                case "exits":
-                    PrintExits();
-                    break;
-                case "who":
-                    PrintWho();
-                    break;
-                case "say":
-                    Say(inputArgument);
-                    break;
-                case "emote":
-                    Emote(inputArgument);
-                    break;
-                case "stats":
-                    PrintStats();
-                    break;
-                case "inventory":
-                case "inv":
-                    PrintInventory();
-                    break;
-                case "take":
-                    Take(inputObject);
-                    break;
-                case "drop":
-                    Drop(inputObject);
-                    break;
-                case "attack":
-                    needToPrintRoom = Attack(inputObject);
-                    break;
-                case "yield":
-                    needToPrintRoom = Yield();
-                    break;
-                case "consider":
-                    Consider(inputObject);
-                    break;
-                case "debugobject":
-                    DebugObject(inputObject);
-                    break;
-                case "shutdown":
-                    Shutdown();
-                    break;
-                default:
-                    TryExit(inputVerb);
-                    break;
-            }
+			switch (inputVerb)
+			{
+				case "exit":
+				case "quit":
+					LocalConnection.SendMessage("Good-bye!\r\n");
+					LocalConnection.Disconnect(true);
+					// Return early. Our connection has gone away.
+					return;
+				case "help":
+				case "?":
+					PrintHelp();
+					break;
+				case "look":
+					if (inputObject != null)
+					{
+						LookAt(inputObject);
+					}
+					else
+					{
+						DescriptionNeeded = true;
+					}
+					break;
+				case "exits":
+					PrintExits();
+					break;
+				case "who":
+					PrintWho();
+					break;
+				case "say":
+					Say(inputArgument);
+					break;
+				case "emote":
+					Emote(inputArgument);
+					break;
+				case "stats":
+					PrintStats();
+					break;
+				case "inventory":
+				case "inv":
+					PrintInventory();
+					break;
+				case "take":
+					Take(inputObject);
+					break;
+				case "drop":
+					Drop(inputObject);
+					break;
+				case "attack":
+					needToPrintRoom = Attack(inputObject);
+					break;
+				case "yield":
+					needToPrintRoom = Yield();
+					break;
+				case "consider":
+					Consider(inputObject);
+					break;
+				case "debugobject":
+					DebugObject(inputObject);
+					break;
+				case "shutdown":
+					Shutdown();
+					break;
+				default:
+					TryExit(inputVerb);
+					break;
+			}
 
-            LastInput = input;
+			LastInput = input;
 
-            // After each input, we may need to tell the player about the state of the room again.
-            if (needToPrintRoom)
-            {
-                PrintRoom();
-            }
-        }
+			// After each input, we may need to tell the player about the state of the room again.
+			if (needToPrintRoom)
+			{
+				PrintRoom();
+			}
+		}
 
 		public void PrintRoom()
 		{
@@ -393,27 +393,27 @@ namespace Aurora
 				LocalConnection.SendMessage(roomContents);
 			}
 
-            PrintPrompt();
+			PrintPrompt();
 		}
 
-        private void PrintPrompt()
-        {
-            LocalConnection.SendMessage(ColorCodes.Color.Green, Level + " ");
-            // display the current HP in different colors based on how hurt we are
-            if ((float)CurrentHP / MaxHP < 0.25)
-            {
-                LocalConnection.SendMessage(ColorCodes.Color.Red, CurrentHP + "/" + MaxHP);
-            }
-            else if ((float)CurrentHP / MaxHP < 0.75)
-            {
-                LocalConnection.SendMessage(ColorCodes.Color.Yellow, CurrentHP + "/" + MaxHP);
-            }
-            else
-            {
-                LocalConnection.SendMessage(CurrentHP + "/" + MaxHP);
-            }
+		private void PrintPrompt()
+		{
+			LocalConnection.SendMessage(ColorCodes.Color.Green, Level + " ");
+			// display the current HP in different colors based on how hurt we are
+			if ((float)CurrentHP / MaxHP < 0.25)
+			{
+				LocalConnection.SendMessage(ColorCodes.Color.Red, CurrentHP + "/" + MaxHP);
+			}
+			else if ((float)CurrentHP / MaxHP < 0.75)
+			{
+				LocalConnection.SendMessage(ColorCodes.Color.Yellow, CurrentHP + "/" + MaxHP);
+			}
+			else
+			{
+				LocalConnection.SendMessage(CurrentHP + "/" + MaxHP);
+			}
 			LocalConnection.SendMessage("> ");
-        }
+		}
 
 		private void PrintHelp()
 		{
@@ -429,9 +429,9 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
 			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
-            LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
-            LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
-            LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");
+			LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
+			LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
+			LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 			if (IsAdmin)
 			{
