@@ -1,24 +1,9 @@
 [
   {
     "$type": "NPC",
-    "Name": "the fat baker",
-    "CurrentRoomId": 10,
-    "Description": "The baker is not, in fact, fat, but is actually a very comely lass.",
-    "Logic": [
-      {
-        "Chance": 75,
-        "Action": "Nothing"
-      },
-      {
-        "Chance": 24,
-        "Action": "Say Hello"
-      },
-      {
-        "Chance": 1,
-        "Action": "Stretch"
-      }
-    ],
-    "ThinkTime": 5000
+    "Name": "a dragon statue",
+    "CurrentRoomId": 4,
+    "Description": "A beautiful white carving of a dragon rising in flight, barely affected by time."
   },
   {
     "$type": "NPC",
@@ -60,6 +45,24 @@
     }
   },
   {
+    "$type": "NPC",
+    "Name": "the fat baker",
+    "CurrentRoomId": 10,
+    "Description": "No, the baker is not fat, but actually a pretty young lady.",
+    "Logic": [
+      {
+        "Chance": 90,
+        "Action": "Nothing"
+      },
+      {
+        "Chance": 10,
+        "Action": "Stretch"
+      }
+    ],
+    "ThinkTime": 5000,
+    "Talk": "Welcome to The Fat Baker and, yes, it's named after my father."
+  },
+  {
     "$type": "EnemySpawner",
     "Name": "rabid rat spawner",
     "CurrentRoomId": 16,
@@ -92,6 +95,13 @@
       "XPReward": 12,
       "GoldReward": 24
     }
+  },
+  {
+    "$type": "NPC",
+    "Name": "a road sign",
+    "CurrentRoomId": 18,
+    "Description": "a recent, wooden sign has been posted here",
+    "Read": "Road closed ahead due to landslide. Southern woods also off limits."
   },
   {
     "$type": "EnemySpawner",
@@ -245,5 +255,12 @@
       "XPReward": 31,
       "GoldReward": 62
     }
+  },
+  {
+    "$type": "NPC",
+    "Name": "Cid",
+    "CurrentRoomId": 33,
+    "Description": "a cheerful, burly man with a bushy beard and warm smile",
+    "Talk": "Welcome to The Fearful Fox! Sit down and have yourself a rest!"
   }
 ]

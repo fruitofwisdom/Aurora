@@ -12,7 +12,7 @@
   {
     "RoomId": 2,
     "Name": "Your House",
-    "Description": "Your humble home is just that, the place where you rest your head and keep your belongings between adventures. Well, supposed adventures. You haven't done much of that lately... time to be off then. To the south lies your journey.",
+    "Description": "Your humble home is just that, the place where you rest your head and keep your belongings between adventures. Well, supposed adventures. You haven't done much of that lately... Time to be off then! You are running low on coin and your stomach grumbling. South lies your journey.",
     "Exits": [
       {
         "Direction": "south",
@@ -27,7 +27,7 @@
   {
     "RoomId": 3,
     "Name": "Old Town",
-    "Description": "Low, squat buildings made of wood and stucco line this square. Their peaked roofs help keep snow off in the winter. The city square is to the east and your modest home is to the north.",
+    "Description": "Low, squat buildings made of wood and stucco line this square. Their peaked roofs help keep snow off in the winter. The city square is to the east and your modest home is to the north. You have called this neighborhood home all your life. It's quiet here, peaceful and restful.",
     "Exits": [
       {
         "Direction": "north",
@@ -46,7 +46,7 @@
   {
     "RoomId": 4,
     "Name": "City Square",
-    "Description": "You stand in the heart of the city, where its main thoroughfare intersects with its quaint shopping district. To the north you can see the harbor, a large cathedral rises on the hill to the south, and the shopping street crosses east to west.",
+    "Description": "You stand in the heart of the city, where its main thoroughfare intersects with its quaint shopping district. To the north you can see the harbor, a large cathedral rises on the hill to the south, and the shopping street crosses east to west. In the center, a statue rises.",
     "Exits": [
       {
         "Direction": "north",
@@ -69,7 +69,7 @@
   {
     "RoomId": 5,
     "Name": "Waterfront",
-    "Description": "Your gaze lingers over the mountains rising beyond the fog across the water of the bay. To your west is the harbor and to your east lies the residential district.",
+    "Description": "Though many people are walking by, carrying fish and crates, your gaze lingers over the mountains rising beyond the fog across the water of the bay. This busy road connects the docks with the shops further south. To your west is the harbor and to your east are more homes.",
     "Exits": [
       {
         "Direction": "east",
@@ -88,7 +88,7 @@
   {
     "RoomId": 6,
     "Name": "Shopping District",
-    "Description": "A colorful street full of shops continues to the east and west. The smell of fresh-baked goods wafts from a door to the north and the clanging of metal from another to the south. East continues to the city outskirts.",
+    "Description": "A colorful street full of shops continues to the east and west. The smell of fresh-baked goods wafts from a door to the north and the clanging of metal from another to the south. Shoppers and merchants and traders bustle by on their errands. City noises envelop you all around.",
     "Exits": [
       {
         "Direction": "north",
@@ -111,7 +111,7 @@
   {
     "RoomId": 7,
     "Name": "Outside the Cathedral",
-    "Description": "Standing below the majestic spires of the cathedral, you can't help but feel intimidated by its presence over the city. The doors to the cathedral are open and the road continues north to the city square.",
+    "Description": "Standing below the majestic spires of the cathedral, you can't help but feel intimidated by its presence over the city. The doors to the cathedral are open and gentle organ music pours out. Candlelight and warmth beckon you in. The road continues north to the city square.",
     "Exits": [
       {
         "Direction": "north",
@@ -130,7 +130,7 @@
   {
     "RoomId": 8,
     "Name": "Residential District",
-    "Description": "More homes line the street overlooking the harbor to the north. These houses are narrow, two- or three-stories, and their windows are barred against the cold wind. The waterfront lies to the west and the outskirts to the east.",
+    "Description": "More homes line the street overlooking the bay to the north. These houses are narrow and tall, their windows barred against the cold wind. Traders, fishermen, and others hard-working people live here. The waterfront is to the west and the outskirts of town to the east.",
     "Exits": [
       {
         "Direction": "east",
@@ -145,7 +145,7 @@
   {
     "RoomId": 9,
     "Name": "Harbor",
-    "Description": "The busy waterfront sprawls north of you out into the bay. Fishermen are busy bringing in their catch for the day, the smell of sea strong here. The waterfront is back to the east.",
+    "Description": "The busy harbor sprawls north of you out into the bay. Fishermen are bringing in their catch and traders navigate their boats to and from the docks. The smell of the sea is strong here, the wind stirs up a salty mist, and birds circle. The waterfront continues to the east.",
     "Exits": [
       {
         "Direction": "east",
@@ -156,7 +156,7 @@
   {
     "RoomId": 10,
     "Name": "The Fat Baker",
-    "Description": "Contrary to the shop's name, the baker is in fact a pretty, young lady, tending to some bread fresh out of the oven. The shelves are lined with the most delicious goods imaginable. The door to the south leads out, but you are hesitant to go.",
+    "Description": "Contrary to the shop's name, the baker is a young lady, tending to some bread fresh out of the oven. The shelves are lined with the most delicious smelling goods imaginable, many wrapped to be taken away with you. The door to the south leads out, but you hesitate to go.",
     "Exits": [
       {
         "Direction": "south",
@@ -171,7 +171,7 @@
   {
     "RoomId": 11,
     "Name": "Southern Outskirts",
-    "Description": "The city comes to an end here, with the cobblestone road continuing to the east into the hills in the distance. You can reach the bay to the north and the shopping district to the west.",
+    "Description": "The city comes to an end here, with the cobblestone road continuing to the east into the hills in the distance. You can reach the bay to the north and the shopping district to the west. A bustling inn sits to the south, welcoming travelers and locals to sit and share.",
     "Exits": [
       {
         "Direction": "north",
@@ -182,15 +182,23 @@
         "RoomId": 15
       },
       {
+        "Direction": "south",
+        "RoomId": 33
+      },
+      {
         "Direction": "west",
         "RoomId": 6
+      },
+      {
+        "Direction": "in",
+        "RoomId": 33
       }
     ]
   },
   {
     "RoomId": 12,
     "Name": "Edgar's Tools",
-    "Description": "Edgar stands proudly behind the counter of his shop, swords, axes, spears, shields, armor, and other metal goods displayed around the store. What else could you need to defend yourselves in the wilds? The door leading out is to the north.",
+    "Description": "Edgar the smith stands proudly behind the counter of his shop. Swords, shields, various pieces of armor, and other leather and metal goods are displayed around the store. What else could you need to defend yourself in the wilds? The door leading out is to the north.",
     "Exits": [
       {
         "Direction": "north",
@@ -205,7 +213,7 @@
   {
     "RoomId": 13,
     "Name": "Inside the Cathedral",
-    "Description": "The cold stone outside is contrasted with the warmth of the candles glowing within the dim light of the cathedral. The midday sun comes in through its stainglass windows as the organ is played in the corner. The basement door is propped open.",
+    "Description": "The cold stone outside is contrasted with the warmth of the candles glowing within the dim light of the cathedral. The midday sun comes in through its stainglass windows as the organ is played in the corner. A few parishioners sit quietly. The basement door is propped open.",
     "Exits": [
       {
         "Direction": "north",
@@ -224,7 +232,7 @@
   {
     "RoomId": 14,
     "Name": "Northern Outskirts",
-    "Description": "The bay seems to get colder as you leave town and the way rockier to the east. You would be better off joining the cobblestone road to the south or going back to town to the west.",
+    "Description": "The bay seems to get colder as you leave town and the way rockier to the east. You would be better off joining the cobblestone road to the south or going back to town to the west. The houses in this part of the city are old and poor, belonging to retired fishermen or otherwise abandoned.",
     "Exits": [
       {
         "Direction": "south",
@@ -239,7 +247,7 @@
   {
     "RoomId": 15,
     "Name": "Road Out of Town",
-    "Description": "Cobbled streets continue dutifully out of the city and into the rolling hills. Low brush surrounds the road here and a helpful marker points east towards the start of the foothills past a river in the distance.",
+    "Description": "Cobbled streets continue dutifully out of the city and into the rolling hills. Low brush surrounds the road here and a helpful marker points east towards the start of the foothills past a river in the distance. Only small farmhouses and barns can be found out this far.",
     "Exits": [
       {
         "Direction": "east",
@@ -254,7 +262,7 @@
   {
     "RoomId": 16,
     "Name": "Cathedral Basement",
-    "Description": "The cathedral basement is warm, despite being made entirely of massive stone blocks. Light flickers from torches placed evenly around the walls, illuminating ancient frescoes and urns.",
+    "Description": "The cathedral basement is warm, despite being made entirely of massive stone blocks. Light flickers from torches placed evenly around the walls, illuminating ancient frescoes and urns. Cobwebs gather in the corners and on the edges of forgotten paintings and old, wooden furniture.",
     "Exits": [
       {
         "Direction": "up",
@@ -265,7 +273,7 @@
   {
     "RoomId": 17,
     "Name": "Cobbled Path",
-    "Description": "TODO",
+    "Description": "This cobbled path ambles through the hills. Weathered remains of an old, low wall litter the sides of the road as stones have fallen. You can see the bay in the northern distance and to the south trees begin to appear. The path continues roughly to the east and west.",
     "Exits": [
       {
         "Direction": "east",
@@ -280,7 +288,7 @@
   {
     "RoomId": 18,
     "Name": "Stone Bridge",
-    "Description": "TODO",
+    "Description": "This stone bridge has stood over the river here for centuries. The water beneath casually babbles towards the bay to the north. The road is currently closed further east due to a recent landslide, but you can follow the river south to the forest and beyond that to mountains.",
     "Exits": [
       {
         "Direction": "north",
@@ -299,7 +307,7 @@
   {
     "RoomId": 19,
     "Name": "River Crossing",
-    "Description": "TODO",
+    "Description": "The river widens and slows down here as it approaches the bay. Bushes are traded for rocks as the shore comes into view. You begin to hear the sounds of seagulls overhead and smell the salted air of this inlet. Not much further north and you will come to the water itself.",
     "Exits": [
       {
         "Direction": "north",
@@ -314,7 +322,7 @@
   {
     "RoomId": 20,
     "Name": "Rambling Creek",
-    "Description": "TODO",
+    "Description": "The narrow river becomes more of a creek here as it winds into the forest. Hills begin to steepen and beyond the tops of the trees you can see the slopes of the mountains start to rise. As the trees thicken, the best path into the woods follows the creek to the south.",
     "Exits": [
       {
         "Direction": "north",
@@ -329,7 +337,7 @@
   {
     "RoomId": 21,
     "Name": "Rocky Coast",
-    "Description": "TODO",
+    "Description": "The edge of the bay here is covered in rocks, making it entirely unsuitable for picnics. The water laps at the edges of the shore, betraying how deep the bay gets and quickly. It is easy to slip and fall in. You can follow the river back south towards the old, stone bridge.",
     "Exits": [
       {
         "Direction": "south",
@@ -340,7 +348,7 @@
   {
     "RoomId": 22,
     "Name": "Forest Entrance",
-    "Description": "TODO",
+    "Description": "This old forest has stood for as long as anyone can remember, tall birch trees rising high above. Here at the edges, sunlight can still easily make it between the trees. Grassy hills resume to the north and to the west, but the woods can be explored in other directions too.",
     "Exits": [
       {
         "Direction": "north",
@@ -363,7 +371,7 @@
   {
     "RoomId": 23,
     "Name": "Shaded Hollow",
-    "Description": "TODO",
+    "Description": "Here the trees become more dense as they start to follow the rise of the mountain range. Rocky outcroppings break up the trees, making shady and cozy places for animals to rest or watch from. Long shadows begin to fall across your path as it curves from the west to south.",
     "Exits": [
       {
         "Direction": "south",
@@ -378,7 +386,7 @@
   {
     "RoomId": 24,
     "Name": "Wooded Grove",
-    "Description": "TODO",
+    "Description": "This part of the forest is remarkably warm and bright, a haven in the middle of the darkening woods. It's peaceful here, with birds overhead and butterflies among the low foliage. You can see tracks where animals have passed recently, including south towards a darker area.",
     "Exits": [
       {
         "Direction": "north",
@@ -393,7 +401,7 @@
   {
     "RoomId": 25,
     "Name": "Grassy Hill",
-    "Description": "TODO",
+    "Description": "From atop these hills you can faintly see the city far off to the west, though separated by rocks and bushes and thorns. Animals graze here, a pleasant break before the darker woods and mountains to the southeast. Tall birch trees stand to your east, marking the forest's edge.",
     "Exits": [
       {
         "Direction": "east",
@@ -404,7 +412,7 @@
   {
     "RoomId": 26,
     "Name": "Cave Entrance",
-    "Description": "TODO",
+    "Description": "As the woods join the mountains, underneath one particularly large overhang you can barely make out a cave entrance. Darkness seems to emanate from its mouth and you're glad the midday sun gives you enough light to see the rocky, uneven ground as it slopes south and downwards.",
     "Exits": [
       {
         "Direction": "north",
@@ -413,13 +421,17 @@
       {
         "Direction": "south",
         "RoomId": 28
+      },
+      {
+        "Direction": "down",
+        "RoomId": 28
       }
     ]
   },
   {
     "RoomId": 27,
     "Name": "Dark Brambles",
-    "Description": "TODO",
+    "Description": "The woods around you suddenly become much quieter, the light streaming through the canopy overhead dimmer. It is clear fewer animals venture this far into the woods. The scraggy underbrush is covered in thorns and the temperature drops, making you much less welcome here.",
     "Exits": [
       {
         "Direction": "north",
@@ -430,7 +442,7 @@
   {
     "RoomId": 28,
     "Name": "Cave Interior",
-    "Description": "TODO",
+    "Description": "Your eyes adjust between the brighter sun outside and the faint light of the cavern itself. The ground starts to slope downward, but the cave is still quite wide at the start. The sounds of the forest to the north grow quieter and your ears strain to hear anything else.",
     "Exits": [
       {
         "Direction": "north",
@@ -439,13 +451,17 @@
       {
         "Direction": "south",
         "RoomId": 29
+      },
+      {
+        "Direction": "up",
+        "RoomId": 26
       }
     ]
   },
   {
     "RoomId": 29,
     "Name": "Cavernous Opening",
-    "Description": "TODO",
+    "Description": "The cave opens back up again into a huge space with a domed roof where a few shafts of sunlight manage to streak down. To the north the ground slopes back upwards to the entrance and to the south the cave narrows dramatically. But to the east, only dampness seems to escape.",
     "Exits": [
       {
         "Direction": "north",
@@ -464,7 +480,7 @@
   {
     "RoomId": 30,
     "Name": "Dank Dead End",
-    "Description": "TODO",
+    "Description": "Joining the dampness of the cavern, a rotting smell penetrates your nose. What appears to be an ancient burial chamber is now entirely covered in dust, ash, cobwebs, and... something else. Bandages, bones, and flesh seem to be discarded everywhere, some newer than others.",
     "Exits": [
       {
         "Direction": "west",
@@ -475,7 +491,7 @@
   {
     "RoomId": 31,
     "Name": "Narrow Tunnel",
-    "Description": "TODO",
+    "Description": "You have to hunch down as the tunnel narrows, curves, and shrinks in places. You're confident it won't end yet, as a warm breeze seems to be blowing through here. The walls are beginning to gather moisture and you get the sense that this tunnel curves from north to west.",
     "Exits": [
       {
         "Direction": "north",
@@ -490,11 +506,26 @@
   {
     "RoomId": 32,
     "Name": "The Den",
-    "Description": "TODO",
+    "Description": "A breezy, warmer den stands at the end of the narrow tunnels. Torches, tables, and treasure are strewn around the walls, as are bones, dented armor, and rusted swords. The floor is littered with rotten food and other items you can't quite make out - or don't want to.",
     "Exits": [
       {
         "Direction": "east",
         "RoomId": 31
+      }
+    ]
+  },
+  {
+    "RoomId": 33,
+    "Name": "The Fearful Fox",
+    "Description": "Sounds of laughter and stories ring out amidst the clinks of tankards on wooden countertops. The Fearful Fox has stood at the edge of town for generations, welcoming anyone who needs a bit of warmth, food, and alcohol. Even in the middle of the day, patrons are crowded in.",
+    "Exits": [
+      {
+        "Direction": "north",
+        "RoomId": 11
+      },
+      {
+        "Direction": "out",
+        "RoomId": 11
       }
     ]
   }
