@@ -42,6 +42,10 @@ namespace Aurora
         private const double kSaveTime = 10000;     // 10 seconds
         private readonly Timer SaveTimer = null;
 
+        // Various lock objects.
+        private readonly object SaveLock = new();
+        private readonly object SpawnLock = new();
+
         private static Game _instance = null;
         public static Game Instance
         {
@@ -110,17 +114,19 @@ namespace Aurora
 
 		public void Save()
         {
+            lock (SaveLock)
+            {
 #if DEBUG
-            var options = new JsonSerializerOptions { WriteIndented = true};
+				var options = new JsonSerializerOptions { WriteIndented = true };
 #endif
+				string jsonString = JsonSerializer.Serialize<List<Player>>(Players, options);
+                File.WriteAllText(PlayersFilename, jsonString);
 
-            string jsonString = JsonSerializer.Serialize<List<Player>>(Players, options);
-            File.WriteAllText(PlayersFilename, jsonString);
+                // TODO: Save rooms too?
 
-            // TODO: Save rooms too?
-
-            jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects, options);
-            File.WriteAllText(WorldObjectsFilename, jsonString);
+                jsonString = JsonSerializer.Serialize<List<GameObject>>(WorldObjects, options);
+                File.WriteAllText(WorldObjectsFilename, jsonString);
+            }
 		}
 
         private static void OnTimedSaveEvent(object source, ElapsedEventArgs e)
@@ -202,22 +208,25 @@ namespace Aurora
         // already exists in the provided room.
         public void TrySpawn<T>(T gameObject, int roomId) where T : GameObject
         {
-            if (GetGameObject(gameObject.Name, roomId) == null)
+            lock (SpawnLock)
             {
-                T newGameObject = GameObject.Clone<T>(gameObject);
-                WorldObjects.Add(newGameObject);
-                newGameObject.CurrentRoomId = roomId;
-				newGameObject.Spawn();
-
-				// Report the object was spawned.
-				foreach (Player player in ActivePlayers)
+                if (GetGameObject(gameObject.Name, roomId) == null)
                 {
-                    if (player.CurrentRoomId == newGameObject.CurrentRoomId)
+                    T newGameObject = GameObject.Clone<T>(gameObject);
+                    WorldObjects.Add(newGameObject);
+                    newGameObject.CurrentRoomId = roomId;
+                    newGameObject.Spawn();
+
+                    // Report the object was spawned.
+                    foreach (Player player in ActivePlayers)
                     {
-						player.Message(newGameObject.CapitalizeName() + " has appeared.\r\n");
-					}
-				}
-			}
+                        if (player.CurrentRoomId == newGameObject.CurrentRoomId)
+                        {
+                            player.Message(newGameObject.CapitalizeName() + " has appeared.\r\n");
+                        }
+                    }
+                }
+            }
 		}
 
         // Returns a Player by name, optionally if the player is active or not.
@@ -407,7 +416,7 @@ namespace Aurora
         }
 
         // Return what level an amount of XP would qualify for.
-        public int GetLevelForXp(int xp)
+        public int GetLevelForXP(int xp)
         {
             int level = 0;
             foreach (int xpNeeded in XPNeededPerLevel)
@@ -418,6 +427,17 @@ namespace Aurora
                 }
             }
             return level;
+        }
+
+        // Return how much XP is needed for a particular level.
+        public int GetXPForLevel(int level)
+        {
+            int xp = 0;
+            if (level <= XPNeededPerLevel.Length)
+            {
+                xp = XPNeededPerLevel[level - 1];
+            }
+            return xp;
         }
 
         public void ReportAttack(Fighter attacker, Fighter defender, bool didHit)

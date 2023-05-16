@@ -146,7 +146,7 @@ namespace Aurora
 				XP += xp;
                 LocalConnection.SendMessage("You gain " + xp + " experience!\r\n");
 
-                int newLevel = Game.Instance.GetLevelForXp(XP);
+                int newLevel = Game.Instance.GetLevelForXP(XP);
                 // NOTE: Players cannot currently go down a level.
 				if (newLevel > Level)
                 {
@@ -355,6 +355,9 @@ namespace Aurora
                 case "yield":
                     needToPrintRoom = Yield();
                     break;
+                case "consider":
+                    Consider(inputObject);
+                    break;
                 case "debugobject":
                     DebugObject(inputObject);
                     break;
@@ -428,6 +431,7 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
             LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
             LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
+            LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 			if (IsAdmin)
 			{

@@ -99,9 +99,15 @@ namespace Aurora
 		private void PrintStats()
 		{
 			LocalConnection.SendMessage("You are level " + Level + " with " + XP + " experience points.\r\n");
+			if (Game.Instance.GetXPForLevel(Level + 1) > 0)
+			{
+				LocalConnection.SendMessage("You need " + (Game.Instance.GetXPForLevel(Level + 1) - XP) +
+					" experience points for the next level.\r\n");
+			}
 			LocalConnection.SendMessage("You have " + CurrentHP + " out of " + MaxHP + " hit points.\r\n");
 			LocalConnection.SendMessage("Your strength is " + Strength + ".\r\n");
 			LocalConnection.SendMessage("Your defense is " + Defense + ".\r\n");
+			LocalConnection.SendMessage("Your agility is " + Agility + ".\r\n");
 		}
 
 		private void PrintInventory()
@@ -201,6 +207,35 @@ namespace Aurora
 			}
 
 			return needToPrintRoom;
+		}
+
+		private void Consider(string inputObject)
+		{
+			Fighter target = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as Fighter;
+			if (target != null)
+			{
+				int statDifference =
+					target.MaxHP - MaxHP +
+					target.Strength - Strength +
+					target.Defense - Defense +
+					target.Agility - Agility;
+				if (statDifference < -10)
+				{
+					LocalConnection.SendMessage("This should be easy!\r\n");
+				}
+				else if (statDifference > 10)
+				{
+					LocalConnection.SendMessage("This could be challenging!\r\n");
+				}
+				else
+				{
+					LocalConnection.SendMessage("This looks like a fair fight!\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("I can't consider that!\r\n");
+			}
 		}
 
 		private void DebugObject(string inputObject)

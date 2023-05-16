@@ -18,6 +18,13 @@ namespace Aurora
 
 		public Fighter() { }
 
+		public override void Spawn()
+		{
+			base.Spawn();
+
+			CurrentHP = MaxHP;
+		}
+
 		// Attempt to attack (hit and damage) a defender.
 		protected void Attack(Fighter defender)
 		{

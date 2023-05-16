@@ -45,13 +45,12 @@
   {
     "$type": "EnemySpawner",
     "Name": "deranged seagull spawner",
-    "CurrentRoomId": 5,
+    "CurrentRoomId": 9,
     "SpawnTime": 20000,
     "EnemyToSpawn": {
       "Name": "deranged seagull",
-      "Description": "a deranged seagull",
+      "Description": "a deranged seagull, drunk on grog",
       "Level": 1,
-      "CurrentHP": 15,
       "MaxHP": 15,
       "Strength": 5,
       "Defense": 5,
@@ -62,20 +61,189 @@
   },
   {
     "$type": "EnemySpawner",
-    "Name": "troll spawner",
-    "CurrentRoomId": 15,
+    "Name": "rabid rat spawner",
+    "CurrentRoomId": 16,
     "SpawnTime": 20000,
     "EnemyToSpawn": {
-      "Name": "troll",
-      "Description": "a troll",
-      "Level": 7,
-      "CurrentHP": 45,
-      "MaxHP": 45,
-      "Strength": 17,
-      "Defense": 17,
-      "Agility": 17,
-      "XPReward": 70,
-      "GoldReward": 140
+      "Name": "rabid rat",
+      "Description": "a rabid rat or, at least, an angry one",
+      "Level": 1,
+      "MaxHP": 12,
+      "Strength": 4,
+      "Defense": 4,
+      "Agility": 4,
+      "XPReward": 8,
+      "GoldReward": 16
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "venomous snake spawner",
+    "CurrentRoomId": 18,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "venomous snake",
+      "Description": "a venomous, not poisonous, snake",
+      "Level": 1,
+      "MaxHP": 18,
+      "Strength": 6,
+      "Defense": 6,
+      "Agility": 6,
+      "XPReward": 12,
+      "GoldReward": 24
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "remorhaz spawner",
+    "CurrentRoomId": 21,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "remorhaz",
+      "Description": "a piranha-like fish, I think",
+      "Level": 2,
+      "MaxHP": 18,
+      "Strength": 7,
+      "Defense": 7,
+      "Agility": 7,
+      "XPReward": 17,
+      "GoldReward": 34
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "hungry lynx spawner",
+    "CurrentRoomId": 22,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "hungry lynx",
+      "Description": "a hungry lynx, with a fierce look in its eyes",
+      "Level": 2,
+      "MaxHP": 12,
+      "Strength": 5,
+      "Defense": 5,
+      "Agility": 5,
+      "XPReward": 11,
+      "GoldReward": 22
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "brown bear spawner",
+    "CurrentRoomId": 23,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "brown bear",
+      "Description": "a young brown bear",
+      "Level": 3,
+      "MaxHP": 20,
+      "Strength": 7,
+      "Defense": 7,
+      "Agility": 7,
+      "XPReward": 18,
+      "GoldReward": 36
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "wild boar spawner",
+    "CurrentRoomId": 25,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "wild boar",
+      "Description": "a mangy, brown boar",
+      "Level": 2,
+      "MaxHP": 15,
+      "Strength": 6,
+      "Defense": 6,
+      "Agility": 6,
+      "XPReward": 14,
+      "GoldReward": 28
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "grey wolf spawner",
+    "CurrentRoomId": 27,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "grey wolf",
+      "Description": "a wolf that is grey",
+      "Level": 3,
+      "MaxHP": 24,
+      "Strength": 8,
+      "Defense": 8,
+      "Agility": 8,
+      "XPReward": 22,
+      "GoldReward": 43
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "ferocious wolverine spawner",
+    "CurrentRoomId": 28,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "ferocious wolverine",
+      "Description": "a small, yet ferocious wolverine",
+      "Level": 4,
+      "MaxHP": 25,
+      "Strength": 8,
+      "Defense": 8,
+      "Agility": 8,
+      "XPReward": 22,
+      "GoldReward": 44
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "polar bear spawner",
+    "CurrentRoomId": 29,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "polar bear",
+      "Description": "a polar bear, no longer hibernating",
+      "Level": 4,
+      "MaxHP": 30,
+      "Strength": 10,
+      "Defense": 10,
+      "Agility": 10,
+      "XPReward": 26,
+      "GoldReward": 53
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "decaying draugr spawner",
+    "CurrentRoomId": 30,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "decaying draugr",
+      "Description": "a skeleton, shambling and ragged",
+      "Level": 5,
+      "MaxHP": 30,
+      "Strength": 9,
+      "Defense": 9,
+      "Agility": 9,
+      "XPReward": 26,
+      "GoldReward": 52
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "giant troll spawner",
+    "CurrentRoomId": 32,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "giant troll",
+      "Description": "a giant troll, even larger than a regular troll",
+      "Level": 5,
+      "MaxHP": 36,
+      "Strength": 11,
+      "Defense": 11,
+      "Agility": 11,
+      "XPReward": 31,
+      "GoldReward": 62
     }
   }
 ]
