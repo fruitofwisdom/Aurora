@@ -96,6 +96,58 @@ namespace Aurora
 			Game.Instance.ReportPlayerEmoted(this, inputObject);
 		}
 
+		private void Read(string inputObject)
+		{
+			// Try looking in your inventory first.
+			bool wasInInventory = true;
+			GameObject gameObject = GetBestMatch(inputObject, Inventory);
+			if (gameObject == null)
+			{
+				// Then try looking in the world.
+				wasInInventory = false;
+				gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+			}
+
+			if (gameObject != null)
+			{
+				// NPCs are types of GameObjects with properties that allow them to be read.
+				NPC npcObject = gameObject as NPC;
+				if (npcObject != null && npcObject.Read != null)
+				{
+					string message = "";
+					if (wasInInventory)
+					{
+						message += "(in your inventory) ";
+					}
+					message += npcObject.CapitalizeName() + " reads:" + "\r\n";
+					LocalConnection.SendMessage(message);
+					LocalConnection.SendMessage("\"" + npcObject.Read + "\"\r\n");
+				}
+				else
+				{
+					LocalConnection.SendMessage("You can't read that.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't see a " + inputObject + " here.\r\n");
+			}
+		}
+
+		private void Talk(string inputObject)
+		{
+			NPC npc = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as NPC;
+			if (npc != null && npc.Talk != null)
+			{
+				LocalConnection.SendMessage(npc.CapitalizeName() + " says:\r\n");
+				LocalConnection.SendMessage("\"" + npc.Talk + "\"\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You can't talk to that.\r\n");
+			}
+		}
+
 		private void PrintStats()
 		{
 			LocalConnection.SendMessage("You are level " + Level + " with " + XP + " experience points.\r\n");
@@ -140,7 +192,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("You can't take that!\r\n");
+				LocalConnection.SendMessage("You can't take that.\r\n");
 			}
 		}
 
@@ -155,7 +207,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("You don't have that!\r\n");
+				LocalConnection.SendMessage("You don't have that.\r\n");
 			}
 		}
 
@@ -180,7 +232,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("You can't attack that!\r\n");
+				LocalConnection.SendMessage("You can't attack that.\r\n");
 			}
 
 			return needToPrintRoom;
@@ -203,7 +255,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("You aren't attacking anything!\r\n");
+				LocalConnection.SendMessage("You aren't attacking anything.\r\n");
 			}
 
 			return needToPrintRoom;
@@ -221,20 +273,20 @@ namespace Aurora
 					target.Agility - Agility;
 				if (statDifference < -10)
 				{
-					LocalConnection.SendMessage("This should be easy!\r\n");
+					LocalConnection.SendMessage("This should be easy.\r\n");
 				}
 				else if (statDifference > 10)
 				{
-					LocalConnection.SendMessage("This could be challenging!\r\n");
+					LocalConnection.SendMessage("This could be challenging.\r\n");
 				}
 				else
 				{
-					LocalConnection.SendMessage("This looks like a fair fight!\r\n");
+					LocalConnection.SendMessage("This looks like a fair fight.\r\n");
 				}
 			}
 			else
 			{
-				LocalConnection.SendMessage("I can't consider that!\r\n");
+				LocalConnection.SendMessage("You can't consider that.\r\n");
 			}
 		}
 
@@ -278,7 +330,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("Only admins may shutdown the server!\r\n");
+				LocalConnection.SendMessage("Only admins may shutdown the server.\r\n");
 			}
 		}
 
@@ -305,7 +357,7 @@ namespace Aurora
 
 			if (!didExit)
 			{
-				LocalConnection.SendMessage("You can't \"" + inputVerb + "\" here!\r\n");
+				LocalConnection.SendMessage("You can't " + inputVerb + " here.\r\n");
 			}
 
 			DescriptionNeeded = didExit;

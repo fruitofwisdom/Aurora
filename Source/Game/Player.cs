@@ -336,6 +336,12 @@ namespace Aurora
 				case "emote":
 					Emote(inputArgument);
 					break;
+				case "read":
+					Read(inputObject);
+					break;
+				case "talk":
+					Talk(inputObject);
+					break;
 				case "stats":
 					PrintStats();
 					break;
@@ -425,6 +431,8 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
 			LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
 			LocalConnection.SendMessage("     \"say\" or \"emote\" to express yourself.\r\n");
+			LocalConnection.SendMessage("     \"read\" to read a sign, for example.\r\n");
+			LocalConnection.SendMessage("     \"talk to\" to talk to a non-player.\r\n");
 			LocalConnection.SendMessage("     \"stats\" to see your current level, HP, etc.\r\n");
 			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");

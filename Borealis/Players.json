@@ -13,8 +13,10 @@
     "Agility": 10,
     "Inventory": [
       {
+        "$type": "NPC",
         "Name": "manual",
-        "Description": "an instruction manual"
+        "Description": "an instruction manual",
+        "Read": "Thank you for playing Borealis!"
       }
     ]
   }
