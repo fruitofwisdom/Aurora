@@ -37,9 +37,9 @@
       "Description": "a deranged seagull, drunk on grog",
       "Level": 1,
       "MaxHP": 15,
-      "Strength": 5,
-      "Defense": 5,
-      "Agility": 5,
+      "BaseStrength": 5,
+      "BaseDefense": 5,
+      "BaseAgility": 5,
       "XPReward": 10,
       "GoldReward": 20
     }
@@ -72,9 +72,9 @@
       "Description": "a rabid rat or, at least, an angry one",
       "Level": 1,
       "MaxHP": 12,
-      "Strength": 4,
-      "Defense": 4,
-      "Agility": 4,
+      "BaseStrength": 4,
+      "BaseDefense": 4,
+      "BaseAgility": 4,
       "XPReward": 8,
       "GoldReward": 16
     }
@@ -89,18 +89,19 @@
       "Description": "a venomous, not poisonous, snake",
       "Level": 1,
       "MaxHP": 18,
-      "Strength": 6,
-      "Defense": 6,
-      "Agility": 6,
+      "BaseStrength": 6,
+      "BaseDefense": 6,
+      "BaseAgility": 6,
       "XPReward": 12,
       "GoldReward": 24
     }
   },
   {
-    "$type": "NPC",
+    "$type": "Item",
     "Name": "a road sign",
     "CurrentRoomId": 18,
     "Description": "a recent, wooden sign has been posted here",
+    "Heavy": true,
     "Read": "Road closed ahead due to landslide. Southern woods also off limits."
   },
   {
@@ -113,9 +114,9 @@
       "Description": "a piranha-like fish, I think",
       "Level": 2,
       "MaxHP": 18,
-      "Strength": 7,
-      "Defense": 7,
-      "Agility": 7,
+      "BaseStrength": 7,
+      "BaseDefense": 7,
+      "BaseAgility": 7,
       "XPReward": 17,
       "GoldReward": 34
     }
@@ -130,9 +131,9 @@
       "Description": "a hungry lynx, with a fierce look in its eyes",
       "Level": 2,
       "MaxHP": 12,
-      "Strength": 5,
-      "Defense": 5,
-      "Agility": 5,
+      "BaseStrength": 5,
+      "BaseDefense": 5,
+      "BaseAgility": 5,
       "XPReward": 11,
       "GoldReward": 22
     }
@@ -147,9 +148,9 @@
       "Description": "a young brown bear",
       "Level": 3,
       "MaxHP": 20,
-      "Strength": 7,
-      "Defense": 7,
-      "Agility": 7,
+      "BaseStrength": 7,
+      "BaseDefense": 7,
+      "BaseAgility": 7,
       "XPReward": 18,
       "GoldReward": 36
     }
@@ -164,9 +165,9 @@
       "Description": "a mangy, brown boar",
       "Level": 2,
       "MaxHP": 15,
-      "Strength": 6,
-      "Defense": 6,
-      "Agility": 6,
+      "BaseStrength": 6,
+      "BaseDefense": 6,
+      "BaseAgility": 6,
       "XPReward": 14,
       "GoldReward": 28
     }
@@ -181,9 +182,9 @@
       "Description": "a wolf that is grey",
       "Level": 3,
       "MaxHP": 24,
-      "Strength": 8,
-      "Defense": 8,
-      "Agility": 8,
+      "BaseStrength": 8,
+      "BaseDefense": 8,
+      "BaseAgility": 8,
       "XPReward": 22,
       "GoldReward": 43
     }
@@ -198,9 +199,9 @@
       "Description": "a small, yet ferocious wolverine",
       "Level": 4,
       "MaxHP": 25,
-      "Strength": 8,
-      "Defense": 8,
-      "Agility": 8,
+      "BaseStrength": 8,
+      "BaseDefense": 8,
+      "BaseAgility": 8,
       "XPReward": 22,
       "GoldReward": 44
     }
@@ -215,9 +216,9 @@
       "Description": "a polar bear, no longer hibernating",
       "Level": 4,
       "MaxHP": 30,
-      "Strength": 10,
-      "Defense": 10,
-      "Agility": 10,
+      "BaseStrength": 10,
+      "BaseDefense": 10,
+      "BaseAgility": 10,
       "XPReward": 26,
       "GoldReward": 53
     }
@@ -232,9 +233,9 @@
       "Description": "a skeleton, shambling and ragged",
       "Level": 5,
       "MaxHP": 30,
-      "Strength": 9,
-      "Defense": 9,
-      "Agility": 9,
+      "BaseStrength": 9,
+      "BaseDefense": 9,
+      "BaseAgility": 9,
       "XPReward": 26,
       "GoldReward": 52
     }
@@ -249,9 +250,9 @@
       "Description": "a giant troll, even larger than a regular troll",
       "Level": 5,
       "MaxHP": 36,
-      "Strength": 11,
-      "Defense": 11,
-      "Agility": 11,
+      "BaseStrength": 11,
+      "BaseDefense": 11,
+      "BaseAgility": 11,
       "XPReward": 31,
       "GoldReward": 62
     }

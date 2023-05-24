@@ -8,12 +8,46 @@
     "Level": 1,
     "CurrentHP": 30,
     "MaxHP": 30,
-    "Strength": 10,
-    "Defense": 10,
-    "Agility": 10,
+    "BaseStrength": 10,
+    "BaseDefense": 10,
+    "BaseAgility": 10,
+    "Equipment": [
+      {
+        "$type": "Item",
+        "Name": "comfortable clothes",
+        "Description": "comfortable clothes for everyday wear",
+        "CanEquip": true,
+        "StrengthMod": 0,
+        "DefenseMod": 1,
+        "AgilityMod": 1
+      },
+      {
+        "$type": "Item",
+        "Name": "kitchen knife",
+        "Description": "a sharp, but well-used kitchen knife",
+        "CanEquip": true,
+        "StrengthMod": 1,
+        "DefenseMod": 0,
+        "AgilityMod": 0
+      }
+    ],
     "Inventory": [
       {
-        "$type": "NPC",
+        "$type": "Item",
+        "Name": "sweet roll",
+        "Description": "a delicious sweet roll",
+        "CanEat": true,
+        "HPRestore": 25
+      },
+      {
+        "$type": "Item",
+        "Name": "coffee",
+        "Description": "your favorite coffee, still hot",
+        "CanDrink": true,
+        "HPRestore": 25
+      },
+      {
+        "$type": "Item",
         "Name": "manual",
         "Description": "an instruction manual",
         "Read": "Thank you for playing Borealis!"

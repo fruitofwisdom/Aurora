@@ -5,13 +5,21 @@ namespace Aurora
 {
 	internal class Fighter : Mobile
 	{
+		// These fields are deserialized from JSON.
+		#region JSON-serialized public fields.
 		public int Level { get; set; } = 1;
 		public int CurrentHP { get; set; } = 10;
 		public int MaxHP { get; set; } = 10;
-		public int Strength { get; set; } = 1;
-		public int Defense { get; set; } = 1;
-		public int Agility { get; set; } = 1;
+		public int BaseStrength { get; set; } = 1;
+		public int BaseDefense { get; set; } = 1;
+		public int BaseAgility { get; set; } = 1;
 		// TODO: Have a Speed stat too?
+		#endregion
+
+		// Derived classes can apply their own modifiers for these stats.
+		public virtual int Strength { get => BaseStrength; }
+		public virtual int Defense { get => BaseDefense; }
+		public virtual int Agility { get => BaseAgility; }
 
 		private static readonly Random Rng = new();
 		private readonly List<Fighter> Attackers = new();

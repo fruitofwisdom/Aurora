@@ -10,6 +10,7 @@ namespace Aurora
 	[JsonDerivedType(typeof(EnemySpawner), typeDiscriminator: "EnemySpawner")]
 	// TODO: No need for raw GameObjects?
 	[JsonDerivedType(typeof(GameObject), typeDiscriminator: "GameObject")]
+	[JsonDerivedType(typeof(Item), typeDiscriminator: "Item")]
 	[JsonDerivedType(typeof(NPC), typeDiscriminator: "NPC")]
 	internal class GameObject
 	{
@@ -18,8 +19,6 @@ namespace Aurora
 		public string Name { get; set; } = "nothing";
 		public int CurrentRoomId { get; set; } = 0;
 		public string Description { get; set; } = "nothing";
-		// Heavy objects can't be taken.
-		public bool Heavy { get; set; } = false;
 		// Invisible objects can't be seen.
 		public bool Invisible { get; set; } = false;
 
@@ -72,14 +71,14 @@ namespace Aurora
 		}
 
 		// Given an object name, find the GameObject whose name best matches.
-		public static GameObject GetBestMatch(string searchName, List<GameObject> gameObjects)
+		public static T GetBestMatch<T>(string searchName, List<T> gameObjects) where T : GameObject
 		{
-			GameObject bestMatch = null;
+			T bestMatch = null;
 
 			// Split all the names into a HashSet and then compare how many words are in common.
 			HashSet<string> searchNameHashSet = searchName.ToLower().Split(' ').ToHashSet<string>();
 			int bestIntersectCount = 0;
-			foreach (GameObject gameObject in gameObjects)
+			foreach (T gameObject in gameObjects)
 			{
 				HashSet<string> objectNameHashSet = gameObject.Name.ToLower().Split(' ').ToHashSet<string>();
 				if (objectNameHashSet.Intersect(searchNameHashSet).Count() > bestIntersectCount)

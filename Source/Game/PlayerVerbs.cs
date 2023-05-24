@@ -7,19 +7,29 @@ namespace Aurora
 	{
 		private void LookAt(string inputObject)
 		{
-			// Try looking in your inventory first.
-			bool wasInInventory = true;
-			GameObject gameObject = GetBestMatch(inputObject, Inventory);
+			// Try looking in your equipment first.
+			GameObject gameObject = GetBestMatch(inputObject, Equipment);
+			bool wasEquipped = gameObject != null;
+			bool wasInInventory = false;
 			if (gameObject == null)
 			{
-				// Then try looking in the world.
-				wasInInventory = false;
-				gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				// Then try looking in your inventory.
+				gameObject = GetBestMatch(inputObject, Inventory);
+				wasInInventory = gameObject != null;
+				if (gameObject == null)
+				{
+					// Then try looking in the world.
+					gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				}
 			}
 
 			if (gameObject != null)
 			{
 				string message = "";
+				if (wasEquipped)
+				{
+					message += "(equipped) ";
+				}
 				if (wasInInventory)
 				{
 					message += "(in your inventory) ";
@@ -110,18 +120,17 @@ namespace Aurora
 
 			if (gameObject != null)
 			{
-				// NPCs are types of GameObjects with properties that allow them to be read.
-				NPC npcObject = gameObject as NPC;
-				if (npcObject != null && npcObject.Read != null)
+				Item item = gameObject as Item;
+				if (item != null && item.Read != null)
 				{
 					string message = "";
 					if (wasInInventory)
 					{
 						message += "(in your inventory) ";
 					}
-					message += npcObject.CapitalizeName() + " reads:" + "\r\n";
+					message += item.CapitalizeName() + " reads:" + "\r\n";
 					LocalConnection.SendMessage(message);
-					LocalConnection.SendMessage("\"" + npcObject.Read + "\"\r\n");
+					LocalConnection.SendMessage("\"" + item.Read + "\"\r\n");
 				}
 				else
 				{
@@ -164,6 +173,19 @@ namespace Aurora
 
 		private void PrintInventory()
 		{
+			if (Equipment.Count == 0)
+			{
+				LocalConnection.SendMessage("You have nothing equipped.\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You have equipped:\r\n");
+				foreach (Item item in Equipment)
+				{
+					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
+				}
+			}
+
 			if (Inventory.Count == 0 && Gold == 0)
 			{
 				LocalConnection.SendMessage("You're not carrying anything.\r\n");
@@ -171,9 +193,9 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You are carrying:\r\n");
-				foreach (GameObject gameObject in Inventory)
+				foreach (Item item in Inventory)
 				{
-					LocalConnection.SendMessage("     " + gameObject.CapitalizeName() + "\r\n");
+					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
 				}
 				if (Gold > 0)
 				{
@@ -184,11 +206,11 @@ namespace Aurora
 
 		private void Take(string inputObject)
 		{
-			GameObject gameObject = Game.Instance.TryTake(this, inputObject);
-			if (gameObject != null)
+			Item item = Game.Instance.TryTake(this, inputObject);
+			if (item != null)
 			{
-				LocalConnection.SendMessage("You take " + gameObject.Description + ".\r\n");
-				Inventory.Add(gameObject);
+				Inventory.Add(item);
+				LocalConnection.SendMessage("You take " + item.Description + ".\r\n");
 			}
 			else
 			{
@@ -198,12 +220,100 @@ namespace Aurora
 
 		private void Drop(string inputObject)
 		{
-			GameObject gameObject = GetBestMatch(inputObject, Inventory);
-			if (gameObject != null)
+			Item item = GetBestMatch(inputObject, Inventory);
+			if (item != null)
 			{
-				Game.Instance.TryDrop(this, gameObject);
-				LocalConnection.SendMessage("You drop " + gameObject.Description + ".\r\n");
-				Inventory.Remove(gameObject);
+				Game.Instance.TryDrop(this, item);
+				Inventory.Remove(item);
+				LocalConnection.SendMessage("You drop " + item.Description + ".\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that.\r\n");
+			}
+		}
+
+		private void Eat(string inputObject)
+		{
+			Item item = GetBestMatch(inputObject, Inventory);
+			if (item != null && item.CanEat)
+			{
+				CurrentHP += item.HPRestore;
+				if (CurrentHP > MaxHP)
+				{
+					CurrentHP = MaxHP;
+				}
+				Inventory.Remove(item);
+				LocalConnection.SendMessage("You eat the " + item.Name + ".\r\n");
+			}
+			else if (item != null)
+			{
+				LocalConnection.SendMessage("You can't eat that.\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that.\r\n");
+			}
+		}
+
+		private void Drink(string inputObject)
+		{
+			Item item = GetBestMatch(inputObject, Inventory);
+			if (item != null && item.CanDrink)
+			{
+				CurrentHP += item.HPRestore;
+				if (CurrentHP > MaxHP)
+				{
+					CurrentHP = MaxHP;
+				}
+				Inventory.Remove(item);
+				LocalConnection.SendMessage("You drink the " + item.Name + ".\r\n");
+			}
+			else if (item != null)
+			{
+				LocalConnection.SendMessage("You can't drink that.\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that.\r\n");
+			}
+		}
+
+		private void Equip(string inputObject)
+		{
+			Item item = GetBestMatch(inputObject, Inventory);
+			if (item != null && item.CanEquip)
+			{
+				Equipment.Add(item);
+				Inventory.Remove(item);
+				LocalConnection.SendMessage("You equip the " + item.Name + ".\r\n");
+			}
+			else if (item != null)
+			{
+				LocalConnection.SendMessage("You can't equip that.\r\n");
+			}
+			else if (GetBestMatch(inputObject, Equipment) != null)
+			{
+				LocalConnection.SendMessage("That's already equipped.\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("You don't have that.\r\n");
+			}
+		}
+
+		private void Unequip(string inputObject)
+		{
+			Item item = GetBestMatch(inputObject, Equipment);
+			if (item != null)
+			{
+				Inventory.Add(item);
+				Equipment.Remove(item);
+				LocalConnection.SendMessage("You unequip the " + item.Name + ".\r\n");
+			}
+			else if (GetBestMatch(inputObject, Inventory) != null)
+			{
+				LocalConnection.SendMessage("That's not equipped yet.\r\n");
 			}
 			else
 			{
@@ -313,7 +423,6 @@ namespace Aurora
 				LocalConnection.SendMessage("Name: \"" + gameObject.Name + "\"\r\n");
 				LocalConnection.SendMessage("CurrentRoomId: " + gameObject.CurrentRoomId + "\r\n");
 				LocalConnection.SendMessage("Description: \"" + gameObject.Description + "\"\r\n");
-				LocalConnection.SendMessage(gameObject.Heavy ? "heavy\r\n" : "not heavy\r\n");
 				LocalConnection.SendMessage(gameObject.Invisible ? "invisible\r\n" : "not invisible\r\n");
 			}
 			else

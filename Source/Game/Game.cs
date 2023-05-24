@@ -555,12 +555,13 @@ namespace Aurora
 			}
 		}
 
-		public GameObject TryTake(Player player, string gameObjectName)
+		public Item TryTake(Player player, string gameObjectName)
 		{
-			GameObject toReturn;
+			Item toReturn;
 
 			List <GameObject> worldObjects = GetWorldObjectsInRoom(player.CurrentRoomId);
-			toReturn = GameObject.GetBestMatch(gameObjectName, worldObjects);
+			toReturn = GameObject.GetBestMatch(gameObjectName, worldObjects) as Item;
+
 			// Heavy objects can't be taken.
 			if (toReturn != null && toReturn.Heavy)
 			{

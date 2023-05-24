@@ -5,16 +5,18 @@ namespace Aurora
 {
 	internal partial class Player : Fighter
 	{
-		private Connection LocalConnection;
-
-		// These public fields all serialize.
+		// These fields are deserialized from JSON.
+		#region JSON-serialized public fields.
 		public string Password { get; set; }
 		public string Salt { get; set; }
 		public bool IsAdmin { get; set; } = false;
-		public List<GameObject> Inventory { get; set; }
+		public List<Item> Equipment { get; set; }
+		public List<Item> Inventory { get; set; }
 		public int XP { get; set; } = 0;
 		public int Gold { get; set; } = 0;
+		#endregion
 
+		private Connection LocalConnection;
 		private bool DescriptionNeeded = true;
 		private string LastInput = "";
 
@@ -30,16 +32,6 @@ namespace Aurora
 			Password = password;
 			Salt = salt;
 			Inventory = new();
-		}
-
-		public void SetConnection(Connection localConnection)
-		{
-			LocalConnection = localConnection;
-		}
-
-		public void Message(string message)
-		{
-			LocalConnection.SendMessage(message);
 		}
 
 		protected override void Think(DateTime eventTime)
@@ -153,9 +145,9 @@ namespace Aurora
 					int numLevelsGained = newLevel - Level;
 					Level = newLevel;
 					MaxHP += Game.Instance.MaxHPPerLevel * numLevelsGained;
-					Strength += Game.Instance.StrengthPerLevel * numLevelsGained;
-					Defense += Game.Instance.DefensePerLevel * numLevelsGained;
-					Agility += Game.Instance.AgilityPerLevel * numLevelsGained;
+					BaseStrength += Game.Instance.StrengthPerLevel * numLevelsGained;
+					BaseDefense += Game.Instance.DefensePerLevel * numLevelsGained;
+					BaseAgility += Game.Instance.AgilityPerLevel * numLevelsGained;
 					LocalConnection.SendMessage("You are now level " + Level + "!\r\n");
 				}
 			}
@@ -166,6 +158,55 @@ namespace Aurora
 			}
 
 			PrintRoom();
+		}
+
+		public override int Strength
+		{
+			get
+			{
+				int strength = BaseStrength;
+				foreach (Item item in Equipment)
+				{
+					strength += item.StrengthMod;
+				}
+				return strength;
+			}
+		}
+
+		public override int Defense
+		{
+			get
+			{
+				int defense = BaseDefense;
+				foreach (Item item in Equipment)
+				{
+					defense += item.DefenseMod;
+				}
+				return defense;
+			}
+		}
+
+		public override int Agility
+		{
+			get
+			{
+				int agility = BaseAgility;
+				foreach (Item item in Equipment)
+				{
+					agility += item.AgilityMod;
+				}
+				return agility;
+			}
+		}
+
+		public void SetConnection(Connection localConnection)
+		{
+			LocalConnection = localConnection;
+		}
+
+		public void Message(string message)
+		{
+			LocalConnection.SendMessage(message);
 		}
 
 		// Is a word one of the ten most commonly used prepositions?
@@ -355,6 +396,18 @@ namespace Aurora
 				case "drop":
 					Drop(inputObject);
 					break;
+				case "eat":
+					Eat(inputObject);
+					break;
+				case "drink":
+					Drink(inputObject);
+					break;
+				case "equip":
+					Equip(inputObject);
+					break;
+				case "unequip":
+					Unequip(inputObject);
+					break;
 				case "attack":
 					needToPrintRoom = Attack(inputObject);
 					break;
@@ -437,6 +490,8 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
 			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+			LocalConnection.SendMessage("     \"eat\" or \"drink\" to consume an item in your inventory.\r\n");
+			LocalConnection.SendMessage("     \"equip\" or \"unequip\" to equip or unequip equipment.\r\n");
 			LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
 			LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
 			LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");

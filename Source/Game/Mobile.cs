@@ -21,11 +21,7 @@ namespace Aurora
 
 		protected Timer ThinkTimer = null;
 
-		public Mobile()
-		{
-			// All mobiles, by default, can't be taken by players.
-			Heavy = true;
-		}
+		public Mobile() { }
 
 		public override void Spawn()
 		{
