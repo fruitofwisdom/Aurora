@@ -15,6 +15,9 @@
 
 		// Equipment properties.
 		public bool CanEquip { get; set; } = false;
+		// TODO: More robust categories of equipment. E.g., hats, shields, jewelry, etc.
+		public bool IsArmor { get; set; } = false;
+		public bool IsWeapon { get; set; } = false;
 		public int StrengthMod { get; set; }
 		public int DefenseMod { get; set; }
 		public int AgilityMod { get; set; }
@@ -41,7 +44,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				description += "increase strength by " + StrengthMod;
 			}
@@ -49,7 +52,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				description += "hurt your strength";
 			}
@@ -57,7 +60,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				else
 				{
@@ -69,7 +72,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				else
 				{
@@ -81,7 +84,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				else
 				{
@@ -93,7 +96,7 @@
 			{
 				if (description == "")
 				{
-					description = "It will ";
+					description = IsArmor ? "This armor will " : IsWeapon ? "This weapon will " : "It will ";
 				}
 				else
 				{

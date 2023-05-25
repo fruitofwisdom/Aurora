@@ -412,11 +412,40 @@ namespace Aurora
 			}
 		}
 
+		// Returns an equipped item of the same category (e.g., armor or weapons).
+		private Item FindEquippedItemLike(Item newItem)
+		{
+			Item previousItem = null;
+
+			foreach (Item item in Equipment)
+			{
+				if (newItem.IsArmor && item.IsArmor)
+				{
+					previousItem = item;
+					break;
+				}
+				else if (newItem.IsWeapon && item.IsWeapon)
+				{
+					previousItem = item;
+					break;
+				}
+			}
+
+			return previousItem;
+		}
+
 		private void Equip(string inputObject)
 		{
 			Item item = GetBestMatch(inputObject, Inventory);
 			if (item != null && item.CanEquip)
 			{
+				Item previousItem = FindEquippedItemLike(item);
+				if (previousItem != null)
+				{
+					Inventory.Add(previousItem);
+					Equipment.Remove(previousItem);
+					LocalConnection.SendMessage("You unequip the " + previousItem.Name + ".\r\n");
+				}
 				Equipment.Add(item);
 				Inventory.Remove(item);
 				LocalConnection.SendMessage("You equip the " + item.Name + ".\r\n");

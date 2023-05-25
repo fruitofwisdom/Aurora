@@ -109,6 +109,7 @@
         "Description": "a simple, yet sharp dagger",
         "Cost": 25,
         "CanEquip": true,
+        "IsWeapon": true,
         "StrengthMod": 2
       },
       {
@@ -117,6 +118,7 @@
         "Description": "a sturdy sword made of iron",
         "Cost": 50,
         "CanEquip": true,
+        "IsWeapon": true,
         "StrengthMod": 4
       },
       {
@@ -125,6 +127,7 @@
         "Description": "a strong, reliable sword of steel",
         "Cost": 100,
         "CanEquip": true,
+        "IsWeapon": true,
         "StrengthMod": 8
       },
       {
@@ -133,6 +136,7 @@
         "Description": "tough, hard leather armor",
         "Cost": 50,
         "CanEquip": true,
+        "IsArmor": true,
         "DefenseMod": 2,
         "AgilityMod": 4
       },
@@ -142,6 +146,7 @@
         "Description": "leather armor underneath, with metal rings interwoven",
         "Cost": 100,
         "CanEquip": true,
+        "IsArmor": true,
         "DefenseMod": 4,
         "AgilityMod": 8
       },
@@ -151,6 +156,7 @@
         "Description": "armor of iron plates fitted together",
         "Cost": 50,
         "CanEquip": true,
+        "IsArmor": true,
         "DefenseMod": 4,
         "AgilityMod": 2
       },
@@ -160,6 +166,7 @@
         "Description": "iron plates covering nearly every piece and crack of this armor",
         "Cost": 100,
         "CanEquip": true,
+        "IsArmor": true,
         "DefenseMod": 8,
         "AgilityMod": 4
       }

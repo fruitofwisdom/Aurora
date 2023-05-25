@@ -25,6 +25,7 @@
         "Name": "comfortable clothes",
         "Description": "comfortable clothes for everyday wear",
         "CanEquip": true,
+        "IsArmor": true,
         "StrengthMod": 0,
         "DefenseMod": 1,
         "AgilityMod": 1
@@ -34,6 +35,7 @@
         "Name": "kitchen knife",
         "Description": "a sharp, but well-used kitchen knife",
         "CanEquip": true,
+        "IsWeapon": true,
         "StrengthMod": 1,
         "DefenseMod": 0,
         "AgilityMod": 0
