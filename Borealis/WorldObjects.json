@@ -60,7 +60,110 @@
       }
     ],
     "ThinkTime": 5000,
-    "Talk": "Welcome to The Fat Baker and, yes, it's named after my father."
+    "Talk": "Welcome to The Fat Baker and, yes, it's named after my father.",
+    "VendorList": [
+      {
+        "$type": "Item",
+        "Name": "sourdough bread",
+        "Description": "some sourdough bread with jam and butter",
+        "Cost": 15,
+        "CanEat": true,
+        "HPRestore": 25
+      },
+      {
+        "$type": "Item",
+        "Name": "salmon sandwich",
+        "Description": "a sandwich with smoked salmon, cheese, and lettuce",
+        "Cost": 30,
+        "CanEat": true,
+        "HPRestore": 50
+      },
+      {
+        "$type": "Item",
+        "Name": "espresso",
+        "Description": "a shot of dark espresso",
+        "Cost": 10,
+        "CanDrink": true,
+        "HPRestore": 17
+      },
+      {
+        "$type": "Item",
+        "Name": "cappuccino",
+        "Description": "dark espresso in a rich milk foam",
+        "Cost": 20,
+        "CanDrink": true,
+        "HPRestore": 34
+      }
+    ]
+  },
+  {
+    "$type": "NPC",
+    "Name": "Edgar",
+    "CurrentRoomId": 12,
+    "Description": "Edgar is the exact opposite of the traditional blacksmith. He's well-dressed and well-coiffed.",
+    "Talk": "Welcome to my shop! Huh? Oh, my brother, Sabin, does all the actual smithing.",
+    "VendorList": [
+      {
+        "$type": "Item",
+        "Name": "dagger",
+        "Description": "a simple, yet sharp dagger",
+        "Cost": 25,
+        "CanEquip": true,
+        "StrengthMod": 2
+      },
+      {
+        "$type": "Item",
+        "Name": "iron sword",
+        "Description": "a sturdy sword made of iron",
+        "Cost": 50,
+        "CanEquip": true,
+        "StrengthMod": 4
+      },
+      {
+        "$type": "Item",
+        "Name": "steel sword",
+        "Description": "a strong, reliable sword of steel",
+        "Cost": 100,
+        "CanEquip": true,
+        "StrengthMod": 8
+      },
+      {
+        "$type": "Item",
+        "Name": "leather armor",
+        "Description": "tough, hard leather armor",
+        "Cost": 50,
+        "CanEquip": true,
+        "DefenseMod": 2,
+        "AgilityMod": 4
+      },
+      {
+        "$type": "Item",
+        "Name": "ring mail",
+        "Description": "leather armor underneath, with metal rings interwoven",
+        "Cost": 100,
+        "CanEquip": true,
+        "DefenseMod": 4,
+        "AgilityMod": 8
+      },
+      {
+        "$type": "Item",
+        "Name": "iron armor",
+        "Description": "armor of iron plates fitted together",
+        "Cost": 50,
+        "CanEquip": true,
+        "DefenseMod": 4,
+        "AgilityMod": 2
+      },
+      {
+        "$type": "Item",
+        "Name": "plate mail",
+        "Description": "iron plates covering nearly every piece and crack of this armor",
+        "Cost": 100,
+        "CanEquip": true,
+        "DefenseMod": 8,
+        "AgilityMod": 4
+      }
+    ]
   },
   {
     "$type": "EnemySpawner",

@@ -383,6 +383,18 @@ namespace Aurora
 				case "talk":
 					Talk(inputObject);
 					break;
+				case "list":
+					List();
+					break;
+				case "browse":
+					Browse(inputObject);
+					break;
+				case "buy":
+					Buy(inputObject);
+					break;
+				case "sell":
+					Sell(inputObject);
+					break;
 				case "stats":
 					PrintStats();
 					break;
@@ -417,8 +429,8 @@ namespace Aurora
 				case "consider":
 					Consider(inputObject);
 					break;
-				case "debugobject":
-					DebugObject(inputObject);
+				case "debug":
+					Debug(inputObject);
 					break;
 				case "shutdown":
 					Shutdown();
@@ -486,6 +498,9 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"say\" or \"emote\" to express yourself.\r\n");
 			LocalConnection.SendMessage("     \"read\" to read a sign, for example.\r\n");
 			LocalConnection.SendMessage("     \"talk to\" to talk to a non-player.\r\n");
+			LocalConnection.SendMessage("     \"list\" to see what a shopkeeper has for sale.\r\n");
+			LocalConnection.SendMessage("     \"browse\" to see details on an item for sale.\r\n");
+			LocalConnection.SendMessage("     \"buy\" or \"sell\" to trade with a shopkeeper.\r\n");
 			LocalConnection.SendMessage("     \"stats\" to see your current level, HP, etc.\r\n");
 			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
@@ -498,7 +513,7 @@ namespace Aurora
 			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 			if (IsAdmin)
 			{
-				LocalConnection.SendMessage("     \"debugobject\" to print debug information about an object. (admin)\r\n");
+				LocalConnection.SendMessage("     \"debug\" to print debug information about an object. (admin)\r\n");
 				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
 			}
 		}

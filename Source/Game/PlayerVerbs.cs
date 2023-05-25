@@ -45,6 +45,13 @@ namespace Aurora
 					message += "You see " + gameObject.Description + ".\r\n";
 				}
 				LocalConnection.SendMessage(message);
+
+				// If it's an item, describe its properties.
+				Item item = gameObject as Item;
+				if (item != null)
+				{
+					LocalConnection.SendMessage(item.Describe());
+				}
 			}
 			else
 			{
@@ -154,6 +161,132 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You can't talk to that.\r\n");
+			}
+		}
+
+		private void List()
+		{
+			NPC vendor = Game.Instance.GetVendorInRoom(CurrentRoomId);
+			if (vendor != null && vendor.VendorList != null)
+			{
+				if (vendor.VendorList.Count > 0)
+				{
+					LocalConnection.SendMessage("They have for sale:\r\n");
+					foreach (Item item in vendor.VendorList)
+					{
+						LocalConnection.SendMessage("     " + item.CapitalizeName() + " for " +
+							item.Cost + " " + Game.Instance.Currency + "\r\n");
+					}
+				}
+				else
+				{
+					LocalConnection.SendMessage("They have nothing for sale.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("There's no shopkeeper here.\r\n");
+			}
+		}
+
+		private void Browse(string inputObject)
+		{
+			NPC vendor = Game.Instance.GetVendorInRoom(CurrentRoomId);
+			if (vendor != null && vendor.VendorList != null)
+			{
+				Item itemToBuy = GameObject.GetBestMatch(inputObject, vendor.VendorList);
+				if (itemToBuy != null)
+				{
+					if (itemToBuy.Cost > 0)
+					{
+						LocalConnection.SendMessage("The " + itemToBuy.Name + " costs " +
+							itemToBuy.Cost + " " + Game.Instance.Currency + ".\r\n");
+						LocalConnection.SendMessage(itemToBuy.Describe());
+					}
+					else
+					{
+						LocalConnection.SendMessage("That's not for sale.\r\n");
+					}
+				}
+				else
+				{
+					LocalConnection.SendMessage("You can't buy that.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("There's no shopkeeper here.\r\n");
+			}
+		}
+
+		private void Buy(string inputObject)
+		{
+			NPC vendor = Game.Instance.GetVendorInRoom(CurrentRoomId);
+			if (vendor != null && vendor.VendorList != null)
+			{
+				Item itemToBuy = GameObject.GetBestMatch(inputObject, vendor.VendorList);
+				if (itemToBuy != null)
+				{
+					if (itemToBuy.Cost > 0)
+					{
+						if (Gold >= itemToBuy.Cost)
+						{
+							Item newItem = GameObject.Clone<Item>(itemToBuy);
+							Inventory.Add(newItem);
+							Gold -= itemToBuy.Cost;
+							LocalConnection.SendMessage("You buy " + itemToBuy.Name + " for " +
+								itemToBuy.Cost + " " + Game.Instance.Currency + "\r\n");
+
+						}
+						else
+						{
+							LocalConnection.SendMessage("You can't afford that.\r\n");
+						}
+					}
+					else
+					{
+						LocalConnection.SendMessage("That's not for sale.\r\n");
+					}
+				}
+				else
+				{
+					LocalConnection.SendMessage("You can't buy that.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("There's no shopkeeper here.\r\n");
+			}
+		}
+
+		private void Sell(string inputObject)
+		{
+			NPC vendor = Game.Instance.GetVendorInRoom(CurrentRoomId);
+			if (vendor != null && vendor.VendorList != null)
+			{
+				Item itemToSell = GetBestMatch(inputObject, Inventory);
+				if (itemToSell != null)
+				{
+					if (itemToSell.Cost > 0)
+					{
+						Gold += itemToSell.Cost / 2;
+						Inventory.Remove(itemToSell);
+						LocalConnection.SendMessage("You sell " + itemToSell.Name + " for " +
+							itemToSell.Cost / 2 + " " + Game.Instance.Currency + "\r\n");
+					}
+					else
+					{
+						LocalConnection.SendMessage("You can't sell that.\r\n");
+					}
+				}
+				else
+				{
+					LocalConnection.SendMessage("You don't have that.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("There's no shopkeeper here.\r\n");
 			}
 		}
 
@@ -400,7 +533,7 @@ namespace Aurora
 			}
 		}
 
-		private void DebugObject(string inputObject)
+		private void Debug(string inputObject)
 		{
 			// Try looking in your inventory first.
 			bool wasInInventory = true;

@@ -415,6 +415,25 @@ namespace Aurora
 			return worldObjects;
 		}
 
+		// Return the first NPC with a VendorList.
+		public NPC GetVendorInRoom(int roomId)
+		{
+			NPC vendor = null;
+
+			List <GameObject> worldObjects = GetWorldObjectsInRoom(roomId);
+			foreach (GameObject worldObject in worldObjects)
+			{
+				NPC npc = worldObject as NPC;
+				if (npc != null && npc.VendorList != null)
+				{
+					vendor = npc;
+					break;
+				}
+			}
+
+			return vendor;
+		}
+
 		// Return what level an amount of XP would qualify for.
 		public int GetLevelForXP(int xp)
 		{

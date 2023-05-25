@@ -34,17 +34,19 @@
     "Inventory": [
       {
         "$type": "Item",
-        "Name": "sweet roll",
-        "Description": "a delicious sweet roll",
+        "Name": "sourdough bread",
+        "Description": "some sourdough bread with jam and butter",
+        "Cost": 15,
         "CanEat": true,
         "HPRestore": 25
       },
       {
         "$type": "Item",
-        "Name": "coffee",
-        "Description": "your favorite coffee, still hot",
+        "Name": "espresso",
+        "Description": "a shot of dark espresso",
+        "Cost": 10,
         "CanDrink": true,
-        "HPRestore": 25
+        "HPRestore": 17
       },
       {
         "$type": "Item",
@@ -52,6 +54,7 @@
         "Description": "an instruction manual",
         "Read": "Thank you for playing Borealis!"
       }
-    ]
+    ],
+    "Gold": 100
   }
 ]

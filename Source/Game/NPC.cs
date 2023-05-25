@@ -1,10 +1,13 @@
-﻿namespace Aurora
+﻿using System.Collections.Generic;
+
+namespace Aurora
 {
 	// NPCs are more complex Mobiles who can talk and have custom, built-in responses hard-coded
 	// here.
 	internal class NPC : Mobile
 	{
 		public string Talk { get; set; }
+		public List<Item> VendorList { get; set; }
 
 		protected override void Do(string action)
 		{
