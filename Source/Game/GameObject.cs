@@ -81,10 +81,11 @@ namespace Aurora
 			foreach (T gameObject in gameObjects)
 			{
 				HashSet<string> objectNameHashSet = gameObject.Name.ToLower().Split(' ').ToHashSet<string>();
-				if (objectNameHashSet.Intersect(searchNameHashSet).Count() > bestIntersectCount)
+				int intersectCount = objectNameHashSet.Intersect(searchNameHashSet).Count();
+				if (intersectCount > bestIntersectCount)
 				{
 					bestMatch = gameObject;
-					bestIntersectCount = objectNameHashSet.Count;
+					bestIntersectCount = intersectCount;
 				}
 			}
 
