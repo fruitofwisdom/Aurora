@@ -564,6 +564,12 @@ namespace Aurora
 
 		private void Debug(string inputObject)
 		{
+			if (!IsAdmin)
+			{
+				LocalConnection.SendMessage("Only admins may debug.\r\n");
+				return;
+			}
+
 			// Try looking in your inventory first.
 			bool wasInInventory = true;
 			GameObject gameObject = GetBestMatch(inputObject, Inventory);
@@ -590,6 +596,34 @@ namespace Aurora
 			else
 			{
 				LocalConnection.SendMessage("You don't see a " + inputObject + " here.\r\n");
+			}
+		}
+
+		private void Teleport(string inputObject)
+		{
+			if (IsAdmin)
+			{
+				if (int.TryParse(inputObject, out int newRoomId))
+				{
+					if (Game.Instance.RoomExists(newRoomId))
+					{
+						Game.Instance.ReportPlayerTeleported(this, CurrentRoomId, newRoomId);
+						CurrentRoomId = newRoomId;
+						DescriptionNeeded = true;
+					}
+					else
+					{
+						LocalConnection.SendMessage("That's not a valid Room ID.\r\n");
+					}
+				}
+				else
+				{
+					LocalConnection.SendMessage("That's not a valid Room ID.\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("Only admins may teleport.\r\n");
 			}
 		}
 

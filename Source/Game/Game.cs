@@ -549,9 +549,29 @@ namespace Aurora
 				{
 					otherPlayer.Message(player.Name + " has left.\r\n");
 				}
-				else if (otherPlayer.CurrentRoomId == toRoomId)
+				if (otherPlayer.CurrentRoomId == toRoomId)
 				{
 					otherPlayer.Message(player.Name + " has arrived.\r\n");
+				}
+			}
+		}
+
+		public void ReportPlayerTeleported(Player player, int fromRoomId, int toRoomId)
+		{
+			foreach (Player otherPlayer in ActivePlayers)
+			{
+				if (otherPlayer == player)
+				{
+					continue;
+				}
+
+				if (otherPlayer.CurrentRoomId == fromRoomId)
+				{
+					otherPlayer.Message(player.Name + " disappears in a puff of smoke.\r\n");
+				}
+				if (otherPlayer.CurrentRoomId == toRoomId)
+				{
+					otherPlayer.Message(player.Name + " appears in a puff of smoke.\r\n");
 				}
 			}
 		}

@@ -462,6 +462,9 @@ namespace Aurora
 				case "debug":
 					Debug(inputObject);
 					break;
+				case "teleport":
+					Teleport(inputObject);
+					break;
 				case "shutdown":
 					Shutdown();
 					break;
@@ -572,6 +575,7 @@ namespace Aurora
 				if (IsAdmin)
 				{
 					LocalConnection.SendMessage("     \"debug\" to print debug information about an object. (admin)\r\n");
+					LocalConnection.SendMessage("     \"teleport\" to teleport to a specific Room ID. (admin)\r\n");
 					LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
 				}
 				LocalConnection.SendMessage("For additional information, see one of the topics below.\r\n");
