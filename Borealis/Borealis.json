@@ -80,5 +80,5 @@
   "DefensePerLevel": 4,
   "AgilityPerLevel": 4,
   "Currency": "gold",
-  "WelcomeMessage": "Welcome to Borealis! This game is a test for the Aurora MUD engine. The latest features include combat and leveling up. Thanks for playing!"
+  "WelcomeMessage": "Welcome to Borealis! This game is a test for the Aurora MUD engine. The latest features include combat, leveling, shops, and better help. Thanks for playing!"
 }

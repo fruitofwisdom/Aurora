@@ -383,7 +383,7 @@ namespace Aurora
 					return;
 				case "help":
 				case "?":
-					PrintHelp();
+					PrintHelp(inputObject);
 					break;
 				case "look":
 					if (inputObject != null)
@@ -516,35 +516,68 @@ namespace Aurora
 			LocalConnection.SendMessage("> ");
 		}
 
-		private void PrintHelp()
+		private void PrintHelp(string inputObject)
 		{
-			LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
-			LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
-			LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
-			LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
-			LocalConnection.SendMessage("     \"north\", \"n\", \"south\", etc to move around the environment.\r\n");
-			LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
-			LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
-			LocalConnection.SendMessage("     \"say\" or \"emote\" to express yourself.\r\n");
-			LocalConnection.SendMessage("     \"read\" to read a sign, for example.\r\n");
-			LocalConnection.SendMessage("     \"talk to\" to talk to a non-player.\r\n");
-			LocalConnection.SendMessage("     \"list\" to see what a shopkeeper has for sale.\r\n");
-			LocalConnection.SendMessage("     \"browse\" to see details on an item for sale.\r\n");
-			LocalConnection.SendMessage("     \"buy\" or \"sell\" to trade with a shopkeeper.\r\n");
-			LocalConnection.SendMessage("     \"stats\" to see your current level, HP, etc.\r\n");
-			LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
-			LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
-			LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
-			LocalConnection.SendMessage("     \"eat\" or \"drink\" to consume an item in your inventory.\r\n");
-			LocalConnection.SendMessage("     \"equip\" or \"unequip\" to equip or unequip equipment.\r\n");
-			LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
-			LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
-			LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");
-			LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
-			if (IsAdmin)
+			if (inputObject == "basics")
 			{
-				LocalConnection.SendMessage("     \"debug\" to print debug information about an object. (admin)\r\n");
-				LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
+				LocalConnection.SendMessage("A MUD is a Multi-User Dungeon, a game where multiple people can play " +
+					"together, explore, and interact simultaneously. You play by typing any number of text " +
+					"commands to navigate the world, talk to people or non-player characters, buy equipment, " +
+					"attack monsters to gain experience and levels, and generally just have fun. Here are some " +
+					"more of the most basic commands, but explore the other help topics to learn more.\r\n");
+				LocalConnection.SendMessage("     \"who\" to list who else is playing.\r\n");
+				LocalConnection.SendMessage("     \"say\" or \"emote\" to express yourself.\r\n");
+				LocalConnection.SendMessage("     \"read\" to read a sign, for example.\r\n");
+				LocalConnection.SendMessage("     \"talk to\" to talk to a non-player character.\r\n");
+				LocalConnection.SendMessage("     \"stats\" to see your current level, HP, etc.\r\n");
+				LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
+				LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
+				LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+			}
+			else if (inputObject == "combat")
+			{
+				LocalConnection.SendMessage("Combat happens automatically, though you have to \"attack\" an enemy " +
+					"to begin. Before you attack something, however, make sure you are properly-equipped and " +
+					"consider using \"consider\" to judge an enemy's difficulty. If you find yourself in trouble, " +
+					"you can always run away or \"yield\" to stop attacking, though monsters may not immediately " +
+					"stop trying to kill you. Eventually, they will lose interest and your health will regenerate " +
+					"outside of combat. There is no real penalty to death, so have fun and take risks!\r\n");
+				LocalConnection.SendMessage("     \"attack\" to start attacking an enemy.\r\n");
+				LocalConnection.SendMessage("     \"yield\" to stop attacking.\r\n");
+				LocalConnection.SendMessage("     \"consider\" to consider an enemy, gauging its difficulty.\r\n");
+			}
+			else if (inputObject == "shopping")
+			{
+				LocalConnection.SendMessage("Before you go out to explore the world and try to kill the things in " +
+					"it, you need to be properly equipped and maybe have some food on hand. Visit one of the shops " +
+					"and you can see a \"list\" of what they sell or \"browse\" a specific item. Buy the equipment " +
+					"you need (or sell what you no longer need, though resale values are lower) and be sure to " +
+					"equip armor and weapons. Food and drink can be held in your inventory and used when you need " +
+					"them, especially in an emergency.\r\n");
+				LocalConnection.SendMessage("     \"list\" to see what a shopkeeper has for sale.\r\n");
+				LocalConnection.SendMessage("     \"browse\" to see details on an item for sale.\r\n");
+				LocalConnection.SendMessage("     \"buy\" or \"sell\" to trade with a shopkeeper.\r\n");
+				LocalConnection.SendMessage("     \"eat\" or \"drink\" to consume an item in your inventory.\r\n");
+				LocalConnection.SendMessage("     \"equip\" or \"unequip\" to equip or unequip equipment.\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("Type \"exit\" or \"quit\" to finish playing.\r\n");
+				LocalConnection.SendMessage("     \"help\" or \"?\" to see these instructions.\r\n");
+				LocalConnection.SendMessage("     \"look\" to look around at your surroundings.\r\n");
+				LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
+				LocalConnection.SendMessage("     \"north\", \"n\", \"south\", \"in\", etc to move around the environment.\r\n");
+				LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
+				LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
+				if (IsAdmin)
+				{
+					LocalConnection.SendMessage("     \"debug\" to print debug information about an object. (admin)\r\n");
+					LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
+				}
+				LocalConnection.SendMessage("For additional information, see one of the topics below.\r\n");
+				LocalConnection.SendMessage("     \"help basics\" to learn more about MUDs in general.\r\n");
+				LocalConnection.SendMessage("     \"help combat\" to learn more about combat.\r\n");
+				LocalConnection.SendMessage("     \"help shopping\" to learn more about shopping.\r\n");
 			}
 		}
 	}
