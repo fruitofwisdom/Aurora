@@ -1,6 +1,13 @@
 [
   {
     "$type": "NPC",
+    "Name": "Marie",
+    "CurrentRoomId": 2,
+    "Description": "Marie is the matron of your guest house, keeping it warm and clean.",
+    "Talk": "I hope your adventures are going well, my dear. Come see me any time."
+  },
+  {
+    "$type": "NPC",
     "Name": "a dragon statue",
     "CurrentRoomId": 4,
     "Description": "A beautiful white carving of a dragon rising in flight, barely affected by time."
@@ -25,7 +32,8 @@
         "Action": "Say News"
       }
     ],
-    "ThinkTime": 15000
+    "ThinkTime": 15000,
+    "Talk": "No time for chit-chat!"
   },
   {
     "$type": "EnemySpawner",

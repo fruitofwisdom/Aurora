@@ -12,6 +12,7 @@ namespace Aurora
 		public string Name { get; set; }
 		// The title as it should be displayed upon connection (e.g., as ASCII art).
 		public string[] Title { get; set; }
+		public string Subtitle { get; set; }
 		public string PlayersFilename { get; set; }
 		public string RoomsFilename { get; set; }
 		public string WorldObjectsFilename { get; set; }

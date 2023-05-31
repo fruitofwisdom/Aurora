@@ -156,8 +156,7 @@ namespace Aurora
 			NPC npc = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as NPC;
 			if (npc != null && npc.Talk != null)
 			{
-				LocalConnection.SendMessage(npc.CapitalizeName() + " says:\r\n");
-				LocalConnection.SendMessage("\"" + npc.Talk + "\"\r\n");
+				LocalConnection.SendMessage(npc.CapitalizeName() + " says: \"" + npc.Talk + "\"\r\n");
 			}
 			else
 			{

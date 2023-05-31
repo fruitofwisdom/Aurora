@@ -63,7 +63,12 @@ namespace Aurora
 				{
 					SendMessage(line + "\r\n");
 				}
-				SendMessage("Running on Aurora version " + version + "!\r\n\r\n");
+				if (Game.Instance.Subtitle != null)
+				{
+					SendMessage(Game.Instance.Subtitle + "\r\n");
+				}
+				SendMessage("\r\n");
+				SendMessage("This MUD is running on Aurora version " + version + ".\r\n\r\n");
 				SendMessage("What is your name?\r\n> ");
 
 				// loop until the client has left and the thread is terminated
@@ -292,7 +297,7 @@ namespace Aurora
 			LocalPlayer = player;
 			LocalPlayer.SetConnection(this);
 
-			SendMessage(Game.Instance.WelcomeMessage + "\r\n");
+			SendMessage(Game.Instance.WelcomeMessage + "\r\n\r\n");
 			SendMessage("Type \"help\" for more information.\r\n");
 
 			Game.Instance.PlayerJoined(LocalPlayer);

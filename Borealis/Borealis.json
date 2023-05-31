@@ -8,6 +8,7 @@
     " |______  /\\____/|__|    \\___  >____  /____/__/____  >",
     "        \\/                   \\/     \\/             \\/"
   ],
+  "Subtitle": "A short, Northern adventure by Ward Childress.",
   "PlayersFilename": "Borealis/Players.json",
   "RoomsFilename": "Borealis/Rooms.json",
   "WorldObjectsFilename": "Borealis/WorldObjects.json",

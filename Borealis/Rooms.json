@@ -11,8 +11,8 @@
   },
   {
     "RoomId": 2,
-    "Name": "Your House",
-    "Description": "Your humble home is just that, the place where you rest your head and keep your belongings between adventures. Well, supposed adventures. You haven't done much of that lately... Time to be off then! You are running low on coin and your stomach grumbling. South lies your journey.",
+    "Name": "Guest House",
+    "Description": "This guest house in the heart of the city has long been home to many adventurers, ready to find fame and fortune out in the wilds. The matron keeps the house tidy, your room clean, and your belly full in between trips. The southern door leads out into the bustling city streets.",
     "Exits": [
       {
         "Direction": "south",
