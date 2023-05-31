@@ -575,6 +575,7 @@ namespace Aurora
 				if (IsAdmin)
 				{
 					LocalConnection.SendMessage("     \"debug\" to print debug information about an object. (admin)\r\n");
+					LocalConnection.SendMessage("     \"debug room\" and an optional Room ID to debug a room. (admin)\r\n");
 					LocalConnection.SendMessage("     \"teleport\" to teleport to a specific Room ID. (admin)\r\n");
 					LocalConnection.SendMessage("     \"shutdown\" to shutdown the server. (admin)\r\n");
 				}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Aurora
 {
@@ -101,16 +102,16 @@ namespace Aurora
 			}
 		}
 
-		private void Say(string inputObject)
+		private void Say(string inputArgument)
 		{
-			LocalConnection.SendMessage("You say, \"" + inputObject + "\"\r\n");
-			Game.Instance.ReportPlayerSaid(this, inputObject);
+			LocalConnection.SendMessage("You say, \"" + inputArgument + "\"\r\n");
+			Game.Instance.ReportPlayerSaid(this, inputArgument);
 		}
 
-		private void Emote(string inputObject)
+		private void Emote(string inputArgument)
 		{
-			LocalConnection.SendMessage("You " + inputObject + ".\r\n");
-			Game.Instance.ReportPlayerEmoted(this, inputObject);
+			LocalConnection.SendMessage("You " + inputArgument + ".\r\n");
+			Game.Instance.ReportPlayerEmoted(this, inputArgument);
 		}
 
 		private void Read(string inputObject)
@@ -570,28 +571,91 @@ namespace Aurora
 				return;
 			}
 
-			// Try looking in your inventory first.
-			bool wasInInventory = true;
-			GameObject gameObject = GetBestMatch(inputObject, Inventory);
+			if (inputObject != null)
+			{
+				string[] words = inputObject.ToLower().Split(' ');
+				if (words[0] == "room")
+				{
+					if (words.Length > 1)
+					{
+						DebugRoom(words[1]);
+					}
+					else
+					{
+						DebugRoom(null);
+					}
+				}
+				else
+				{
+					DebugGameObject(inputObject);
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("What do you want to debug?\r\n");
+			}
+		}
+
+		private void DebugRoom(string inputObject)
+		{
+			Room room = null;
+			if (inputObject != null)
+			{
+				if (int.TryParse(inputObject, out int roomId))
+				{
+					room = Game.Instance.GetRoom(roomId);
+				}
+			}
+			else
+			{
+				room = Game.Instance.GetRoom(CurrentRoomId);
+			}
+
+			if (room != null)
+			{
+				foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(room))
+				{
+					LocalConnection.SendMessage(descriptor.Name + ": " + descriptor.GetValue(room) + "\r\n");
+				}
+			}
+			else
+			{
+				LocalConnection.SendMessage("That's not a valid Room ID.\r\n");
+			}
+		}
+
+		private void DebugGameObject(string inputObject)
+		{
+			// Try looking in your equipment first.
+			GameObject gameObject = GetBestMatch(inputObject, Equipment);
+			bool wasEquipped = gameObject != null;
+			bool wasInInventory = false;
 			if (gameObject == null)
 			{
-				// Then try looking in the world.
-				wasInInventory = false;
-				gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				// Then try looking in your inventory.
+				gameObject = GetBestMatch(inputObject, Inventory);
+				wasInInventory = gameObject != null;
+				if (gameObject == null)
+				{
+					// Then try looking in the world.
+					gameObject = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				}
 			}
 
 			if (gameObject != null)
 			{
+				if (wasEquipped)
+				{
+					LocalConnection.SendMessage("(equipped) \r\n");
+				}
 				if (wasInInventory)
 				{
-					LocalConnection.SendMessage("(in your inventory)\r\n");
+					LocalConnection.SendMessage("(in your inventory) \r\n");
 				}
-				LocalConnection.SendMessage("Class: " + gameObject.GetType().ToString() + "\r\n");
-				LocalConnection.SendMessage("ObjectId: " + gameObject.ObjectId + "\r\n");
-				LocalConnection.SendMessage("Name: \"" + gameObject.Name + "\"\r\n");
-				LocalConnection.SendMessage("CurrentRoomId: " + gameObject.CurrentRoomId + "\r\n");
-				LocalConnection.SendMessage("Description: \"" + gameObject.Description + "\"\r\n");
-				LocalConnection.SendMessage(gameObject.Invisible ? "invisible\r\n" : "not invisible\r\n");
+				foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(gameObject))
+				{
+					LocalConnection.SendMessage(descriptor.Name + ": " + descriptor.GetValue(gameObject) + "\r\n");
+				}
 			}
 			else
 			{
@@ -601,20 +665,19 @@ namespace Aurora
 
 		private void Teleport(string inputObject)
 		{
-			if (IsAdmin)
+			if (!IsAdmin)
 			{
-				if (int.TryParse(inputObject, out int newRoomId))
+				LocalConnection.SendMessage("Only admins may teleport.\r\n");
+				return;
+			}
+
+			if (int.TryParse(inputObject, out int newRoomId))
+			{
+				if (Game.Instance.RoomExists(newRoomId))
 				{
-					if (Game.Instance.RoomExists(newRoomId))
-					{
-						Game.Instance.ReportPlayerTeleported(this, CurrentRoomId, newRoomId);
-						CurrentRoomId = newRoomId;
-						DescriptionNeeded = true;
-					}
-					else
-					{
-						LocalConnection.SendMessage("That's not a valid Room ID.\r\n");
-					}
+					Game.Instance.ReportPlayerTeleported(this, CurrentRoomId, newRoomId);
+					CurrentRoomId = newRoomId;
+					DescriptionNeeded = true;
 				}
 				else
 				{
@@ -623,7 +686,7 @@ namespace Aurora
 			}
 			else
 			{
-				LocalConnection.SendMessage("Only admins may teleport.\r\n");
+				LocalConnection.SendMessage("That's not a valid Room ID.\r\n");
 			}
 		}
 
