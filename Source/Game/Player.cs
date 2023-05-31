@@ -23,6 +23,10 @@ namespace Aurora
 		private Fighter Target = null;
 		private const double kAttackTime = 5;      // in seconds
 		private DateTime LastAttackTime = DateTime.MinValue;
+		private const double kStartRegenTime = 10;		// in seconds
+		private DateTime LastCombatTime = DateTime.MinValue;
+		private const double kContinueRegenTime = 5;        // in seconds
+		private DateTime LastRegenTime = DateTime.MinValue;
 
 		public Player(string name, int currentRoomId, string password, string salt)
 		{
@@ -53,6 +57,29 @@ namespace Aurora
 
 				LastAttackTime = eventTime;
 			}
+
+			// Start to regenerate HP after combat ends.
+			if ((eventTime - LastCombatTime).Seconds > kStartRegenTime)
+			{
+				if ((eventTime - LastRegenTime).Seconds > kContinueRegenTime)
+				{
+					if (CurrentHP < MaxHP)
+					{
+						CurrentHP++;
+						LocalConnection.SendMessage("\r\n");
+						PrintPrompt();
+						LastRegenTime = eventTime;
+					}
+				}
+			}
+		}
+
+		protected override void Attack(Fighter defender)
+		{
+			// We're still in combat, don't regen yet.
+			LastCombatTime = DateTime.Now;
+
+			base.Attack(defender);
 		}
 
 		protected override void DealtDamage(Fighter defender, bool didHit, int damage)
@@ -86,6 +113,9 @@ namespace Aurora
 				PrintPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
+
+			// We're still in combat, don't regen yet.
+			LastCombatTime = DateTime.Now;
 
 			base.TakeDamage(attacker, didHit, 0);
 		}

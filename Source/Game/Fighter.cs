@@ -34,7 +34,7 @@ namespace Aurora
 		}
 
 		// Attempt to attack (hit and damage) a defender.
-		protected void Attack(Fighter defender)
+		protected virtual void Attack(Fighter defender)
 		{
 			defender.Tag(this);
 
