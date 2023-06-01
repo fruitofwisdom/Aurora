@@ -136,7 +136,7 @@ namespace Aurora
 					{
 						message += "(in your inventory) ";
 					}
-					message += item.CapitalizeName() + " reads:" + "\r\n";
+					message += "The " + item.Name + " reads:" + "\r\n";
 					LocalConnection.SendMessage(message);
 					LocalConnection.SendMessage("\"" + item.Read + "\"\r\n");
 				}
