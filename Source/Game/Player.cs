@@ -40,7 +40,16 @@ namespace Aurora
 
 		protected override void Think(DateTime eventTime)
 		{
-			if ((eventTime - LastAttackTime).Seconds > kAttackTime)
+			// Attack more often or not if we are faster than our opponent.
+			double attackTime = kAttackTime;
+			if (Target != null)
+			{
+				attackTime = GetAdjustedAttackTime(kAttackTime, Target);
+			}
+
+			double elapsedTime = (eventTime - LastAttackTime).Seconds +
+				(eventTime - LastAttackTime).Milliseconds / 1000;
+			if (elapsedTime > attackTime)
 			{
 				if (Target != null)
 				{

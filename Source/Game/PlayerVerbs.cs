@@ -538,8 +538,8 @@ namespace Aurora
 			Fighter target = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as Fighter;
 			if (target != null)
 			{
+				// TODO: Fix this?
 				int statDifference =
-					target.MaxHP - MaxHP +
 					target.Strength - Strength +
 					target.Defense - Defense +
 					target.Agility - Agility;

@@ -38,16 +38,16 @@ namespace Aurora
 		{
 			defender.Tag(this);
 
-			// TODO: Better hit calculation?
-			int didHit = (Agility + Rng.Next(1, 20)) - (defender.Agility + Rng.Next(1, 20));
-			if (didHit > 0)
+			float chanceToHit = (0.8f - (defender.Agility - Agility) / 10.0f) * 100.0f;
+			bool didHit = Rng.Next(0, 100) <= (int)Math.Round(chanceToHit, 0);
+			if (didHit)
 			{
-				// TODO: Better damage calculation?
-				int damage = (Strength + Rng.Next(1, 20)) - (defender.Defense + Rng.Next(1, 20));
-				// Let's have a minimum amount of damage per hit.
-				if (damage <= 0)
+				float minDamage = 1 + (Strength - defender.Defense) / 5.0f;
+				float maxDamage = 5 + (Strength - defender.Defense) / 5.0f;
+				int damage = Rng.Next((int)Math.Round(minDamage, 0), (int)Math.Round(maxDamage, 0));
+				if (damage < 0)
 				{
-					damage = 1;
+					damage = 0;
 				}
 
 				// Notify all interested parties that an attack hit.
@@ -103,5 +103,25 @@ namespace Aurora
 
 		// This is called on each attacker when a defender dies. attacker is who dealt the kill.
 		protected virtual void NotifyDeath(Fighter attacker, Fighter defender) { }
+
+		// Returns an adjusted attack time based on the Agility of the attacker and defender.
+		protected double GetAdjustedAttackTime(double attackTime, Fighter defender)
+		{
+			double adjustedAttackTime = attackTime;
+			if (Agility > defender.Agility)
+			{
+				adjustedAttackTime -= 0.5;
+			}
+			else if (Agility < defender.Agility)
+			{
+				adjustedAttackTime += 0.5;
+			}
+			else
+			{
+				// Pick a delay between -0.25 and 0.25.
+				adjustedAttackTime += Random.Shared.NextDouble() / 2 - 0.25;
+			}
+			return adjustedAttackTime;
+		}
 	}
 }

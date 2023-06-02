@@ -17,7 +17,7 @@ namespace Aurora
 		public List<int> RoomList { get; set; } = null;
 		public List<Behavior> Logic { get; set; } = null;
 
-		public double ThinkTime { get; set; } = 1000;      // 1 second
+		public double ThinkTime { get; set; } = 500;		// in milliseconds
 
 		protected Timer ThinkTimer = null;
 
@@ -59,8 +59,7 @@ namespace Aurora
 				{
 					totalOdds += action.Chance;
 				}
-				Random rng = new Random();
-				int randomBehavior = rng.Next(0, totalOdds + 1);
+				int randomBehavior = Random.Shared.Next(0, totalOdds + 1);
 				// Choose a Behavior at random.
 				foreach (var behavior in Logic)
 				{
@@ -80,7 +79,7 @@ namespace Aurora
 							}
 							if (validExits.Count > 0)
 							{
-								int randomExit = rng.Next(0, validExits.Count);
+								int randomExit = Random.Shared.Next(0, validExits.Count);
 								Game.Instance.ReportMobileMoved(this, CurrentRoomId, validExits[randomExit]);
 								CurrentRoomId = validExits[randomExit];
 							}

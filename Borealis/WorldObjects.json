@@ -44,10 +44,10 @@
       "Name": "deranged seagull",
       "Description": "a deranged seagull, drunk on grog",
       "Level": 1,
-      "MaxHP": 15,
-      "BaseStrength": 5,
-      "BaseDefense": 5,
-      "BaseAgility": 5,
+      "MaxHP": 10,
+      "BaseStrength": 10,
+      "BaseDefense": 10,
+      "BaseAgility": 10,
       "XPReward": 10,
       "GoldReward": 20
     }
@@ -189,10 +189,10 @@
       "Name": "rabid rat",
       "Description": "a rabid rat or, at least, an angry one",
       "Level": 1,
-      "MaxHP": 12,
-      "BaseStrength": 4,
-      "BaseDefense": 4,
-      "BaseAgility": 4,
+      "MaxHP": 8,
+      "BaseStrength": 8,
+      "BaseDefense": 8,
+      "BaseAgility": 8,
       "XPReward": 8,
       "GoldReward": 16
     }
@@ -206,19 +206,19 @@
       "Name": "venomous snake",
       "Description": "a venomous, not poisonous, snake",
       "Level": 1,
-      "MaxHP": 18,
-      "BaseStrength": 6,
-      "BaseDefense": 6,
-      "BaseAgility": 6,
+      "MaxHP": 12,
+      "BaseStrength": 12,
+      "BaseDefense": 12,
+      "BaseAgility": 12,
       "XPReward": 12,
       "GoldReward": 24
     }
   },
   {
     "$type": "Item",
-    "Name": "a road sign",
+    "Name": "road sign",
     "CurrentRoomId": 18,
-    "Description": "a recent, wooden sign has been posted here",
+    "Description": "A recent, wooden sign has been posted here.",
     "Heavy": true,
     "Read": "Road closed ahead due to landslide. Southern woods also off limits."
   },
@@ -231,10 +231,10 @@
       "Name": "remorhaz",
       "Description": "a piranha-like fish, I think",
       "Level": 2,
-      "MaxHP": 18,
-      "BaseStrength": 7,
-      "BaseDefense": 7,
-      "BaseAgility": 7,
+      "MaxHP": 24,
+      "BaseStrength": 16,
+      "BaseDefense": 16,
+      "BaseAgility": 16,
       "XPReward": 17,
       "GoldReward": 34
     }
@@ -248,10 +248,10 @@
       "Name": "hungry lynx",
       "Description": "a hungry lynx, with a fierce look in its eyes",
       "Level": 2,
-      "MaxHP": 12,
-      "BaseStrength": 5,
-      "BaseDefense": 5,
-      "BaseAgility": 5,
+      "MaxHP": 16,
+      "BaseStrength": 10,
+      "BaseDefense": 10,
+      "BaseAgility": 10,
       "XPReward": 11,
       "GoldReward": 22
     }
@@ -265,10 +265,10 @@
       "Name": "brown bear",
       "Description": "a young brown bear",
       "Level": 3,
-      "MaxHP": 20,
-      "BaseStrength": 7,
-      "BaseDefense": 7,
-      "BaseAgility": 7,
+      "MaxHP": 30,
+      "BaseStrength": 16,
+      "BaseDefense": 16,
+      "BaseAgility": 16,
       "XPReward": 18,
       "GoldReward": 36
     }
@@ -282,10 +282,10 @@
       "Name": "wild boar",
       "Description": "a mangy, brown boar",
       "Level": 2,
-      "MaxHP": 15,
-      "BaseStrength": 6,
-      "BaseDefense": 6,
-      "BaseAgility": 6,
+      "MaxHP": 20,
+      "BaseStrength": 13,
+      "BaseDefense": 13,
+      "BaseAgility": 13,
       "XPReward": 14,
       "GoldReward": 28
     }
@@ -299,10 +299,10 @@
       "Name": "grey wolf",
       "Description": "a wolf that is grey",
       "Level": 3,
-      "MaxHP": 24,
-      "BaseStrength": 8,
-      "BaseDefense": 8,
-      "BaseAgility": 8,
+      "MaxHP": 36,
+      "BaseStrength": 19,
+      "BaseDefense": 19,
+      "BaseAgility": 19,
       "XPReward": 22,
       "GoldReward": 43
     }
@@ -316,10 +316,10 @@
       "Name": "ferocious wolverine",
       "Description": "a small, yet ferocious wolverine",
       "Level": 4,
-      "MaxHP": 25,
-      "BaseStrength": 8,
-      "BaseDefense": 8,
-      "BaseAgility": 8,
+      "MaxHP": 40,
+      "BaseStrength": 19,
+      "BaseDefense": 19,
+      "BaseAgility": 19,
       "XPReward": 22,
       "GoldReward": 44
     }
@@ -333,10 +333,10 @@
       "Name": "polar bear",
       "Description": "a polar bear, no longer hibernating",
       "Level": 4,
-      "MaxHP": 30,
-      "BaseStrength": 10,
-      "BaseDefense": 10,
-      "BaseAgility": 10,
+      "MaxHP": 48,
+      "BaseStrength": 23,
+      "BaseDefense": 23,
+      "BaseAgility": 23,
       "XPReward": 26,
       "GoldReward": 53
     }
@@ -350,10 +350,10 @@
       "Name": "decaying draugr",
       "Description": "a skeleton, shambling and ragged",
       "Level": 5,
-      "MaxHP": 30,
-      "BaseStrength": 9,
-      "BaseDefense": 9,
-      "BaseAgility": 9,
+      "MaxHP": 50,
+      "BaseStrength": 22,
+      "BaseDefense": 22,
+      "BaseAgility": 22,
       "XPReward": 26,
       "GoldReward": 52
     }
@@ -367,10 +367,10 @@
       "Name": "giant troll",
       "Description": "a giant troll, even larger than a regular troll",
       "Level": 5,
-      "MaxHP": 36,
-      "BaseStrength": 11,
-      "BaseDefense": 11,
-      "BaseAgility": 11,
+      "MaxHP": 60,
+      "BaseStrength": 26,
+      "BaseDefense": 26,
+      "BaseAgility": 26,
       "XPReward": 31,
       "GoldReward": 62
     }
