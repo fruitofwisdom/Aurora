@@ -1,0 +1,62 @@
+[
+  {
+    "Name": "Ward",
+    "CurrentRoomId": 2,
+    "Password": "q/dvZgKPMaMPLGWSOKi7q61/jf0=",
+    "Salt": "aFlDWdGVb3k=",
+    "IsAdmin": true,
+    "Level": 1,
+    "CurrentHP": 30,
+    "MaxHP": 30,
+    "BaseStrength": 10,
+    "BaseDefense": 10,
+    "BaseAgility": 10,
+    "Equipment": [
+      {
+        "$type": "Item",
+        "Name": "comfortable clothes",
+        "Description": "comfortable clothes for everyday wear",
+        "CanEquip": true,
+        "IsArmor": true,
+        "StrengthMod": 0,
+        "DefenseMod": 1,
+        "AgilityMod": 1
+      },
+      {
+        "$type": "Item",
+        "Name": "kitchen knife",
+        "Description": "a sharp, but well-used kitchen knife",
+        "CanEquip": true,
+        "IsWeapon": true,
+        "StrengthMod": 1,
+        "DefenseMod": 0,
+        "AgilityMod": 0
+      }
+    ],
+    "Inventory": [
+      {
+        "$type": "Item",
+        "Name": "sourdough bread",
+        "Description": "some sourdough bread with jam and butter",
+        "Cost": 15,
+        "CanEat": true,
+        "HPRestore": 25
+      },
+      {
+        "$type": "Item",
+        "Name": "espresso",
+        "Description": "a shot of dark espresso",
+        "Cost": 10,
+        "CanDrink": true,
+        "HPRestore": 17
+      },
+      {
+        "$type": "Item",
+        "Name": "guide",
+        "Description": "a guide to Borealis",
+        "Read": "Thank you for playing Borealis! Here are some quick tips to get started. First, explore the city. You'll find two shops selling equipment and items as well as some easy enemies to practice on. Be alert when you head out - enemies will become tougher and you'll want some better equipment. Be especially careful in the woods and mountains as who knows what kind of creatures you may find! Keep playing and see if you can reach level 5!"
+      }
+    ],
+    "Gold": 100
+  }
+]

@@ -5,7 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <Version>0.5</Version>
+    <Version>0.6</Version>
     <Company>https://github.com/fruitofwisdom/Aurora</Company>
     <Description>Image of the aurora borealis by Raul Popadineți on Unsplash.</Description>
     <StartupObject>Aurora.EntryPoint</StartupObject>
@@ -25,19 +25,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Borealis.db">
+    <None Update="Borealis\Borealis.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Borealis.json">
+    <None Update="Borealis\Players.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="BorealisObjects.json">
+    <None Update="Borealis\Rooms.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="BorealisPlayers.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="BorealisRooms.json">
+    <None Update="Borealis\WorldObjects.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">

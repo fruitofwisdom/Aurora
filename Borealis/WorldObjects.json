@@ -1,0 +1,385 @@
+[
+  {
+    "$type": "NPC",
+    "Name": "Marie",
+    "CurrentRoomId": 2,
+    "Description": "Marie is the matron of your guest house, keeping it warm and clean.",
+    "Talk": "I hope your adventures are going well, my dear. Come see me any time."
+  },
+  {
+    "$type": "NPC",
+    "Name": "a dragon statue",
+    "CurrentRoomId": 4,
+    "Description": "A beautiful white carving of a dragon rising in flight, barely affected by time."
+  },
+  {
+    "$type": "NPC",
+    "Name": "the town crier",
+    "CurrentRoomId": 4,
+    "Description": "The town crier travels around town, delivering news to citizens he meets.",
+    "RoomList": [ 3, 4, 5, 6, 7, 8, 9 ],
+    "Logic": [
+      {
+        "Chance": 50,
+        "Action": "Nothing"
+      },
+      {
+        "Chance": 25,
+        "Action": "Move"
+      },
+      {
+        "Chance": 25,
+        "Action": "Say News"
+      }
+    ],
+    "ThinkTime": 15000,
+    "Talk": "No time for chit-chat!"
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "deranged seagull spawner",
+    "CurrentRoomId": 9,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "deranged seagull",
+      "Description": "a deranged seagull, drunk on grog",
+      "Level": 1,
+      "MaxHP": 10,
+      "BaseStrength": 10,
+      "BaseDefense": 10,
+      "BaseAgility": 10,
+      "XPReward": 10,
+      "GoldReward": 20
+    }
+  },
+  {
+    "$type": "NPC",
+    "Name": "the fat baker",
+    "CurrentRoomId": 10,
+    "Description": "No, the baker is not fat, but actually a pretty young lady.",
+    "Logic": [
+      {
+        "Chance": 90,
+        "Action": "Nothing"
+      },
+      {
+        "Chance": 10,
+        "Action": "Stretch"
+      }
+    ],
+    "ThinkTime": 5000,
+    "Talk": "Welcome to The Fat Baker and, yes, it's named after my father.",
+    "VendorList": [
+      {
+        "$type": "Item",
+        "Name": "sourdough bread",
+        "Description": "some sourdough bread with jam and butter",
+        "Cost": 15,
+        "CanEat": true,
+        "HPRestore": 25
+      },
+      {
+        "$type": "Item",
+        "Name": "salmon sandwich",
+        "Description": "a sandwich with smoked salmon, cheese, and lettuce",
+        "Cost": 30,
+        "CanEat": true,
+        "HPRestore": 50
+      },
+      {
+        "$type": "Item",
+        "Name": "espresso",
+        "Description": "a shot of dark espresso",
+        "Cost": 10,
+        "CanDrink": true,
+        "HPRestore": 17
+      },
+      {
+        "$type": "Item",
+        "Name": "cappuccino",
+        "Description": "dark espresso in a rich milk foam",
+        "Cost": 20,
+        "CanDrink": true,
+        "HPRestore": 34
+      }
+    ]
+  },
+  {
+    "$type": "NPC",
+    "Name": "Edgar",
+    "CurrentRoomId": 12,
+    "Description": "Edgar is the exact opposite of the traditional blacksmith. He's well-dressed and well-coiffed.",
+    "Talk": "Welcome to my shop! Huh? Oh, my brother, Sabin, does all the actual smithing.",
+    "VendorList": [
+      {
+        "$type": "Item",
+        "Name": "dagger",
+        "Description": "a simple, yet sharp dagger",
+        "Cost": 25,
+        "CanEquip": true,
+        "IsWeapon": true,
+        "StrengthMod": 2
+      },
+      {
+        "$type": "Item",
+        "Name": "iron sword",
+        "Description": "a sturdy sword made of iron",
+        "Cost": 50,
+        "CanEquip": true,
+        "IsWeapon": true,
+        "StrengthMod": 4
+      },
+      {
+        "$type": "Item",
+        "Name": "steel sword",
+        "Description": "a strong, reliable sword of steel",
+        "Cost": 100,
+        "CanEquip": true,
+        "IsWeapon": true,
+        "StrengthMod": 8
+      },
+      {
+        "$type": "Item",
+        "Name": "leather armor",
+        "Description": "tough, hard leather armor",
+        "Cost": 50,
+        "CanEquip": true,
+        "IsArmor": true,
+        "DefenseMod": 2,
+        "AgilityMod": 4
+      },
+      {
+        "$type": "Item",
+        "Name": "ring mail",
+        "Description": "leather armor underneath, with metal rings interwoven",
+        "Cost": 100,
+        "CanEquip": true,
+        "IsArmor": true,
+        "DefenseMod": 4,
+        "AgilityMod": 8
+      },
+      {
+        "$type": "Item",
+        "Name": "iron armor",
+        "Description": "armor of iron plates fitted together",
+        "Cost": 50,
+        "CanEquip": true,
+        "IsArmor": true,
+        "DefenseMod": 4,
+        "AgilityMod": 2
+      },
+      {
+        "$type": "Item",
+        "Name": "plate mail",
+        "Description": "iron plates covering nearly every piece and crack of this armor",
+        "Cost": 100,
+        "CanEquip": true,
+        "IsArmor": true,
+        "DefenseMod": 8,
+        "AgilityMod": 4
+      }
+    ]
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "rabid rat spawner",
+    "CurrentRoomId": 16,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "rabid rat",
+      "Description": "a rabid rat or, at least, an angry one",
+      "Level": 1,
+      "MaxHP": 8,
+      "BaseStrength": 8,
+      "BaseDefense": 8,
+      "BaseAgility": 8,
+      "XPReward": 8,
+      "GoldReward": 16
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "venomous snake spawner",
+    "CurrentRoomId": 18,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "venomous snake",
+      "Description": "a venomous, not poisonous, snake",
+      "Level": 1,
+      "MaxHP": 12,
+      "BaseStrength": 12,
+      "BaseDefense": 12,
+      "BaseAgility": 12,
+      "XPReward": 12,
+      "GoldReward": 24
+    }
+  },
+  {
+    "$type": "Item",
+    "Name": "road sign",
+    "CurrentRoomId": 18,
+    "Description": "A recent, wooden sign has been posted here.",
+    "Heavy": true,
+    "Read": "Road closed ahead due to landslide. Southern woods also off limits."
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "remorhaz spawner",
+    "CurrentRoomId": 21,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "remorhaz",
+      "Description": "a piranha-like fish, I think",
+      "Level": 2,
+      "MaxHP": 24,
+      "BaseStrength": 16,
+      "BaseDefense": 16,
+      "BaseAgility": 16,
+      "XPReward": 17,
+      "GoldReward": 34
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "hungry lynx spawner",
+    "CurrentRoomId": 22,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "hungry lynx",
+      "Description": "a hungry lynx, with a fierce look in its eyes",
+      "Level": 2,
+      "MaxHP": 16,
+      "BaseStrength": 10,
+      "BaseDefense": 10,
+      "BaseAgility": 10,
+      "XPReward": 11,
+      "GoldReward": 22
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "brown bear spawner",
+    "CurrentRoomId": 23,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "brown bear",
+      "Description": "a young brown bear",
+      "Level": 3,
+      "MaxHP": 30,
+      "BaseStrength": 16,
+      "BaseDefense": 16,
+      "BaseAgility": 16,
+      "XPReward": 18,
+      "GoldReward": 36
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "wild boar spawner",
+    "CurrentRoomId": 25,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "wild boar",
+      "Description": "a mangy, brown boar",
+      "Level": 2,
+      "MaxHP": 20,
+      "BaseStrength": 13,
+      "BaseDefense": 13,
+      "BaseAgility": 13,
+      "XPReward": 14,
+      "GoldReward": 28
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "grey wolf spawner",
+    "CurrentRoomId": 27,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "grey wolf",
+      "Description": "a wolf that is grey",
+      "Level": 3,
+      "MaxHP": 36,
+      "BaseStrength": 19,
+      "BaseDefense": 19,
+      "BaseAgility": 19,
+      "XPReward": 22,
+      "GoldReward": 43
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "ferocious wolverine spawner",
+    "CurrentRoomId": 28,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "ferocious wolverine",
+      "Description": "a small, yet ferocious wolverine",
+      "Level": 4,
+      "MaxHP": 40,
+      "BaseStrength": 19,
+      "BaseDefense": 19,
+      "BaseAgility": 19,
+      "XPReward": 22,
+      "GoldReward": 44
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "polar bear spawner",
+    "CurrentRoomId": 29,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "polar bear",
+      "Description": "a polar bear, no longer hibernating",
+      "Level": 4,
+      "MaxHP": 48,
+      "BaseStrength": 23,
+      "BaseDefense": 23,
+      "BaseAgility": 23,
+      "XPReward": 26,
+      "GoldReward": 53
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "decaying draugr spawner",
+    "CurrentRoomId": 30,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "decaying draugr",
+      "Description": "a skeleton, shambling and ragged",
+      "Level": 5,
+      "MaxHP": 50,
+      "BaseStrength": 22,
+      "BaseDefense": 22,
+      "BaseAgility": 22,
+      "XPReward": 26,
+      "GoldReward": 52
+    }
+  },
+  {
+    "$type": "EnemySpawner",
+    "Name": "giant troll spawner",
+    "CurrentRoomId": 32,
+    "SpawnTime": 20000,
+    "EnemyToSpawn": {
+      "Name": "giant troll",
+      "Description": "a giant troll, even larger than a regular troll",
+      "Level": 5,
+      "MaxHP": 60,
+      "BaseStrength": 26,
+      "BaseDefense": 26,
+      "BaseAgility": 26,
+      "XPReward": 31,
+      "GoldReward": 62
+    }
+  },
+  {
+    "$type": "NPC",
+    "Name": "Cid",
+    "CurrentRoomId": 33,
+    "Description": "a cheerful, burly man with a bushy beard and warm smile",
+    "Talk": "Welcome to The Fearful Fox! Sit down and have yourself a rest!"
+  }
+]
