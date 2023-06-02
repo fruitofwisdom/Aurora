@@ -5,7 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <Version>0.5.2</Version>
+    <Version>0.6</Version>
     <Company>https://github.com/fruitofwisdom/Aurora</Company>
     <Description>Image of the aurora borealis by Raul Popadineți on Unsplash.</Description>
     <StartupObject>Aurora.EntryPoint</StartupObject>
