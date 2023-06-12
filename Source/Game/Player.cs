@@ -23,10 +23,14 @@ namespace Aurora
 		private Fighter Target = null;
 		private const double kAttackTime = 5;      // in seconds
 		private DateTime LastAttackTime = DateTime.MinValue;
-		private const double kStartRegenTime = 10;		// in seconds
-		private DateTime LastCombatTime = DateTime.MinValue;
+
+		// HP regenerates after some time has passed.
+		private const double kStartRegenTime = 10;      // in seconds
 		private const double kContinueRegenTime = 5;        // in seconds
+		private const double kHPToRestore = 0.1;		// in percent
+		private DateTime LastDamageTime = DateTime.MinValue;
 		private DateTime LastRegenTime = DateTime.MinValue;
+		private bool RegenJustStarted = true;
 
 		public Player(string name, int currentRoomId, string password, string salt)
 		{
@@ -67,28 +71,28 @@ namespace Aurora
 				LastAttackTime = eventTime;
 			}
 
-			// Start to regenerate HP after combat ends.
-			if ((eventTime - LastCombatTime).Seconds > kStartRegenTime)
+			// Restore HP if enough time has passed since taking damage.
+			if ((eventTime - LastDamageTime).Seconds > kStartRegenTime &&
+				(eventTime - LastRegenTime).Seconds > kContinueRegenTime)
 			{
-				if ((eventTime - LastRegenTime).Seconds > kContinueRegenTime)
+				if (CurrentHP < MaxHP)
 				{
-					if (CurrentHP < MaxHP)
+					CurrentHP += (int)(MaxHP * kHPToRestore);
+					if (CurrentHP >= MaxHP)
 					{
-						CurrentHP++;
-						LocalConnection.SendMessage("\r\n");
+						CurrentHP = MaxHP;
+						LocalConnection.SendMessage("You feel fully recovered.\r\n");
 						PrintPrompt();
-						LastRegenTime = eventTime;
 					}
+					else if (RegenJustStarted)
+					{
+						RegenJustStarted = false;
+						LocalConnection.SendMessage("You begin to feel better.\r\n");
+						PrintPrompt();
+					}
+					LastRegenTime = eventTime;
 				}
 			}
-		}
-
-		protected override void Attack(Fighter defender)
-		{
-			// We're still in combat, don't regen yet.
-			LastCombatTime = DateTime.Now;
-
-			base.Attack(defender);
 		}
 
 		protected override void DealtDamage(Fighter defender, bool didHit, int damage)
@@ -123,8 +127,9 @@ namespace Aurora
 				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
 
-			// We're still in combat, don't regen yet.
-			LastCombatTime = DateTime.Now;
+			// We've just taken damage, don't regen yet.
+			LastDamageTime = DateTime.Now;
+			RegenJustStarted = true;
 
 			base.TakeDamage(attacker, didHit, 0);
 		}
