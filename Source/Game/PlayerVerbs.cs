@@ -562,6 +562,21 @@ namespace Aurora
 			}
 		}
 
+		private void Config(string inputObject)
+		{
+			if (inputObject == "prompt")
+			{
+				ConfigLongPrompt = !ConfigLongPrompt;
+				LocalConnection.SendMessage("Your prompt is now configured to be " +
+					(ConfigLongPrompt ? "longer" : "shorter") + ".\r\n");
+			}
+			else
+			{
+				LocalConnection.SendMessage("Just type \"config\" and a setting below.\r\n");
+				LocalConnection.SendMessage("     \"prompt\" to switch between a long and short prompt.\r\n");
+			}
+		}
+
 		private void Debug(string inputObject)
 		{
 			if (!IsAdmin)

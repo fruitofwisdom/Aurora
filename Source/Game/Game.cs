@@ -117,8 +117,10 @@ namespace Aurora
 		{
 			lock (SaveLock)
 			{
+				JsonSerializerOptions options = new();
 #if DEBUG
-				var options = new JsonSerializerOptions { WriteIndented = true };
+				// For the sake of debugging, keep our JSON files readable.
+				options.WriteIndented = true;
 #endif
 				string jsonString = JsonSerializer.Serialize<List<Player>>(Players, options);
 				File.WriteAllText(PlayersFilename, jsonString);

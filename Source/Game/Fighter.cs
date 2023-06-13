@@ -8,7 +8,7 @@ namespace Aurora
 		// These fields are deserialized from JSON.
 		#region JSON-serialized public fields.
 		public int Level { get; set; } = 1;
-		public int CurrentHP { get; set; } = 10;
+		public int CurrentHP { get; set; } = 0;
 		public int MaxHP { get; set; } = 10;
 		public int BaseStrength { get; set; } = 1;
 		public int BaseDefense { get; set; } = 1;
@@ -30,7 +30,10 @@ namespace Aurora
 		{
 			base.Spawn();
 
-			CurrentHP = MaxHP;
+			if (CurrentHP == 0)
+			{
+				CurrentHP = MaxHP;
+			}
 		}
 
 		// Attempt to attack (hit and damage) a defender.
