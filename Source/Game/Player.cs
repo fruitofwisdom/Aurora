@@ -14,6 +14,7 @@ namespace Aurora
 		public List<Item> Inventory { get; set; }
 		public int XP { get; set; } = 0;
 		public int Gold { get; set; } = 0;
+		public bool ConfigLongPrompt { get; set; } = true;
 		#endregion
 
 		private Connection LocalConnection;
@@ -473,6 +474,9 @@ namespace Aurora
 				case "consider":
 					Consider(inputObject);
 					break;
+				case "config":
+					Config(inputObject);
+					break;
 				case "debug":
 					Debug(inputObject);
 					break;
@@ -516,19 +520,33 @@ namespace Aurora
 
 		private void PrintPrompt()
 		{
-			LocalConnection.SendMessage(ColorCodes.Color.Green, Level + " ");
-			// display the current HP in different colors based on how hurt we are
+			// print the current level
+			LocalConnection.SendMessage(ColorCodes.Color.Green,
+				(ConfigLongPrompt ? "Lvl: " : "") + Level + " ");
+			// and progress to the next level
+			if (Game.Instance.GetXPForLevel(Level + 1) > 0)
+			{
+				int xpPreviousLevel = Game.Instance.GetXPForLevel(Level);
+				int xpNextLevel = Game.Instance.GetXPForLevel(Level + 1);
+				double percentToNextLevel = (double)(XP - xpPreviousLevel) /
+					(xpNextLevel - xpPreviousLevel) * 100;
+				LocalConnection.SendMessage(ColorCodes.Color.Green, "(" + (int)percentToNextLevel + "%) ");
+			}
+			// print the current HP in different colors
 			if ((float)CurrentHP / MaxHP < 0.25)
 			{
-				LocalConnection.SendMessage(ColorCodes.Color.Red, CurrentHP + "/" + MaxHP);
+				LocalConnection.SendMessage(ColorCodes.Color.Red,
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
 			}
 			else if ((float)CurrentHP / MaxHP < 0.75)
 			{
-				LocalConnection.SendMessage(ColorCodes.Color.Yellow, CurrentHP + "/" + MaxHP);
+				LocalConnection.SendMessage(ColorCodes.Color.Yellow,
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
 			}
 			else
 			{
-				LocalConnection.SendMessage(CurrentHP + "/" + MaxHP);
+				LocalConnection.SendMessage(
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
 			}
 			LocalConnection.SendMessage("> ");
 		}
@@ -550,6 +568,7 @@ namespace Aurora
 				LocalConnection.SendMessage("     \"inventory\" or \"inv\" to list what you're carrying.\r\n");
 				LocalConnection.SendMessage("     \"take\" to pick something up.\r\n");
 				LocalConnection.SendMessage("     \"drop\" to drop something.\r\n");
+				LocalConnection.SendMessage("     \"config\" to change various settings.\r\n");
 			}
 			else if (inputObject == "combat")
 			{
