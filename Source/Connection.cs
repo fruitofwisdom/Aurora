@@ -23,6 +23,7 @@ namespace Aurora
 		public Thread ClientThread { get; private set; }
 
 		private DateTime TimeSinceInput;
+		private const int kTimeoutTime = 5;     // in minutes
 		private InputState LocalInputState = InputState.LoginName;
 		private int PasswordTries = 3;
 		
@@ -82,11 +83,12 @@ namespace Aurora
 						TimeSinceInput = DateTime.Now;
 					}
 
-					// time out after five minutes
-					if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(5))
+					// time out eventually
+					if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(kTimeoutTime))
 					{
-						ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " + (DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
-						Disconnect(false);
+						ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " +
+							(DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
+						Disconnect(true);
 					}
 
 					// this amount of sleep gives us fairly OK CPU usage
