@@ -60,7 +60,7 @@ namespace Aurora
 			}
 		}
 
-		private void PrintExits()
+		private void PrintExits(bool verbose = true)
 		{
 			List<(string, int, string)> exits = Game.Instance.GetRoomExits(CurrentRoomId);
 
@@ -68,7 +68,7 @@ namespace Aurora
 			{
 				LocalConnection.SendMessage("You see no obvious exits.\r\n");
 			}
-			else
+			else if (verbose)
 			{
 				LocalConnection.SendMessage("Obvious exits are:\r\n");
 				foreach ((string, int, string) exit in exits)
@@ -76,6 +76,15 @@ namespace Aurora
 					string direction = char.ToUpper(exit.Item1[0]) + exit.Item1[1..];
 					LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
 				}
+			}
+			else
+			{
+				List<string> exitDirections = new();
+				for (int i = 0; i < exits.Count; ++i)
+				{
+					exitDirections.Add(exits[i].Item1);
+				}
+				LocalConnection.SendMessage("Obvious exits are " + GetPrettyList(exitDirections) + ".\r\n");
 			}
 		}
 

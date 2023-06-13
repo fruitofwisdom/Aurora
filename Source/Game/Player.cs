@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Navigation;
 
 namespace Aurora
 {
@@ -253,6 +254,21 @@ namespace Aurora
 		public void Message(string message)
 		{
 			LocalConnection.SendMessage(message);
+		}
+
+		// Returns a nicely formatted string of items. For example, "north, south, and down".
+		private static string GetPrettyList(List<string> items)
+		{
+			string prettyList = "";
+			for (int i = 0; i < items.Count; ++i)
+			{
+				prettyList +=
+					(items.Count == 2 && i > 0 ? " and " : "") +
+					(items.Count > 2 && i > 0 ? ", " : "") +
+					(items.Count > 2 && i == items.Count - 1 ? "and " : "") +
+					items[i];
+			}
+			return prettyList;
 		}
 
 		// Is a word one of the ten most commonly used prepositions?
@@ -510,6 +526,7 @@ namespace Aurora
 				LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
 				DescriptionNeeded = false;
 			}
+			PrintExits(false);
 			string roomContents = Game.Instance.GetRoomContents(this);
 			if (roomContents != "")
 			{
