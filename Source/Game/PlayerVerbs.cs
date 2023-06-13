@@ -488,23 +488,30 @@ namespace Aurora
 		{
 			bool needToPrintRoom = true;
 
-			GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
-			if (target != null && target is Fighter)
+			if (inputObject != null)
 			{
-				Target = target as Fighter;
-				LastAttackTime = DateTime.MinValue;
+				GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				if (target != null && target is Fighter)
+				{
+					Target = target as Fighter;
+					LastAttackTime = DateTime.MinValue;
 
-				LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
+					LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
+					ServerInfo.Instance.Report(
+						ColorCodes.Color.Yellow,
+						"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
 
-				// Now that combat has started, no need to print the room right away.
-				needToPrintRoom = false;
+					// Now that combat has started, no need to print the room right away.
+					needToPrintRoom = false;
+				}
+				else
+				{
+					LocalConnection.SendMessage("You can't attack that.\r\n");
+				}
 			}
 			else
 			{
-				LocalConnection.SendMessage("You can't attack that.\r\n");
+				LocalConnection.SendMessage("What do you want to attack?\r\n");
 			}
 
 			return needToPrintRoom;
