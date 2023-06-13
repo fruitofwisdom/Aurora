@@ -65,10 +65,6 @@ namespace Aurora
 				}
 				foreach (Target targetToRemove in targetsToRemove)
 				{
-					ServerInfo.Instance.Report(
-						ColorCodes.Color.Yellow,
-						"[Enemy] " + DebugName() + " is removing " +
-						targetToRemove.Attacker.DebugName() + " as a target.\n");
 					Targets.Remove(targetToRemove);
 				}
 
@@ -96,10 +92,6 @@ namespace Aurora
 			if (newAttacker)
 			{
 				Targets.Add(new Target(attacker as Player, kAggroAmount));
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Enemy] " + DebugName() + " is adding " +
-					attacker.DebugName() + " as a target.\n");
 			}
 
 			base.TakeDamage(attacker, didHit, damage);
