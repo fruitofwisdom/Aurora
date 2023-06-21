@@ -37,11 +37,6 @@ namespace Aurora
 
 		public virtual void Despawn() { }
 
-		public string CapitalizeName()
-		{
-			return char.ToUpper(Name[0]) + Name[1..];
-		}
-
 		public string DebugName()
 		{
 			return "\"" + Name + "\"(" + ObjectId + ")";
@@ -49,7 +44,7 @@ namespace Aurora
 
 		public string IndefiniteName()
 		{
-			string article = "a";
+			string article = "a ";
 			if (Name[0] == 'A' || Name[0] == 'a' ||
 				Name[0] == 'E' || Name[0] == 'e' ||
 				Name[0] == 'I' || Name[0] == 'i' ||
@@ -57,7 +52,7 @@ namespace Aurora
 				Name[0] == 'U' || Name[0] == 'u' ||
 				Name[0] == 'H' || Name[0] == 'h')
 			{
-				article = "an";
+				article = "an ";
 			}
 			return article + Name;
 		}
@@ -75,17 +70,20 @@ namespace Aurora
 		{
 			T bestMatch = null;
 
-			// Split all the names into a HashSet and then compare how many words are in common.
-			HashSet<string> searchNameHashSet = searchName.ToLower().Split(' ').ToHashSet<string>();
-			int bestIntersectCount = 0;
-			foreach (T gameObject in gameObjects)
+			if (searchName != null)
 			{
-				HashSet<string> objectNameHashSet = gameObject.Name.ToLower().Split(' ').ToHashSet<string>();
-				int intersectCount = objectNameHashSet.Intersect(searchNameHashSet).Count();
-				if (intersectCount > bestIntersectCount)
+				// Split all the names into a HashSet and then compare how many words are in common.
+				HashSet<string> searchNameHashSet = searchName.ToLower().Split(' ').ToHashSet<string>();
+				int bestIntersectCount = 0;
+				foreach (T gameObject in gameObjects)
 				{
-					bestMatch = gameObject;
-					bestIntersectCount = intersectCount;
+					HashSet<string> objectNameHashSet = gameObject.Name.ToLower().Split(' ').ToHashSet<string>();
+					int intersectCount = objectNameHashSet.Intersect(searchNameHashSet).Count();
+					if (intersectCount > bestIntersectCount)
+					{
+						bestMatch = gameObject;
+						bestIntersectCount = intersectCount;
+					}
 				}
 			}
 

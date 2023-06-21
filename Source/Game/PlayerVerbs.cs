@@ -60,7 +60,7 @@ namespace Aurora
 			}
 		}
 
-		private void PrintExits()
+		private void PrintExits(bool verbose = true)
 		{
 			List<(string, int, string)> exits = Game.Instance.GetRoomExits(CurrentRoomId);
 
@@ -68,13 +68,33 @@ namespace Aurora
 			{
 				LocalConnection.SendMessage("You see no obvious exits.\r\n");
 			}
-			else
+			else if (verbose)
 			{
 				LocalConnection.SendMessage("Obvious exits are:\r\n");
 				foreach ((string, int, string) exit in exits)
 				{
 					string direction = char.ToUpper(exit.Item1[0]) + exit.Item1[1..];
 					LocalConnection.SendMessage("     " + direction + " leads to " + exit.Item3 + ".\r\n");
+				}
+			}
+			else
+			{
+				List<string> exitDirections = new();
+				for (int i = 0; i < exits.Count; ++i)
+				{
+					exitDirections.Add(exits[i].Item1);
+				}
+				if (exitDirections.Count == 0)
+				{
+					LocalConnection.SendMessage("There are no obvious exits.\r\n");
+				}
+				else if (exitDirections.Count == 1)
+				{
+					LocalConnection.SendMessage("The obvious exit is " + exitDirections[0] + ".\r\n");
+				}
+				else
+				{
+					LocalConnection.SendMessage("Obvious exits are " + Utilities.GetPrettyList(exitDirections) + ".\r\n");
 				}
 			}
 		}
@@ -156,7 +176,7 @@ namespace Aurora
 			NPC npc = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as NPC;
 			if (npc != null && npc.Talk != null)
 			{
-				LocalConnection.SendMessage(npc.CapitalizeName() + " says: \"" + npc.Talk + "\"\r\n");
+				LocalConnection.SendMessage(Utilities.Capitalize(npc.Name) + " says: \"" + npc.Talk + "\"\r\n");
 			}
 			else
 			{
@@ -174,7 +194,7 @@ namespace Aurora
 					LocalConnection.SendMessage("They have for sale:\r\n");
 					foreach (Item item in vendor.VendorList)
 					{
-						LocalConnection.SendMessage("     " + item.CapitalizeName() + " for " +
+						LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + " for " +
 							item.Cost + " " + Game.Instance.Currency + "\r\n");
 					}
 				}
@@ -315,7 +335,7 @@ namespace Aurora
 				LocalConnection.SendMessage("You have equipped:\r\n");
 				foreach (Item item in Equipment)
 				{
-					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
+					LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + "\r\n");
 				}
 			}
 
@@ -328,7 +348,7 @@ namespace Aurora
 				LocalConnection.SendMessage("You are carrying:\r\n");
 				foreach (Item item in Inventory)
 				{
-					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
+					LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + "\r\n");
 				}
 				if (Gold > 0)
 				{
@@ -488,23 +508,30 @@ namespace Aurora
 		{
 			bool needToPrintRoom = true;
 
-			GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
-			if (target != null && target is Fighter)
+			if (inputObject != null)
 			{
-				Target = target as Fighter;
-				LastAttackTime = DateTime.MinValue;
+				GameObject target = Game.Instance.GetGameObject(inputObject, CurrentRoomId);
+				if (target != null && target is Fighter)
+				{
+					Target = target as Fighter;
+					LastAttackTime = DateTime.MinValue;
 
-				LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
-				ServerInfo.Instance.Report(
-					ColorCodes.Color.Yellow,
-					"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
+					LocalConnection.SendMessage("You start attacking the " + target.Name + "!\r\n");
+					ServerInfo.Instance.Report(
+						ColorCodes.Color.Yellow,
+						"[Player] Player " + DebugName() + " is attacking " + target.DebugName() + ".\n");
 
-				// Now that combat has started, no need to print the room right away.
-				needToPrintRoom = false;
+					// Now that combat has started, no need to print the room right away.
+					needToPrintRoom = false;
+				}
+				else
+				{
+					LocalConnection.SendMessage("You can't attack that.\r\n");
+				}
 			}
 			else
 			{
-				LocalConnection.SendMessage("You can't attack that.\r\n");
+				LocalConnection.SendMessage("What do you want to attack?\r\n");
 			}
 
 			return needToPrintRoom;

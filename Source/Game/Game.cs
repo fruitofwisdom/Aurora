@@ -225,7 +225,8 @@ namespace Aurora
 					{
 						if (player.CurrentRoomId == newGameObject.CurrentRoomId)
 						{
-							player.Message(newGameObject.CapitalizeName() + " has appeared.\r\n");
+							player.Message(Utilities.Capitalize(newGameObject.IndefiniteName()) +
+								" has appeared.\r\n");
 						}
 					}
 				}
@@ -328,20 +329,42 @@ namespace Aurora
 		{
 			string roomContents = "";
 
-			// Report all the players in a room first.
+			// List all the players in the room.
 			List<Player> playersInRoom = GetPlayersInRoom(player.CurrentRoomId);
+			List<string> playerNames = new();
 			foreach (Player otherPlayer in playersInRoom)
 			{
 				if (otherPlayer != player)
 				{
-					roomContents += otherPlayer.Name + " is here.\r\n";
+					playerNames.Add(otherPlayer.Name);
 				}
 			}
-			// Then all the world objects in a room.
+
+			// Then all the world objects.
 			List<GameObject> worldObjectsInRoom = GetWorldObjectsInRoom(player.CurrentRoomId);
+			List<string> worldObjectNames = new();
 			foreach (GameObject worldObject in worldObjectsInRoom)
 			{
-				roomContents += worldObject.CapitalizeName() + " is here.\r\n";
+				if (worldObject is Enemy)
+				{
+					worldObjectNames.Add(worldObject.IndefiniteName());
+				}
+				else
+				{
+					worldObjectNames.Add(worldObject.Name);
+				}
+			}
+
+			if (playerNames.Count > 0)
+			{
+				roomContents += Utilities.GetPrettyList(playerNames);
+				roomContents += playerNames.Count > 1 ? " are here." : " is here.";
+				roomContents += worldObjectNames.Count > 0 ? " " : "\r\n";
+			}
+			if (worldObjectNames.Count > 0)
+			{
+				roomContents += Utilities.Capitalize(Utilities.GetPrettyList(worldObjectNames));
+				roomContents += worldObjectNames.Count > 1 ? " are here.\r\n" : " is here.\r\n";
 			}
 
 			return roomContents;
@@ -508,11 +531,11 @@ namespace Aurora
 			{
 				if (player.CurrentRoomId == fromRoomId)
 				{
-					player.Message(mobile.CapitalizeName() + " has left.\r\n");
+					player.Message(Utilities.Capitalize(mobile.Name) + " has left.\r\n");
 				}
 				else if (player.CurrentRoomId == toRoomId)
 				{
-					player.Message(mobile.CapitalizeName() + " has arrived.\r\n");
+					player.Message(Utilities.Capitalize(mobile.Name) + " has arrived.\r\n");
 				}
 			}
 		}
@@ -523,7 +546,7 @@ namespace Aurora
 			{
 				if (player.CurrentRoomId == npc.CurrentRoomId)
 				{
-					player.Message(npc.CapitalizeName() + " " + action + ".\r\n");
+					player.Message(Utilities.Capitalize(npc.Name) + " " + action + ".\r\n");
 				}
 			}
 		}
@@ -534,7 +557,7 @@ namespace Aurora
 			{
 				if (player.CurrentRoomId == npc.CurrentRoomId)
 				{
-					player.Message(npc.CapitalizeName() + " says, \"" + speech + "\"\r\n");
+					player.Message(Utilities.Capitalize(npc.Name) + " says, \"" + speech + "\"\r\n");
 				}
 			}
 		}

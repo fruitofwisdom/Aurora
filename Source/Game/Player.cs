@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Navigation;
 
 namespace Aurora
 {
@@ -84,6 +85,7 @@ namespace Aurora
 						CurrentHP = MaxHP;
 						LocalConnection.SendMessage("You feel fully recovered.\r\n");
 						PrintPrompt();
+						LastDamageTime = eventTime;
 					}
 					else if (RegenJustStarted)
 					{
@@ -100,12 +102,12 @@ namespace Aurora
 		{
 			if (didHit)
 			{
-				PrintPrompt();
+				PrintCombatPrompt();
 				LocalConnection.SendMessage("You hit the " + defender.Name + " for " + damage + " damage!\r\n");
 			}
 			else
 			{
-				PrintPrompt();
+				PrintCombatPrompt();
 				LocalConnection.SendMessage("Your attack misses the " + defender.Name + "!\r\n");
 			}
 
@@ -119,12 +121,12 @@ namespace Aurora
 				// NOTE: Take damage here (and not in base.TakeDamage) so the new HP are reflected
 				// in the prompt.
 				CurrentHP -= damage;
-				PrintPrompt();
+				PrintCombatPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + " hits you for " + damage + " damage!\r\n");
 			}
 			else
 			{
-				PrintPrompt();
+				PrintCombatPrompt();
 				LocalConnection.SendMessage("The " + attacker.Name + "'s attack misses you!\r\n");
 			}
 
@@ -254,14 +256,6 @@ namespace Aurora
 			LocalConnection.SendMessage(message);
 		}
 
-		// Is a word one of the ten most commonly used prepositions?
-		private static bool IsPreposition(string word)
-		{
-			List<string> prepositions = new()
-				{ "of", "with", "at", "from", "into", "to", "in", "for", "on", "by" };
-			return prepositions.Contains(word);
-		}
-
 		// Combines the input into an object, removing any article at the front. For example,
 		// ["the", "fat", "baker"] becomes "fat baker".
 		private static string GetObjectFromInput(string[] input, int index)
@@ -300,7 +294,7 @@ namespace Aurora
 			if (words.Length > 1)
 			{
 				// The next word may be a preposition.
-				if (IsPreposition(words[1]))
+				if (Utilities.IsPreposition(words[1]))
 				{
 					inputPreposition = words[1];
 
@@ -509,6 +503,7 @@ namespace Aurora
 				LocalConnection.SendMessage(Game.Instance.GetRoomDescription(CurrentRoomId) + "\r\n");
 				DescriptionNeeded = false;
 			}
+			PrintExits(false);
 			string roomContents = Game.Instance.GetRoomContents(this);
 			if (roomContents != "")
 			{
@@ -549,6 +544,29 @@ namespace Aurora
 					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
 			}
 			LocalConnection.SendMessage("> ");
+		}
+
+		// This special "prompt" is used to provide information during combat.
+		private void PrintCombatPrompt()
+		{
+			LocalConnection.SendMessage("(");
+			// print the current HP in different colors
+			if ((float)CurrentHP / MaxHP < 0.25)
+			{
+				LocalConnection.SendMessage(ColorCodes.Color.Red,
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
+			}
+			else if ((float)CurrentHP / MaxHP < 0.75)
+			{
+				LocalConnection.SendMessage(ColorCodes.Color.Yellow,
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
+			}
+			else
+			{
+				LocalConnection.SendMessage(
+					(ConfigLongPrompt ? "HP: " : "") + CurrentHP + "/" + MaxHP);
+			}
+			LocalConnection.SendMessage(") ");
 		}
 
 		private void PrintHelp(string inputObject)
