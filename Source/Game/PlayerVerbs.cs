@@ -84,7 +84,18 @@ namespace Aurora
 				{
 					exitDirections.Add(exits[i].Item1);
 				}
-				LocalConnection.SendMessage("Obvious exits are " + GetPrettyList(exitDirections) + ".\r\n");
+				if (exitDirections.Count == 0)
+				{
+					LocalConnection.SendMessage("There are no obvious exits.\r\n");
+				}
+				else if (exitDirections.Count == 1)
+				{
+					LocalConnection.SendMessage("The obvious exit is " + exitDirections[0] + ".\r\n");
+				}
+				else
+				{
+					LocalConnection.SendMessage("Obvious exits are " + Utilities.GetPrettyList(exitDirections) + ".\r\n");
+				}
 			}
 		}
 
@@ -165,7 +176,7 @@ namespace Aurora
 			NPC npc = Game.Instance.GetGameObject(inputObject, CurrentRoomId) as NPC;
 			if (npc != null && npc.Talk != null)
 			{
-				LocalConnection.SendMessage(npc.CapitalizeName() + " says: \"" + npc.Talk + "\"\r\n");
+				LocalConnection.SendMessage(Utilities.Capitalize(npc.Name) + " says: \"" + npc.Talk + "\"\r\n");
 			}
 			else
 			{
@@ -183,7 +194,7 @@ namespace Aurora
 					LocalConnection.SendMessage("They have for sale:\r\n");
 					foreach (Item item in vendor.VendorList)
 					{
-						LocalConnection.SendMessage("     " + item.CapitalizeName() + " for " +
+						LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + " for " +
 							item.Cost + " " + Game.Instance.Currency + "\r\n");
 					}
 				}
@@ -324,7 +335,7 @@ namespace Aurora
 				LocalConnection.SendMessage("You have equipped:\r\n");
 				foreach (Item item in Equipment)
 				{
-					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
+					LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + "\r\n");
 				}
 			}
 
@@ -337,7 +348,7 @@ namespace Aurora
 				LocalConnection.SendMessage("You are carrying:\r\n");
 				foreach (Item item in Inventory)
 				{
-					LocalConnection.SendMessage("     " + item.CapitalizeName() + "\r\n");
+					LocalConnection.SendMessage("     " + Utilities.Capitalize(item.Name) + "\r\n");
 				}
 				if (Gold > 0)
 				{

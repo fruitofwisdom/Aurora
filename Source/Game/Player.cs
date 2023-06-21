@@ -256,29 +256,6 @@ namespace Aurora
 			LocalConnection.SendMessage(message);
 		}
 
-		// Returns a nicely formatted string of items. For example, "north, south, and down".
-		private static string GetPrettyList(List<string> items)
-		{
-			string prettyList = "";
-			for (int i = 0; i < items.Count; ++i)
-			{
-				prettyList +=
-					(items.Count == 2 && i > 0 ? " and " : "") +
-					(items.Count > 2 && i > 0 ? ", " : "") +
-					(items.Count > 2 && i == items.Count - 1 ? "and " : "") +
-					items[i];
-			}
-			return prettyList;
-		}
-
-		// Is a word one of the ten most commonly used prepositions?
-		private static bool IsPreposition(string word)
-		{
-			List<string> prepositions = new()
-				{ "of", "with", "at", "from", "into", "to", "in", "for", "on", "by" };
-			return prepositions.Contains(word);
-		}
-
 		// Combines the input into an object, removing any article at the front. For example,
 		// ["the", "fat", "baker"] becomes "fat baker".
 		private static string GetObjectFromInput(string[] input, int index)
@@ -317,7 +294,7 @@ namespace Aurora
 			if (words.Length > 1)
 			{
 				// The next word may be a preposition.
-				if (IsPreposition(words[1]))
+				if (Utilities.IsPreposition(words[1]))
 				{
 					inputPreposition = words[1];
 

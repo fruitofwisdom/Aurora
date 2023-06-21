@@ -216,7 +216,7 @@
   },
   {
     "$type": "Item",
-    "Name": "road sign",
+    "Name": "a road sign",
     "CurrentRoomId": 18,
     "Description": "A recent, wooden sign has been posted here.",
     "Heavy": true,

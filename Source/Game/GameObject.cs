@@ -37,11 +37,6 @@ namespace Aurora
 
 		public virtual void Despawn() { }
 
-		public string CapitalizeName()
-		{
-			return char.ToUpper(Name[0]) + Name[1..];
-		}
-
 		public string DebugName()
 		{
 			return "\"" + Name + "\"(" + ObjectId + ")";
@@ -49,7 +44,7 @@ namespace Aurora
 
 		public string IndefiniteName()
 		{
-			string article = "a";
+			string article = "a ";
 			if (Name[0] == 'A' || Name[0] == 'a' ||
 				Name[0] == 'E' || Name[0] == 'e' ||
 				Name[0] == 'I' || Name[0] == 'i' ||
@@ -57,7 +52,7 @@ namespace Aurora
 				Name[0] == 'U' || Name[0] == 'u' ||
 				Name[0] == 'H' || Name[0] == 'h')
 			{
-				article = "an";
+				article = "an ";
 			}
 			return article + Name;
 		}
