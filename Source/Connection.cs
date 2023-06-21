@@ -80,11 +80,10 @@ namespace Aurora
 						byte[] bytes = new byte[256];
 						int count = stream.Read(bytes, 0, bytes.Length);
 						ParseInput(System.Text.Encoding.ASCII.GetString(bytes, 0, count));
-						TimeSinceInput = DateTime.Now;
 					}
 
 					// time out eventually
-					if (DateTime.Now - TimeSinceInput > TimeSpan.FromMinutes(kTimeoutTime))
+					if ((DateTime.Now - TimeSinceInput).Minutes >= kTimeoutTime)
 					{
 						ServerInfo.Instance.Report("[Connection] Client (" + ClientID + ") timed out after " +
 							(DateTime.Now - TimeSinceInput).Minutes + " minutes.\n");
@@ -177,6 +176,8 @@ namespace Aurora
 					LocalPlayer.HandleInput(input);
 					break;
 			}
+
+			TimeSinceInput = DateTime.Now;
 		}
 
 		private void HandleLoginName(string name)
