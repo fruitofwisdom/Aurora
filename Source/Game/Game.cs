@@ -374,12 +374,11 @@ namespace Aurora
 		// adjoining room's name.
 		public List<(string, int, string)> GetRoomExits(int roomId)
 		{
-			List<(string, int, string)> exits = null;
+			List<(string, int, string)> exits = new();
 
 			Room room = GetRoom(roomId);
-			if (room != null)
+			if (room != null && room.Exits != null)
 			{
-				exits = new();
 				foreach (Exit exit in room.Exits)
 				{
 					exits.Add((exit.Direction, exit.RoomId, GetRoomName(exit.RoomId)));
