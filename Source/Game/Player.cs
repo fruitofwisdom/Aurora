@@ -407,6 +407,9 @@ namespace Aurora
 				case "exits":
 					PrintExits();
 					break;
+				case "map":
+					PrintMap();
+					break;
 				case "who":
 					PrintWho();
 					break;
@@ -622,6 +625,7 @@ namespace Aurora
 				LocalConnection.SendMessage("     \"look at\" to look at something near you.\r\n");
 				LocalConnection.SendMessage("     \"north\", \"n\", \"south\", \"in\", etc to move around the environment.\r\n");
 				LocalConnection.SendMessage("     \"exits\" to see obvious exits.\r\n");
+				LocalConnection.SendMessage("     \"map\" to see a map of your immediate surroundings.\r\n");
 				LocalConnection.SendMessage("     \"!\" to repeat your last command.\r\n");
 				if (IsAdmin)
 				{

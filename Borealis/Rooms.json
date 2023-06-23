@@ -50,7 +50,7 @@
     "Exits": [
       {
         "Direction": "north",
-        "RoomId": 5
+        "RoomId": 34
       },
       {
         "Direction": "east",
@@ -77,7 +77,7 @@
       },
       {
         "Direction": "south",
-        "RoomId": 4
+        "RoomId": 34
       },
       {
         "Direction": "west",
@@ -175,7 +175,7 @@
     "Exits": [
       {
         "Direction": "north",
-        "RoomId": 14
+        "RoomId": 35
       },
       {
         "Direction": "east",
@@ -236,7 +236,7 @@
     "Exits": [
       {
         "Direction": "south",
-        "RoomId": 11
+        "RoomId": 35
       },
       {
         "Direction": "west",
@@ -526,6 +526,51 @@
       {
         "Direction": "out",
         "RoomId": 11
+      }
+    ]
+  },
+  {
+    "RoomId": 34,
+    "Name": "Busy Thoroughfare",
+    "Description": "The road slopes down to the waterfront and up to the city square. To the north you can begin to see the water of the harbor and to the south you can barely make out the top of the cathedral. Merchants, fishermen, and travelers of all sorts make their way along this street.",
+    "Exits": [
+      {
+        "Direction": "north",
+        "RoomId": 5
+      },
+      {
+        "Direction": "south",
+        "RoomId": 4
+      }
+    ]
+  },
+  {
+    "RoomId": 35,
+    "Name": "Quiet Lane",
+    "Description": "This quiet path along the outskirts of the city has only the occasional traveler. The breeze off the harbor is refreshing and the break from the noises of the city allow you some calm. To the east you can make out a garden, built to give the residents a chance to relax.",
+    "Exits": [
+      {
+        "Direction": "north",
+        "RoomId": 14
+      },
+      {
+        "Direction": "east",
+        "RoomId": 36
+      },
+      {
+        "Direction": "south",
+        "RoomId": 11
+      }
+    ]
+  },
+  {
+    "RoomId": 36,
+    "Name": "Peaceful Garden",
+    "Description": "This garden is practically empty, with only a few people resting on the benches surrouding it by its outside, low brick wall. Manicured bushes and flowers of every color are arranged around stone walking paths, trelisses, and a quietly burbling marble fountain in the middle.",
+    "Exits": [
+      {
+        "Direction": "west",
+        "RoomId": 35
       }
     ]
   }
