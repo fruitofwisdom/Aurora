@@ -99,6 +99,17 @@ namespace Aurora
 			}
 		}
 
+		private void PrintMap()
+		{
+			LocalConnection.SendMessage("Here is what you can see of your surroundings:\r\n");
+			Map map = new(CurrentRoomId);
+			List<string> mapString = map.Print(CurrentRoomId);
+			foreach (string mapRow in mapString)
+			{
+				LocalConnection.SendMessage(mapRow);
+			}
+		}
+
 		private void PrintWho()
 		{
 			if (Game.Instance.GetPlayerCount() == 1)

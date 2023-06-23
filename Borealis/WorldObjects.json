@@ -17,7 +17,7 @@
     "Name": "the town crier",
     "CurrentRoomId": 4,
     "Description": "The town crier travels around town, delivering news to citizens he meets.",
-    "RoomList": [ 3, 4, 5, 6, 7, 8, 9 ],
+    "RoomList": [ 3, 4, 5, 6, 7, 8, 9, 34 ],
     "Logic": [
       {
         "Chance": 50,
@@ -381,5 +381,11 @@
     "CurrentRoomId": 33,
     "Description": "a cheerful, burly man with a bushy beard and warm smile",
     "Talk": "Welcome to The Fearful Fox! Sit down and have yourself a rest!"
+  },
+  {
+    "$type": "NPC",
+    "Name": "a golden butterfly",
+    "CurrentRoomId": 36,
+    "Description": "a gold-winged butterfly, flitting among the flowers"
   }
 ]
