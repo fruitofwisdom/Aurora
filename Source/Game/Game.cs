@@ -16,6 +16,7 @@ namespace Aurora
 		public string PlayersFilename { get; set; }
 		public string RoomsFilename { get; set; }
 		public string WorldObjectsFilename { get; set; }
+		public string ClassesFilename { get; set; }
 		// Where players initially spawn from and respawn to.
 		public int StartingRoomId { get; set; }
 		// All new players are cloned from this initial player.
@@ -36,6 +37,7 @@ namespace Aurora
 		private List<Player> Players;
 		private List<Room> Rooms;
 		private List<GameObject> WorldObjects;
+		private List<Class> Classes;
 
 		// This list is just players who are currently active.
 		private readonly List<Player> ActivePlayers;
@@ -60,10 +62,12 @@ namespace Aurora
 		public Game()
 		{
 			Name = "Unknown Game";
+			InitialPlayer = null;
+
 			Players = new List<Player>();
 			Rooms = new List<Room>();
 			WorldObjects = new List<GameObject>();
-			InitialPlayer = null;
+			Classes = new List<Class>();
 
 			ActivePlayers = new List<Player>();
 
@@ -110,6 +114,9 @@ namespace Aurora
 				gameObject.Spawn();
 			}
 
+			jsonString = File.ReadAllText(ClassesFilename);
+			Classes = JsonSerializer.Deserialize<List<Class>>(jsonString);
+
 			SaveTimer.Start();
 		}
 
@@ -140,6 +147,7 @@ namespace Aurora
 		public Player CreatePlayer(string name, string password, string salt)
 		{
 			Player newPlayer = GameObject.Clone<Player>(InitialPlayer);
+			// TODO: Initialize new players a cleaner way?
 			newPlayer.Name = name;
 			newPlayer.Password = password;
 			newPlayer.Salt = salt;
@@ -225,8 +233,8 @@ namespace Aurora
 					{
 						if (player.CurrentRoomId == newGameObject.CurrentRoomId)
 						{
-							player.Message(Utilities.Capitalize(newGameObject.IndefiniteName()) +
-								" has appeared.\r\n");
+							string indefiniteName = Utilities.IndefiniteName(newGameObject.Name);
+							player.Message(Utilities.Capitalize(indefiniteName) + " has appeared.\r\n");
 						}
 					}
 				}
@@ -347,7 +355,7 @@ namespace Aurora
 			{
 				if (worldObject is Enemy)
 				{
-					worldObjectNames.Add(worldObject.IndefiniteName());
+					worldObjectNames.Add(Utilities.IndefiniteName(worldObject.Name));
 				}
 				else
 				{

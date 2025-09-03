@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Navigation;
 
 namespace Aurora
 {
@@ -15,6 +14,8 @@ namespace Aurora
 		public List<Item> Inventory { get; set; }
 		public int XP { get; set; } = 0;
 		public int Gold { get; set; } = 0;
+		public string Class { get; set; } = "";
+		public List<Ability> Abilities { get; set; }
 		public bool ConfigLongPrompt { get; set; } = true;
 		#endregion
 
@@ -39,9 +40,23 @@ namespace Aurora
 			Name = name;
 			CurrentRoomId = currentRoomId;
 			Description = "the player " + Name;
+
 			Password = password;
 			Salt = salt;
+			Equipment = new();
 			Inventory = new();
+			Abilities = new();
+		}
+
+		// Describe the player in detail.
+		public string Describe()
+		{
+			string description = Description;
+			if (Class != "")
+			{
+				description += ", " + Utilities.IndefiniteName(Utilities.Lowercase(Class));
+			}
+			return description;
 		}
 
 		protected override void Think(DateTime eventTime)

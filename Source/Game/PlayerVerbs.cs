@@ -26,32 +26,41 @@ namespace Aurora
 
 			if (gameObject != null)
 			{
-				string message = "";
-				if (wasEquipped)
+				// If it's a player, describe the player.
+				Player player = gameObject as Player;
+				Item item = gameObject as Item;
+				if (player != null)
 				{
-					message += "(equipped) ";
+					LocalConnection.SendMessage("You see " + player.Describe() + ".\r\n");
 				}
-				if (wasInInventory)
+				// If it's an item, describe its properties.
+				else if (item != null)
 				{
-					message += "(in your inventory) ";
+					string message = "";
+					if (wasEquipped)
+					{
+						message += "(equipped) ";
+					}
+					if (wasInInventory)
+					{
+						message += "(in your inventory) ";
+					}
+					message += "You see " + item.Description + ".\r\n";
+					LocalConnection.SendMessage(message);
+					LocalConnection.SendMessage(item.Describe());
 				}
-				// If a description has a period at the end, treat it as its own sentence.
-				if (gameObject.Description[^1] == '.')
-				{
-					message += gameObject.Description + "\r\n";
-				}
-				// Otherwise, describe the object succinctly.
 				else
 				{
-					message += "You see " + gameObject.Description + ".\r\n";
-				}
-				LocalConnection.SendMessage(message);
-
-				// If it's an item, describe its properties.
-				Item item = gameObject as Item;
-				if (item != null)
-				{
-					LocalConnection.SendMessage(item.Describe());
+					// If a description has a period at the end, treat it as its own sentence.
+					if (gameObject.Description[^1] == '.')
+					{
+						LocalConnection.SendMessage(gameObject.Description + "\r\n");
+					}
+					// Otherwise, describe the object succinctly.
+					else
+					{
+						LocalConnection.SendMessage("You see " + gameObject.Description + ".\r\n");
+					}
 				}
 			}
 			else
@@ -330,6 +339,7 @@ namespace Aurora
 					" experience points for the next level.\r\n");
 			}
 			LocalConnection.SendMessage("You have " + CurrentHP + " out of " + MaxHP + " hit points.\r\n");
+			LocalConnection.SendMessage("You are " + Utilities.IndefiniteName(Utilities.Lowercase(Class)) + ".\r\n");
 			LocalConnection.SendMessage("Your strength is " + Strength + ".\r\n");
 			LocalConnection.SendMessage("Your defense is " + Defense + ".\r\n");
 			LocalConnection.SendMessage("Your agility is " + Agility + ".\r\n");

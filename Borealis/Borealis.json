@@ -12,6 +12,7 @@
   "PlayersFilename": "Borealis/Players.json",
   "RoomsFilename": "Borealis/Rooms.json",
   "WorldObjectsFilename": "Borealis/WorldObjects.json",
+  "ClassesFilename": "Borealis/Classes.json",
   "StartingRoomId": 2,
   "InitialPlayer": {
     "Level": 1,
@@ -66,7 +67,8 @@
         "Read": "Thank you for playing Borealis! Here are some quick tips to get started. First, explore the city. You'll find two shops selling equipment and items as well as some easy enemies to practice on. Be alert when you head out - enemies will become tougher and you'll want some better equipment. Be especially careful in the woods and mountains as who knows what kind of creatures you may find! Keep playing and see if you can reach level 5!"
       }
     ],
-    "Gold": 100
+    "Gold": 100,
+    "Class": "Adventurer"
   },
   "XPNeededPerLevel": [
     0,

@@ -1,0 +1,27 @@
+﻿[
+  {
+    "Name": "Adventurer",
+    "Abilities": [
+      {
+        "Name": "Map",
+        "Description": "Map the area immediately around you.",
+        "APCost": 20
+      },
+      {
+        "Name": "Distract",
+        "Description": "Distract an enemy, interrupting their concentration.",
+        "APCost": 50
+      }
+    ]
+  },
+  {
+    "Name": "Hero",
+    "Abilities": [
+      {
+        "Name": "Rally",
+        "Description": "Your attacks are blessed, while your enemy's are cursed.",
+        "APCost": 70
+      }
+    ]
+  }
+]

@@ -28,6 +28,9 @@
     <None Update="Borealis\Borealis.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Borealis\Classes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Borealis\Players.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

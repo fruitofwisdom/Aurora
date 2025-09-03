@@ -42,21 +42,6 @@ namespace Aurora
 			return "\"" + Name + "\"(" + ObjectId + ")";
 		}
 
-		public string IndefiniteName()
-		{
-			string article = "a ";
-			if (Name[0] == 'A' || Name[0] == 'a' ||
-				Name[0] == 'E' || Name[0] == 'e' ||
-				Name[0] == 'I' || Name[0] == 'i' ||
-				Name[0] == 'O' || Name[0] == 'o' ||
-				Name[0] == 'U' || Name[0] == 'u' ||
-				Name[0] == 'H' || Name[0] == 'h')
-			{
-				article = "an ";
-			}
-			return article + Name;
-		}
-
 		// Create a new GameObject that is a clone (via-serialization) of the provided GameObject.
 		public static T Clone<T>(T gameObject) where T : GameObject
 		{

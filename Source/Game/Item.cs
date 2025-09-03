@@ -27,6 +27,7 @@
 		public string Read { get; set; }
 		#endregion
 
+		// Describe the item in detail.
 		public string Describe()
 		{
 			string description = "";
