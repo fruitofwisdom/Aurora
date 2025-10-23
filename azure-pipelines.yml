@@ -48,7 +48,7 @@ stages:
     displayName: 'Download to VM'
     workspace:
       clean: all
-    environment: 'Aurora.auroravm'
+    environment: 'Aurora.AuroraVM-Win11'
     dependsOn: 'Build'
     # TODO: No good way to run the server after the build is done.
     strategy:
